@@ -1,6 +1,6 @@
 # AXCL 使用手册
 
-[Web Preview](https://axcl-docs.readthedocs.io/zh/latest/)
+[Web Preview]((https://axcl-docs.readthedocs.io/zh-cn/latest/)
 
 ## 1. 项目背景
 
