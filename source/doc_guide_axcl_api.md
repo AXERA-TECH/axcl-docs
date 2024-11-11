@@ -6,6 +6,269 @@
 ## Runtime API
 使用 `Runtime API` 可以在宿主系统上调用 `NPU` 完成计算功能，其中 `Memory API` 可以分别在宿主和计算卡上申请释放内存空间，`Engine API` 可以完成模型初始化、`IO` 设置到推理的全部 `NPU` 功能。
 
+### Runtime API
+
+#### [axclInit](#axclInit)
+
+```c
+axclError axclInit(const char *config);
+```
+
+**使用说明**：
+
+系统初始化，用户需要在调用AXCL API之前调用此函数。
+
+**参数**：
+
+- `config [IN]`：指定json配置文件路径。用户可以通过json配置文件配置系统参数，目前支持日志级别，格式[参阅FAQ](https://github.com/AXERA-TECH/axcl-docs/wiki/0.FAQ#how-to-configure-runtime-log--level)。
+
+**限制**：
+
+和[`axclFinalize`](#axclFinalize)成对调用对系统清理。
+
+#### [axclFinailze](#axclFinalize)
+
+```c
+axclError axclFinalize();
+```
+
+**使用说明**：
+
+系统去初始化。
+
+**限制**：
+
+和[`axclInit`](#axclInit)成对调用。
+
+#### [axclrtGetVersion](#axclrtGetVersion)
+
+```c
+axclError axclrtGetVersion(int32_t *major, int32_t *minor, int32_t *patch);
+```
+
+**使用说明**：
+
+获取runtime版本号。
+
+**参数**：
+
+- `major [OUT]`：主版本号。
+- `minor[OUT]`：子版本号。
+- `patch [OUT]`：patch版本号。
+
+**限制**：
+
+无特别限制。
+
+#### [axclrtGetSocName](#axclrtGetSocName)
+
+```c
+const char *axclrtGetSocName();
+```
+
+**使用说明**：
+
+返回SOC名。
+
+**限制**：
+
+无特别限制。
+
+#### [axclrtSetDevice](#axclrtSetDevice)
+
+```c
+axclError axclrtSetDevice(int32_t deviceId);
+```
+
+**使用说明**：
+
+切换并激活设备。
+
+**参数**：
+
+- `deviceId [IN]`：设备ID。
+
+**限制**：
+
+- [`axclrtSetDevice`](#axclrtSetDevice)内部将创建一个默认的运行上下文，该默认上下文由系统在[`axclrtResetDevice`](#axclrtResetDevice)自动回收，不能调用[`axclrtDestroyContext`](#axclrtDestroyContext)显示回收。
+- 和[`axclrtResetDevice`](#axclrtResetDevice)成对使用。
+
+#### [axclrtResetDevice](#axclrtResetDevice)
+
+```c
+axclError axclrtResetDevice(int32_t deviceId);
+```
+
+**使用说明**：
+
+去激活设备。
+
+**参数**：
+
+- `deviceId [IN]`：设备ID。
+
+**限制**：
+
+和[`axclrtSetDevice`](#axclrtSetDevice)成对使用，系统将自动回收默认的上下文资源。
+
+#### [axclrtGetDevice](#axclrtGetDevice)
+
+```c
+axclError axclrtGetDevice(int32_t *deviceId);
+```
+
+**使用说明**：
+
+获取当前激活的设备ID。
+
+**参数**：
+
+- `deviceId [OUT]`：设备ID。
+
+**限制**：
+
+至少调用[`axclrtSetDevice`](#axclrtSetDevice)激活一个设备。
+
+#### [axclrtGetDeviceCount](#axclrtGetDeviceCount)
+
+```c
+axclError axclrtGetDeviceCount(uint32_t *count);
+```
+
+**使用说明**：
+
+获取连接的设备总个数。
+
+**参数**：
+
+- `count [OUT]`：设备个数。
+
+**限制**：
+
+无特别限制。
+
+#### [axclrtGetDeviceList](#axclrtGetDeviceList)
+
+```c
+axclError axclrtGetDeviceList(axclrtDeviceList *deviceList);
+```
+
+**使用说明**：
+
+获取全部连接的设备ID。
+
+**参数**：
+
+- `deviceList[OUT]`：全部连接的设备ID信息。
+
+**限制**：
+
+无特别限制。
+
+#### [axclrtSynchronizeDevice](#axclrtSynchronizeDevice)
+
+```c
+axclError axclrtSynchronizeDevice();
+```
+
+**使用说明**：
+
+同步执行当前设备的全部任务。
+
+**限制**：
+
+至少激活一个设备。
+
+#### [axclrtGetDeviceUtilizationRate](#axclrtGetDeviceUtilizationRate)
+
+```c
+axclError axclrtGetDeviceUtilizationRate(int32_t deviceId, axclrtUtilizationInfo *utilizationInfo);
+```
+
+**使用说明**：
+
+获取设备CPU、NPU和内存信息，**此接口暂未实现**。
+
+**限制**：
+
+需要先激活设备。
+
+#### [axclrtCreateContext](#axclrtCreateContext)
+
+```c
+axclError axclrtCreateContext(axclrtContext *context, int32_t deviceId);
+```
+
+**使用说明**：
+
+在指定设备创建运行上下文。
+
+**参数**：
+
+- `context [OUT]`：创建的上下文句柄。
+- `deviceId [IN]`：设备Id。
+
+**限制**：
+
+- 用户创建的子线程若需要调用AXCL API，需要调用此接口显示创建运行上下文。
+- 若deviceId设备未被激活，本接口内部将首先激活设备。
+- 与[`axclrtDestroyContext`](#axclrtDestroyContext)成对调用清理上下文资源。
+
+#### [axclrtDestroyContext](#axclrtDestroyContext)
+
+```c
+axclError axclrtDestroyContext(axclrtContext context);
+```
+
+**使用说明**：
+
+清理创建的运行上下文。
+
+**参数**：
+
+- `context [IN]`：创建的上下文句柄。
+
+**限制**：
+
+- 与[`axclrtCreateContext`](#axclrtCreateContext)成对调用清理显示创建的上下文资源。
+- 无法删除由[`axclrtSetDevice`](#axclrtSetDevice)内部创建的默认的运行上下文资源。
+
+#### [axclrtSetCurrentContext](#axclrtSetCurrentContext)
+
+```c
+axclError axclrtSetCurrentContext(axclrtContext context);
+```
+
+**使用说明**：
+
+显示设置当前显示的执行上下文。
+
+**参数**：
+
+- `context [IN]`：创建的上下文句柄。
+
+**限制**：
+
+- 多次调用本函数，则当前线程的上下文由最后一次调用的上下文为准。
+
+#### [axclrtGetCurrentContext](#axclrtGetCurrentContext)
+
+```c
+axclError axclrtGetCurrentContext(axclrtContext *context);
+```
+
+**使用说明**：
+
+获取当前的运行上下文句柄。
+
+**参数**：
+
+- `context [OUT]`：当前的上下文句柄。
+
+**限制**：
+
+- 当前线程需要执行[`axclrtSetCurrentContext`](#axclrtSetCurrentContext)或者[`axclrtCreateContext`](#axclrtCreateContext)设置或显示创建上下文后才能获取。
+
 ### Memory API
 
 
@@ -20,6 +283,7 @@ axclError axclrtEngineInit(axclrtEngineVNpuKind npuKind);
 此函数用于初始化 `Runtime Engine`。用户需要在使用 `Runtime Engine` 之前调用此函数。
 
 **参数**：
+
 - `npuKind [IN]`：指定要初始化的 `VNPU` 类型。
 
 **限制**：
