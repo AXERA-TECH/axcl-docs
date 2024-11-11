@@ -58,13 +58,20 @@ options:
 --json: axcl.json file path
 -i: mp4|.264|.265 file path
 --loop: loop to transcode local file until CTRL+C to quit
---dump: dump encoded nalu file path
+--dump: dump encoded nalu
 ```
 
+> [!NOTE]
+>
+> ./axcl_sample_transcode: error while loading shared libraries: libavcodec.so.58: cannot open shared object file: No such file or directory
+> if above error happens, please configure ffmpeg libraries into LD_LIBRARY_PATH.
+> As for x86_x64 OS:  *export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/axcl/ffmpeg*
+
 ### example
+
 ```bash
-# transcode input 1080P@30fps 264 to 1080P@30fps 265, save into ./transcode.265.dump.pidxxx file.
-./axcl_sample_transcode -i bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4  -d 129 --dump ./transcode.265
+# transcode input 1080P@30fps 264 to 1080P@30fps 265, save into /tmp/axcl/transcode.dump.pidxxx file.
+./axcl_sample_transcode -i bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4  -d 129 --dump /tmp/axcl/transcode.265
 [INFO ][                            main][  65]: ============== V2.16.0 sample started Nov  7 2024 16:40:05 pid 1623 ==============
 
 [WARN ][                            main][  85]: if enable dump, disable loop automatically
@@ -86,3 +93,16 @@ options:
 [INFO ][                            main][ 240]: total transcoded frames: 470
 [INFO ][                            main][ 241]: ============== V2.16.0 sample exited Nov  7 2024 16:40:05 pid 1623 ==============
 ```
+
+### launch_transcode.sh
+
+**launch_transcode.sh** supports to launch multi.(max. 16) axcl_sample_transcode and configure LD_LIBRARY_PATH automatically.
+
+```bash
+Usage:
+launch_transcode.sh 16 -i bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4  -d 3 --dump /tmp/axcl/transcode.265
+```
+
+> [!NOTE]
+>
+> The 1st argument must be the number of *axcl_sample_transcode* processes. range: [1, 16]

@@ -1,7 +1,5 @@
 ## 系统信息
 
-CentOS 9 镜像下载 [here](https://pan.baidu.com/s/19Sv60nAvJb97lSiYfv_39g?pwd=aa4g)
-
 ```bash
 [axera@localhost ~]$ uname -a
 Linux localhost.localdomain 5.14.0-522.el9.x86_64 #1 SMP PREEMPT_DYNAMIC Sun Oct 20 13:04:34 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
@@ -34,10 +32,10 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
 
 2. sudo yum install -y kernel-devel kernel-headers
 
-3. 修改grub文件添加reserved cma size
+3. 修改grub文件添加reserved cma size （转码卡建议256MB）
 
    ```bash
-   [axera@localhost ~]$ cat /etc/default/grub 
+   [axera@localhost ~]$ cat /etc/default/grub
    GRUB_TIMEOUT=5
    GRUB_DISTRIBUTOR="$(sed 's, release .*$,,g' /etc/system-release)"
    GRUB_DEFAULT=saved
@@ -101,8 +99,6 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
    sudo yum install -y rpm-build
    ```
 
-   
-
 7. 重启 reboot
 
 8. dmesg |  grep cma 查看CMA reserved是否成功
@@ -118,4 +114,125 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
 
    ![](https://github.com/AXERA-TECH/axcl-docs/blob/main/res/centos_dmsg_grep_cma.png)
 
+
+
 ## rpm安装
+
+rpm的安装分为2个步骤：将**src**.rpm源码编译成二进制的rpm，然后安装rpm。
+
+> [!IMPORTANT]
+>
+> 因安装后将自动加载设备固件，因此安装前请确认子卡已和主机正确连接。
+
+1. **rpm -Uvh axcl_host-V2.16.0_20241111020148-NO4430.src.rpm**
+
+   ```bash
+   [axera@localhost]$ rpm -Uvh axcl_host-V2.16.0_20241111020148-NO4430.src.rpm
+   Updating / installing...
+      1:axcl_host-V2.16.0_20241111020148-warning: user jenkins does not exist - using root
+   warning: group jenkins does not exist - using root
+   warning: user jenkins does not exist - using root
+   warning: group jenkins does not exist - using root
+   ################################# [100%]
+   ```
+
+2.  源码安装完之后，在/home/user目录可以找到rmpbuild目录（如果是sudo，目录在/root）
+
+   [axera@localhost ~]$ ls
+   Desktop  Documents  Downloads  jingxiaoping  mp4  Music  Pictures  Public  **rpmbuild**  Templates  Videos
+
+3. 构建二进制rpm安装包：**rpmbuild -bb --nodebuginfo rpmbuild/SPECS/axcl_host.spec**
+
+   ```
+   [axera@localhost rpmbuild]$ rpmbuild -bb --nodebuginfo SPECS/axcl_host.spec
+   warning: bogus date in %changelog: Thu Oct 30 2024 root <root@localhost> - 1.0-1
+   setting SOURCE_DATE_EPOCH=1730246400
+   Executing(%prep): /bin/sh -e /var/tmp/rpm-tmp.qShrCO
+   + umask 022
+   + cd /home/axera/rpmbuild/BUILD
+   + cd /home/axera/rpmbuild/BUILD
+   + rm -rf axcl
+   + /usr/bin/gzip -dc /home/axera/rpmbuild/SOURCES/axcl.tar.gz
+   + /usr/bin/tar -xof -
+   + STATUS=0
+   + '[' 0 -ne 0 ']'
+   + cd axcl
+   + /usr/bin/chmod -Rf a+rX,u+w,g-w,o-w .
+   ++ cat /etc/os-release
+   ++ grep '^VERSION_ID='
+   ++ cut -d = -f2
+   ++ tr -d '"'
+   + os_version=9
+   ++ cat /etc/os-release
+   ++ grep '^NAME='
+   ++ cut -d = -f2
+   ++ tr -d '"'
+   + os_name='CentOS Stream'
+   + [[ CentOS Stream == \C\e\n\t\O\S\ \S\t\r\e\a\m ]]
+   + [[ 9 == \9 ]]
+   + echo 'Apply patch for centos stream 9'
+   Apply patch for centos stream 9
+   + cd /home/axera/rpmbuild/BUILD/axcl/drv/pcie/driver
+   + patch -p3
+   patching file include/ax_pcie_dev.h
+   patching file net/rc-net/ax_pcie_net.c
+   + RPM_EC=0
+   ++ jobs -p
+   + exit 0
+   Executing(%build): /bin/sh -e /var/tmp/rpm-tmp.l1AJjV
+   + umask 022
+   + cd /home/axera/rpmbuild/BUILD
+   + cd axcl
+   + cd /home/axera/rpmbuild/BUILD/axcl/drv/pcie/driver
+   + make host=x86 clean all install -j8
+   + RPM_EC=0
+   ++ jobs -p
+   + exit 0
+   Executing(%install): /bin/sh -e /var/tmp/rpm-tmp.xiLHDC
+   ... ...
+   Checking for unpackaged file(s): /usr/lib/rpm/check-files /home/axera/rpmbuild/BUILDROOT/axcl_host-1.0-1.el9.x86_64
+   Wrote: /home/axera/rpmbuild/RPMS/x86_64/axcl_host-1.0-1.el9.x86_64.rpm
+   Executing(%clean): /bin/sh -e /var/tmp/rpm-tmp.a78fQ2
+   + umask 022
+   + cd /home/axera/rpmbuild/BUILD
+   + cd axcl
+   + /usr/bin/rm -rf /home/axera/rpmbuild/BUILDROOT/axcl_host-1.0-1.el9.x86_64
+   + RPM_EC=0
+   ++ jobs -p
+   + exit 0
+   ```
+
+4. 安装rpm：**sudo rpm -Uvh --nodeps rpmbuild/RPMS/x86_64/axcl_host-1.0-1.el9.x86_64.rpm**
+
+   ```
+   [axera@localhost rpmbuild]$ sudo rpm -Uvh --nodeps RPMS/x86_64/axcl_host-1.0-1.el9.x86_64.rpm
+   [sudo] password for axera:
+   Verifying...                          ################################# [100%]
+   Preparing...                          ################################# [100%]
+   Updating / installing...
+      1:axcl_host-1.0-1.el9              ################################# [100%]
+   [axera@localhost rpmbuild]$
+   ```
+
+5.  source /etc/profile
+
+   ```bash
+   [axera@localhost axcl]$ ls  /usr/lib/axcl/
+   ffmpeg                libaxcl_ive.so      libaxcl_npu.so          libaxcl_pkg.so     libaxcl_skel.debug   libaxcl_vdec.debug  libspdlog.so.1.14.1
+   libaxcl_comm.debug    libaxcl_ivps.debug  libaxcl_pcie_dma.debug  libaxcl_ppl.debug  libaxcl_skel.so      libaxcl_vdec.so
+   libaxcl_comm.so       libaxcl_ivps.so     libaxcl_pcie_dma.so     libaxcl_ppl.so     libaxcl_sys.debug    libaxcl_venc.debug
+   libaxcl_dmadim.debug  libaxcl_lite.debug  libaxcl_pcie_msg.debug  libaxcl_proto.a    libaxcl_sys.so       libaxcl_venc.so
+   libaxcl_dmadim.so     libaxcl_lite.so     libaxcl_pcie_msg.so     libaxcl_rt.debug   libaxcl_token.debug  libspdlog.so
+   libaxcl_ive.debug     libaxcl_npu.debug   libaxcl_pkg.debug       libaxcl_rt.so      libaxcl_token.so     libspdlog.so.1.14
+   [axera@localhost axcl]$ ls  /usr/bin/axcl/
+   axcl_demo       axcl_sample_dmadim  axcl_sample_ivps    axcl_sample_runtime  axcl_sample_sys        axcl_sample_vdec  axcl_smi  launch_transcode.sh
+   axcl_run_model  axcl_sample_ive     axcl_sample_memory  axcl_sample_skel     axcl_sample_transcode  axcl_sample_venc  data      ut
+   [axera@localhost axcl]$
+   ```
+
+## rpm卸载
+
+```bash
+sudo rpm -e axcl_host
+rpm包卸载后会自动reset子卡，子卡会进入pcie download mode
+```
