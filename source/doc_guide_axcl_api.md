@@ -8,7 +8,7 @@
 
 ### Runtime API
 
-#### [axclInit](#axclInit)
+#### [axclInit](#axclinit)
 
 ```c
 axclError axclInit(const char *config);
@@ -24,9 +24,9 @@ axclError axclInit(const char *config);
 
 **限制**：
 
-和 [`axclFinalize`](#axclFinalize) 成对调用对系统清理。
+和 [`axclFinalize`](#axclfinalize) 成对调用对系统清理。
 
-#### [axclFinailze](#axclFinalize)
+#### [axclFinailze](#axclfinalize)
 
 ```c
 axclError axclFinalize();
@@ -38,9 +38,9 @@ axclError axclFinalize();
 
 **限制**：
 
-和 [`axclInit`](#axclInit) 成对调用。
+和 [`axclInit`](#axclinit) 成对调用。
 
-#### [axclrtGetVersion](#axclrtGetVersion)
+#### [axclrtGetVersion](#axclrtgetversion)
 
 ```c
 axclError axclrtGetVersion(int32_t *major, int32_t *minor, int32_t *patch);
@@ -60,7 +60,7 @@ axclError axclrtGetVersion(int32_t *major, int32_t *minor, int32_t *patch);
 
 无特别限制。
 
-#### [axclrtGetSocName](#axclrtGetSocName)
+#### [axclrtGetSocName](#axclrtgetsocname)
 
 ```c
 const char *axclrtGetSocName();
@@ -74,7 +74,7 @@ const char *axclrtGetSocName();
 
 无特别限制。
 
-#### [axclrtSetDevice](#axclrtSetDevice)
+#### [axclrtSetDevice](#axclrtsetdevice)
 
 ```c
 axclError axclrtSetDevice(int32_t deviceId);
@@ -90,10 +90,10 @@ axclError axclrtSetDevice(int32_t deviceId);
 
 **限制**：
 
-- [`axclrtSetDevice`](#axclrtSetDevice) 内部将创建一个默认的运行上下文，该默认上下文由系统在 [`axclrtResetDevice`](#axclrtResetDevice) 自动回收，不能调用 [`axclrtDestroyContext`](#axclrtDestroyContext) 显示回收。
-- 和 [`axclrtResetDevice`](#axclrtResetDevice) 成对使用。
+- [`axclrtSetDevice`](#axclrtsetdevice) 内部将创建一个默认的运行上下文，该默认上下文由系统在 [`axclrtResetDevice`](#axclrtresetdevice) 自动回收，不能调用 [`axclrtDestroyContext`](#axclrtdestroycontext) 显示回收。
+- 和 [`axclrtResetDevice`](#axclrtresetdevice) 成对使用。
 
-#### [axclrtResetDevice](#axclrtResetDevice)
+#### [axclrtResetDevice](#axclrtresetdevice)
 
 ```c
 axclError axclrtResetDevice(int32_t deviceId);
@@ -109,9 +109,9 @@ axclError axclrtResetDevice(int32_t deviceId);
 
 **限制**：
 
-和 [`axclrtSetDevice`](#axclrtSetDevice) 成对使用，系统将自动回收默认的上下文资源。
+和 [`axclrtSetDevice`](#axclrtsetdevice) 成对使用，系统将自动回收默认的上下文资源。
 
-#### [axclrtGetDevice](#axclrtGetDevice)
+#### [axclrtGetDevice](#axclrtgetdevice)
 
 ```c
 axclError axclrtGetDevice(int32_t *deviceId);
@@ -127,9 +127,9 @@ axclError axclrtGetDevice(int32_t *deviceId);
 
 **限制**：
 
-至少调用 [`axclrtSetDevice`](#axclrtSetDevice) 激活一个设备。
+至少调用 [`axclrtSetDevice`](#axclrtsetdevice) 激活一个设备。
 
-#### [axclrtGetDeviceCount](#axclrtGetDeviceCount)
+#### [axclrtGetDeviceCount](#axclrtgetdevicecount)
 
 ```c
 axclError axclrtGetDeviceCount(uint32_t *count);
@@ -147,7 +147,7 @@ axclError axclrtGetDeviceCount(uint32_t *count);
 
 无特别限制。
 
-#### [axclrtGetDeviceList](#axclrtGetDeviceList)
+#### [axclrtGetDeviceList](#axclrtgetdevicelist)
 
 ```c
 axclError axclrtGetDeviceList(axclrtDeviceList *deviceList);
@@ -165,7 +165,7 @@ axclError axclrtGetDeviceList(axclrtDeviceList *deviceList);
 
 无特别限制。
 
-#### [axclrtSynchronizeDevice](#axclrtSynchronizeDevice)
+#### [axclrtSynchronizeDevice](#axclrtsynchronizedevice)
 
 ```c
 axclError axclrtSynchronizeDevice();
@@ -179,7 +179,7 @@ axclError axclrtSynchronizeDevice();
 
 至少激活一个设备。
 
-#### [axclrtGetDeviceUtilizationRate](#axclrtGetDeviceUtilizationRate)
+#### [axclrtGetDeviceUtilizationRate](#axclrtgetdeviceutilizationrate)
 
 ```c
 axclError axclrtGetDeviceUtilizationRate(int32_t deviceId, axclrtUtilizationInfo *utilizationInfo);
@@ -193,7 +193,7 @@ axclError axclrtGetDeviceUtilizationRate(int32_t deviceId, axclrtUtilizationInfo
 
 需要先激活设备。
 
-#### [axclrtCreateContext](#axclrtCreateContext)
+#### [axclrtCreateContext](#axclrtcreatecontext)
 
 ```c
 axclError axclrtCreateContext(axclrtContext *context, int32_t deviceId);
@@ -212,9 +212,9 @@ axclError axclrtCreateContext(axclrtContext *context, int32_t deviceId);
 
 - 用户创建的子线程若需要调用AXCL API，需要调用此接口显示创建运行上下文。
 - 若deviceId设备未被激活，本接口内部将首先激活设备。
-- 与 [`axclrtDestroyContext`](#axclrtDestroyContext) 成对调用清理上下文资源。
+- 与 [`axclrtDestroyContext`](#axclrtdestroycontext) 成对调用清理上下文资源。
 
-#### [axclrtDestroyContext](#axclrtDestroyContext)
+#### [axclrtDestroyContext](#axclrtdestroycontext)
 
 ```c
 axclError axclrtDestroyContext(axclrtContext context);
@@ -230,10 +230,10 @@ axclError axclrtDestroyContext(axclrtContext context);
 
 **限制**：
 
-- 与 [`axclrtCreateContext`](#axclrtCreateContext) 成对调用清理显示创建的上下文资源。
-- 无法删除由 [`axclrtSetDevice`](#axclrtSetDevice) 内部创建的默认的运行上下文资源。
+- 与 [`axclrtCreateContext`](#axclrtcreatecontext) 成对调用清理显示创建的上下文资源。
+- 无法删除由 [`axclrtSetDevice`](#axclrtsetdevice) 内部创建的默认的运行上下文资源。
 
-#### [axclrtSetCurrentContext](#axclrtSetCurrentContext)
+#### [axclrtSetCurrentContext](#axclrtsetcurrentcontext)
 
 ```c
 axclError axclrtSetCurrentContext(axclrtContext context);
@@ -251,7 +251,7 @@ axclError axclrtSetCurrentContext(axclrtContext context);
 
 - 多次调用本函数，则当前线程的上下文由最后一次调用的上下文为准。
 
-#### [axclrtGetCurrentContext](#axclrtGetCurrentContext)
+#### [axclrtGetCurrentContext](#axclrtgetcurrentcontext)
 
 ```c
 axclError axclrtGetCurrentContext(axclrtContext *context);
@@ -267,7 +267,7 @@ axclError axclrtGetCurrentContext(axclrtContext *context);
 
 **限制**：
 
-- 当前线程需要执行 [`axclrtSetCurrentContext`](#axclrtSetCurrentContext) 或者 [`axclrtCreateContext`](#axclrtCreateContext) 设置或显示创建上下文后才能获取。
+- 当前线程需要执行 [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext) 或者 [`axclrtCreateContext`](#axclrtcreatecontext) 设置或显示创建上下文后才能获取。
 
 ### Memory API
 
@@ -288,7 +288,7 @@ axclError axclrtEngineInit(axclrtEngineVNpuKind npuKind);
 
 **限制**：
 
-用户在使用完 `Runtime Engine` 后，需要调用 [`axclrtEngineFinalize`](#axclrtEngineFinalize) 来完成 `Runtime Engine` 的清理工作。
+用户在使用完 `Runtime Engine` 后，需要调用 [`axclrtEngineFinalize`](#axclrtenginefinalize) 来完成 `Runtime Engine` 的清理工作。
 
 ---
 
