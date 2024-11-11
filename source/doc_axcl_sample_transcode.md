@@ -58,7 +58,7 @@ options:
 --json: axcl.json file path
 -i: mp4|.264|.265 file path
 --loop: loop to transcode local file until CTRL+C to quit
---dump: dump encoded nalu
+--dump: dump encoded nalu to local file
 ```
 
 > [!NOTE]
