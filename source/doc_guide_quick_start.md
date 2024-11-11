@@ -361,6 +361,32 @@ int main(int argc, char* argv[]) {
 }
 ```
 
+以 [`imagenet`](https://image-net.org/) 数据集的 `imagenet_cat.jpg` 作为分类对象，`sample` 执行完了会有如下输出(注意，模型和输入图像要根据实际情况微调)：
+
+![](../res/imagenet_cat.jpg)
+
+```bash
+/root # /opt/bin/axcl/axcl_sample_classification -m /opt/data/npu/models/mobilenetv2.axmodel -i /opt/data/npu/images/cat.jpg
+axcl initializing...
+axcl inited.
+Select axcl device{index: 0} as {129}.
+axclrt Engine inited.
+--------------------------------------
+model file : /opt/data/npu/models/mobilenetv2.axmodel
+image file : /opt/data/npu/images/cat.jpg
+img height : 224
+img width  : 224
+--------------------------------------
+282:  9.8%,  tiger cat
+285:  9.8%,  Egyptian cat
+283:  9.5%,  Persian cat
+281:  9.4%,  tabby, tabby cat
+463:  7.5%,  bucket, pail
+--------------------------------------
+```
+
+可见菊猫 Top1 被分类为老虎猫；Top5 分类基本正确。
+
 ### 检测模型
 
 检测模型的示例代码含完整注释如下：
@@ -776,6 +802,68 @@ int main(int argc, char* argv[]) {
     return 0; // 正常结束程序
 }
 ```
+
+以 [`PASCAL VOC`](http://host.robots.ox.ac.uk/pascal/VOC/) 数据集的 voc_dog.jpg 作为检测对象，sample 执行完了会有如下输出(注意，模型和输入图像要根据实际情况微调)：
+
+![](../res/voc_dog.jpg)
+
+```bash
+/root # /opt/bin/axcl/axcl_sample_yolov5s -m yolov5s.axmodel -i voc_dog.jpg
+axcl initializing...
+axcl inited.
+Select axcl device{index: 0} as {129}.
+axclrt Engine inited.
+--------------------------------------
+model file : /opt/data/npu/models/yolov5s.axmodel
+image file : /opt/data/npu/images/dog.jpg
+img height : 640
+img width  : 640
+--------------------------------------
+post process cost time:1.86 ms
+--------------------------------------
+Repeat 1 times, avg time 8.02 ms, max_time 8.02 ms, min_time 8.02 ms
+--------------------------------------
+16:  91%, [ 138,  218,  310,  541], dog
+ 2:  69%, [ 470,   76,  690,  173], car
+ 1:  56%, [ 158,  120,  569,  420], bicycle
+```
+
+可见检测到了 3 个目标，并且给出了类别 `ID`、置信度和坐标。在 `sample` 执行的目录下，会保存一个名为 `yolov5s_out.jpg` 的检测结果，可以图片浏览器打开预览一下输出结果。
+
+![](../res/voc_dog_yolov5s_out.jpg)
+
+以 [`PASCAL VOC`](http://host.robots.ox.ac.uk/pascal/VOC/) 数据集的 voc_horse.jpg 作为检测对象，sample 执行完了会有如下输出(注意，模型和输入图像要根据实际情况微调)：
+
+![](../res/voc_horse.jpg)
+
+```bash
+/root # /opt/bin/axcl/axcl_sample_yolov5s -m yolov5s.axmodel -i voc_horse.jpg
+axcl initializing...
+axcl inited.
+Select axcl device{index: 0} as {129}.
+axclrt Engine inited.
+--------------------------------------
+model file : /opt/data/npu/models/yolov5s.axmodel
+image file : voc_horse.jpg
+img height : 640
+img width  : 640
+--------------------------------------
+post process cost time:1.80 ms
+--------------------------------------
+Repeat 1 times, avg time 8.02 ms, max_time 8.02 ms, min_time 8.02 ms
+--------------------------------------
+17:  84%, [ 208,   52,  431,  374], horse
+16:  84%, [ 142,  201,  197,  350], dog
+ 0:  83%, [ 273,   16,  350,  226], person
+ 7:  74%, [   0,  107,  132,  195], truck
+ 0:  73%, [ 430,  123,  449,  179], person
+ 0:  47%, [ 402,  130,  412,  148], person
+```
+
+可见检测到了 6 个目标，并且给出了类别 `ID`、置信度和坐标。在 `sample` 执行的目录下，会保存一个名为 `yolov5s_out.jpg` 的检测结果，可以图片浏览器打开预览一下输出结果。
+
+![](../res/voc_horse_yolov5s_out.jpg)
+
 
 ### Others
 
