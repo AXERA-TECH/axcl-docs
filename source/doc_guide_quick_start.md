@@ -6,6 +6,34 @@
 
 ### Others
 
+## 模型 benchmark
+
+`AXCL` 安装完毕后，模型跑分的工具 `axcl_run_model` 就可以使用了。该工具参数较多，可以用 `axcl_run_model --help` 查看可用的参数；如果对其实现机制感兴趣，还可以检查对应的 `sample` 目录中的源码。该工具和其他 `cv & llm sample` 一起，是源码形式提供的，以便于用户理解 `API` 的用法。
+
+以测试一个模型的运行速度为例，使用 `axcl_run_model -m your_model.axmodel -r 100` 这样的形式 `-m` 指定要跑的模型，`-r` 指定重复次数，即可简单的跑测模型的速度。
+
+```bash
+/root # axcl_run_model -m yolov5s.axmodel -r 100
+   Run AxModel:
+         model: /opt/data/npu/models/yolov5s.axmodel
+          type: 1 Core
+          vnpu: Disable
+        warmup: 1
+        repeat: 100
+         batch: { auto: 1 }
+    axclrt ver: 1.0.0
+   pulsar2 ver: 1.2-patch2 7e6b2b5f
+      tool ver: 0.0.1
+      cmm size: 12730188 Bytes
+  ---------------------------------------------------------------------------
+  min =   7.793 ms   max =   7.929 ms   avg =   7.804 ms  median =   7.799 ms
+   5% =   7.796 ms   90% =   7.808 ms   95% =   7.832 ms     99% =   7.929 ms
+  ---------------------------------------------------------------------------
+
+```
+
+从以上运行示例可见，从运行结果看，除了能指示模型运行时间外，还能指示工具链版本、模型类型等信息。
+
 ## CV 示例
 
 ### 分类模型
