@@ -141,7 +141,7 @@ rpm 的安装分为 2 个步骤：将 **src.rpm** 源码编译成二进制的 rp
    ################################# [100%]
    ```
 
-2. 源码安装完之后，在 `/home/user` 目录可以找到 **rmpbuild** 目录（如果是 sudo，目录在 `/root` 下）
+2. 源码安装完之后，在 `/home/$USER` 目录可以找到 **rmpbuild** 目录（如果是 sudo 安装，目录在 `/root` 下）
 
     ```bash
     [axera@localhost ~]$ ls
