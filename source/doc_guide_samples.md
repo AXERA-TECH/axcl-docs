@@ -319,11 +319,11 @@ options:
 --dump: dump encoded nalu to local file
 ```
 
-> [!NOTE]
 >
 > ./axcl_sample_transcode: error while loading shared libraries: libavcodec.so.58: cannot open shared object file: No such file or directory
 > if above error happens, please configure ffmpeg libraries into LD_LIBRARY_PATH.
 > As for x86_x64 OS:  *export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/axcl/ffmpeg*
+>
 
 **example**：
 
