@@ -16,15 +16,20 @@ axclError axclInit(const char *config);
 
 **使用说明**：
 
-系统初始化，用户需要在调用AXCL API之前调用此函数。
+系统初始化，同步接口。
 
 **参数**：
 
-- `config [IN]`：指定json配置文件路径。用户可以通过json配置文件配置系统参数，目前支持日志级别，格式[参阅FAQ](https://github.com/AXERA-TECH/axcl-docs/wiki/0.FAQ#how-to-configure-runtime-log--level)。
+- `config [IN]`：指定json配置文件路径。
+  - 用户可以通过json配置文件配置系统参数，目前支持日志级别，格式[参阅FAQ](https://github.com/AXERA-TECH/axcl-docs/wiki/0.FAQ#how-to-configure-runtime-log--level)。
+  - 允许传入NULL或者不存在的json文件，则系统使用默认配置。
+
 
 **限制**：
 
-和 [`axclFinalize`](#axclfinalize) 成对调用对系统清理。
+- 和 [`axclFinalize`](#axclfinalize) 成对调用对系统清理。
+- 当调用任何AXCL接口开发应用时，必须首先调用本接口。
+- 一个进程内只调用一次本接口。
 
 #### [axclFinailze](#axclfinalize)
 
@@ -34,11 +39,13 @@ axclError axclFinalize();
 
 **使用说明**：
 
-系统去初始化。
+系统去初始化，释放进程内AXCL的资源，同步接口。
 
 **限制**：
 
-和 [`axclInit`](#axclinit) 成对调用。
+- 和 [`axclInit`](#axclinit) 成对调用。
+- 应用进程退出前，应显示调用本接口去初始化。
+- 对于C++应用，不建议在析构函数中调用，否则在进程退出时可能因为单例析构顺序不确定导致进程异常退出。
 
 #### [axclrtGetVersion](#axclrtgetversion)
 
@@ -48,7 +55,7 @@ axclError axclrtGetVersion(int32_t *major, int32_t *minor, int32_t *patch);
 
 **使用说明**：
 
-获取runtime版本号。
+查询系统版本号，同步接口。
 
 **参数**：
 
@@ -68,7 +75,7 @@ const char *axclrtGetSocName();
 
 **使用说明**：
 
-返回SOC名。
+查询当前的芯片SOC字符串名，同步接口。
 
 **限制**：
 
@@ -82,7 +89,7 @@ axclError axclrtSetDevice(int32_t deviceId);
 
 **使用说明**：
 
-切换并激活设备。
+指定当前进程或线程中的设备，同时隐式创建默认Context，同步接口。
 
 **参数**：
 
@@ -90,8 +97,10 @@ axclError axclrtSetDevice(int32_t deviceId);
 
 **限制**：
 
-- [`axclrtSetDevice`](#axclrtsetdevice) 内部将创建一个默认的运行上下文，该默认上下文由系统在 [`axclrtResetDevice`](#axclrtresetdevice) 自动回收，不能调用 [`axclrtDestroyContext`](#axclrtdestroycontext) 显示回收。
-- 和 [`axclrtResetDevice`](#axclrtresetdevice) 成对使用。
+- 本接口内部隐式创建默认Context，该Context由系统在 [`axclrtResetDevice`](#axclrtresetdevice) 自动回收，不能调用 [`axclrtDestroyContext`](#axclrtdestroycontext) 显示销毁。
+- 在同一个进程的多个线程中，如果调用本接口指定的deviceId是同一个，那么隐式创建的Context也是同一个。
+- 和 [`axclrtResetDevice`](#axclrtresetdevice) 成对调用释放本进程使用的设备资源，内部通过引用计数允许多次调用，仅当引用计数为0时释放资源。
+- 多Device场景下，可以在进程中通过本接口或 [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext) 切换Device。
 
 #### [axclrtResetDevice](#axclrtresetdevice)
 
@@ -101,7 +110,7 @@ axclError axclrtResetDevice(int32_t deviceId);
 
 **使用说明**：
 
-去激活设备。
+复位设备，释放设备上的资源，包含隐式或显示创建的Context，同步接口。
 
 **参数**：
 
@@ -109,7 +118,9 @@ axclError axclrtResetDevice(int32_t deviceId);
 
 **限制**：
 
-和 [`axclrtSetDevice`](#axclrtsetdevice) 成对使用，系统将自动回收默认的上下文资源。
+-  [`axclrtCreateContext`](#axclrtcreatecontext)  显示创建的Context，推荐  [`axclrtDestroyContext`](#axclrtdestroycontext)  显示销毁后再调用本接口释放设备资源。
+- 和 [`axclrtSetDevice`](#axclrtsetdevice) 成对使用，系统将自动回收默认的Context资源。
+- 内部通过引用计数允许多次调用，仅当引用计数为0时释放资源。
 
 #### [axclrtGetDevice](#axclrtgetdevice)
 
@@ -119,7 +130,7 @@ axclError axclrtGetDevice(int32_t *deviceId);
 
 **使用说明**：
 
-获取当前激活的设备ID。
+获取当前正在使用的设备ID，同步接口。
 
 **参数**：
 
@@ -127,7 +138,8 @@ axclError axclrtGetDevice(int32_t *deviceId);
 
 **限制**：
 
-至少调用 [`axclrtSetDevice`](#axclrtsetdevice) 激活一个设备。
+- 如果没有调用  [`axclrtSetDevice`](#axclrtsetdevice)  或者  [`axclrtCreateContext`](#axclrtcreatecontext)  指定设备，本接口返回错误。
+
 
 #### [axclrtGetDeviceCount](#axclrtgetdevicecount)
 
@@ -137,7 +149,7 @@ axclError axclrtGetDeviceCount(uint32_t *count);
 
 **使用说明**：
 
-获取连接的设备总个数。
+获取连接的设备总个数，同步接口。
 
 **参数**：
 
@@ -155,7 +167,7 @@ axclError axclrtGetDeviceList(axclrtDeviceList *deviceList);
 
 **使用说明**：
 
-获取全部连接的设备ID。
+获取全部连接的设备ID，同步接口。
 
 **参数**：
 
@@ -173,7 +185,7 @@ axclError axclrtSynchronizeDevice();
 
 **使用说明**：
 
-同步执行当前设备的全部任务。
+同步执行当前设备的全部任务，，同步接口。
 
 **限制**：
 
@@ -187,11 +199,12 @@ axclError axclrtGetDeviceUtilizationRate(int32_t deviceId, axclrtUtilizationInfo
 
 **使用说明**：
 
-获取设备CPU、NPU和内存信息，**此接口暂未实现**。
+获取设备CPU、NPU和内存信息，，同步接口。**此接口暂未实现**。
 
 **限制**：
 
-需要先激活设备。
+- 如果没有调用  [`axclrtSetDevice`](#axclrtsetdevice)  或者  [`axclrtCreateContext`](#axclrtcreatecontext)  指定设备，本接口返回错误。
+
 
 #### [axclrtCreateContext](#axclrtcreatecontext)
 
@@ -201,18 +214,19 @@ axclError axclrtCreateContext(axclrtContext *context, int32_t deviceId);
 
 **使用说明**：
 
-在指定设备创建运行上下文。
+在当前线程中显示创建一个Context，同步接口。
 
 **参数**：
 
-- `context [OUT]`：创建的上下文句柄。
-- `deviceId [IN]`：设备Id。
+- `context [OUT]`：创建的Context句柄。
+- `deviceId [IN]`：设备ID。
 
 **限制**：
 
-- 用户创建的子线程若需要调用AXCL API，需要调用此接口显示创建运行上下文。
-- 若deviceId设备未被激活，本接口内部将首先激活设备。
-- 与 [`axclrtDestroyContext`](#axclrtdestroycontext) 成对调用清理上下文资源。
+- 用户创建的子线程若需要调用AXCL API，必须调用此接口显示创建或者  [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext)  绑定一个Context。
+- 若指定设备设备未被激活，本接口内部将首先激活设备。
+- 调用 [`axclrtDestroyContext`](#axclrtdestroycontext) 显示释放Context资源。
+- 允许多个线程共用一个Context（由 [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext)  绑定），但任务的执行取决于系统线程调度的顺序，用户需要自行管理和维护线程间任务的执行同步顺序问题。对于多线程，推荐为每个线程创建专属的Context，增加程序的可维护性。
 
 #### [axclrtDestroyContext](#axclrtdestroycontext)
 
@@ -222,16 +236,15 @@ axclError axclrtDestroyContext(axclrtContext context);
 
 **使用说明**：
 
-清理创建的运行上下文。
+显示销毁Context，同步接口
 
 **参数**：
 
-- `context [IN]`：创建的上下文句柄。
+- `context [IN]`：创建的Context句柄。
 
 **限制**：
 
-- 与 [`axclrtCreateContext`](#axclrtcreatecontext) 成对调用清理显示创建的上下文资源。
-- 无法删除由 [`axclrtSetDevice`](#axclrtsetdevice) 内部创建的默认的运行上下文资源。
+- 只能销毁 [`axclrtCreateContext`](#axclrtcreatecontext) 创建的Context资源。
 
 #### [axclrtSetCurrentContext](#axclrtsetcurrentcontext)
 
@@ -241,15 +254,17 @@ axclError axclrtSetCurrentContext(axclrtContext context);
 
 **使用说明**：
 
-显示设置当前显示的执行上下文。
+绑定线程运行的Context， 同步接口。
 
 **参数**：
 
-- `context [IN]`：创建的上下文句柄。
+- `context [IN]`：Context句柄。
 
 **限制**：
 
-- 多次调用本函数，则当前线程的上下文由最后一次调用的上下文为准。
+- 如果多次调用本接口绑定线程，以最后一次的Context为准。
+- 若绑定Context对应的设备Device已被 [`axclrtResetDevice`](#axclrtresetdevice) 复位，则不能将该Context设置为线程的Context，否则会导致异常。
+- 推荐在某一线程中创建的Context，在该线程中使用。若在线程A中调用  [`axclrtCreateContext`](#axclrtcreatecontext)  接口创建Context，在线程B中使用该Context，则需由用户自行保证两个线程中同一个Context下任务执行的顺序。 
 
 #### [axclrtGetCurrentContext](#axclrtgetcurrentcontext)
 
@@ -259,7 +274,7 @@ axclError axclrtGetCurrentContext(axclrtContext *context);
 
 **使用说明**：
 
-获取当前的运行上下文句柄。
+获取线程绑定的Context句柄，同步接口。
 
 **参数**：
 
@@ -267,9 +282,221 @@ axclError axclrtGetCurrentContext(axclrtContext *context);
 
 **限制**：
 
-- 当前线程需要执行 [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext) 或者 [`axclrtCreateContext`](#axclrtcreatecontext) 设置或显示创建上下文后才能获取。
+- 调用线程需要执行 [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext) 绑定或者 [`axclrtCreateContext`](#axclrtcreatecontext) 创建Context后才能获取。
+- 如果多次调用  [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext) ，那么获取的是最后一次设置的Context。
 
 ### Memory API
+
+#### [axclrtMalloc](#axclrtmalloc)
+
+```c
+axclError axclrtMalloc(void **devPtr, size_t size, axclrtMemMallocPolicy policy);
+```
+
+**使用说明**：
+
+在设备侧分配非CACHED物理内存，通过**devPtr*返回已分配的内存的指针，同步接口。
+
+**参数**：
+
+- `devPtr [OUT]`：返回已分配的设备侧物理内存指针。
+- `size [IN]`：指定分配的内存大小，单位字节。
+- `policy[IN]`：指定分配的内存规则，目前没有使用。
+
+**限制**：
+
+- 本接口从设备侧CMM内存池分配连续物理内存。
+- 本接口申请非CACHED内存，不用处理一致性。
+- 调用[`axclrtFree`](#axclrtfree) 释放内存。
+- 频繁申请释放内存会损耗性能，建议用户做好预分配或二次管理，避免频繁申请和释放。
+
+#### [axclrtMallocCached](#axclrtmalloccached)
+
+```c
+axclError axclrtMallocCached(void **devPtr, size_t size, axclrtMemMallocPolicy policy);
+```
+
+**使用说明**：
+
+在设备侧分配CACHED物理内存，通过**devPtr*返回已分配的内存的指针，同步接口。
+
+**参数**：
+
+- `devPtr [OUT]`：返回已分配的设备侧物理内存指针。
+- `size [IN]`：指定分配的内存大小，单位字节。
+- `policy[IN]`：指定分配的内存规则，目前没有使用。
+
+**限制**：
+
+- 本接口从设备侧CMM内存池分配连续物理内存。
+- 本接口申请CACHED内存，需要用户处理一致性。
+- 调用[`axclrtFree`](#axclrtfree) 释放内存。
+- 频繁申请释放内存会损耗性能，建议用户做好预分配或二次管理，避免频繁申请和释放。
+
+#### [axclrtFree](#axclrtfree)
+
+```c
+axclError axclrtFree(void *devPtr);
+```
+
+**使用说明**：
+
+释放设备侧分配的内存，同步接口。
+
+**参数**：
+
+- `devPtr [IN]`：待释放的设备内存。
+
+**限制**：
+
+- 只能释放 [`axclrtMalloc`](#axclrtmalloc)  或  [`axclrtMallocCached`](#axclrtmalloccached)  申请的设备侧内存。
+
+#### [axclrtMemFlush](#axclrtmemflush)
+
+```c
+axclError axclrtMemFlush(void *devPtr, size_t size);
+```
+
+**使用说明**：
+
+将cache中的数据刷新到DDR中，并将cache中的内容设置成无效，同步接口。
+
+**参数**：
+
+- `devPtr [IN]`：待flush的DDR内存起始地址指针。
+- `size [IN]`：待flush的DDR内存大小，单位字节。
+
+**限制**：
+
+无特别限制
+
+#### [axclrtMemInvalidate](#axclrtmeminvalidate)
+
+```c
+axclError axclrtMemInvalidate(void *devPtr, size_t size);
+```
+
+**使用说明**：
+
+将cache中的数据设置成无效，同步接口。
+
+**参数**：
+
+- `devPtr [IN]`：待cache数据设置为无效的DDR内存起始地址指针。
+- `size [IN]`：DDR内存大小，单位字节。
+
+**限制**：
+
+- 无特别限制
+
+#### [axclrtMallocHost](#axclrtmallochost)
+
+```c
+axclError axclrtMallocHost(void **hostPtr, size_t size);
+```
+
+**使用说明**：
+
+在HOST申请虚拟内存，同步接口。
+
+**参数**：
+
+- `hostPtr [IN]`：已分配内存首地址。
+- `size [IN]`：申请的内存大小，单位字节。
+
+**限制**：
+
+- 使用 [`axclrtMallocHost`](#axclrtmallochost) 接口申请的内存，需要通过 [`axclrtFreeHost`](#axclrtfreehost) 接口释放内存。
+- 频繁申请释放内存会损耗性能，建议用户做好预分配或二次管理，避免频繁申请和释放。
+- 在HOST申请内存也可以直接调用malloc接口，但推荐调用 [`axclrtMallocHost`](#axclrtmallochost) 。
+
+#### [axclrtFreeHost](#axclrtfreehost)
+
+```c
+axclError axclrtFreeHost(void *hostPtr);
+```
+
+**使用说明**：
+
+释放  [`axclrtMallocHost`](#axclrtmallochost)  申请的内存，同步接口。
+
+**参数**：
+
+- `hostPtr [IN]`：待释放的内存首地址。
+
+**限制**：
+
+- 只能释放 [`axclrtMallocHost`](#axclrtmallochost) 申请的HOST内存。
+
+#### [axclrtMemset](#axclrtmemset)
+
+```c
+axclError axclrtMemset(void *devPtr, uint8_t value, size_t count);
+```
+
+**使用说明**：
+
+只能初始化[`axclrtMalloc`](#axclrtmalloc)  或  [`axclrtMallocCached`](#axclrtmalloccached)  申请的设备侧内存，同步接口。
+
+**参数**：
+
+- `devPtr[IN]`：待初始化的设备侧内存首地址。
+- `value [IN]`：设置的值。
+- `count [IN]`：待初始化的内存的长度，单位字节。
+
+**限制**：
+
+- 只能初始化[`axclrtMalloc`](#axclrtmalloc)  或  [`axclrtMallocCached`](#axclrtmalloccached)  申请的设备侧内存。
+- [`axclrtMallocCached`](#axclrtmalloccached)  申请的设备侧内存初始化需要调用 [`axclrtMemInvalidate`](#axclrtmeminvalidate)  保持一致性。
+-  [`axclrtMallocHost`](#axclrtmallochost) 申请的HOST内存请调用memset函数初始化。
+
+#### [axclrtMemcpy](#axclrtmemcpy)
+
+```c
+axclError axclrtMemcpy(void *dstPtr, const void *srcPtr, size_t count, axclrtMemcpyKind kind);
+```
+
+**使用说明**：
+
+实现HOST内、HOST与DEVICE之间、DEVICE内的同步内存复制，同步接口。
+
+**参数**：
+
+- `devPtr [IN]`：目的内存地址指针。
+- `srcPtr [IN]`：源内存地址指针。
+- `count [IN]`：内存复制的长度，单位字节。
+- `kind [IN]`：内存复制的类型。
+  - [`AXCL_MEMCPY_HOST_TO_HOST`]：HOST内的内存复制。
+  - [`AXCL_MEMCPY_HOST_TO_DEVICE`]： HOST 虚拟内存到DEVICE的内存复制。
+  - [`AXCL_MEMCPY_DEVICE_TO_HOST`]： DEVICE到HOST 虚拟内存的内存复制。
+  - [`AXCL_MEMCPY_DEVICE_TO_DEVICE`]： DEVICE内的内存复制。
+  - [`AXCL_MEMCPY_HOST_PHY_TO_DEVICE`]： HOST 连续物理内存到DEVICE的内存复制。
+  - [`AXCL_MEMCPY_DEVICE_TO_HOST_PHY`]：  DEVICE到HOST 连续物理内存的内存复制。
+
+
+**限制**：
+
+- 复制的源和目标内存需要满足`kind`的要求。
+
+#### [axclrtMemcmp](#axclrtmemcmp)
+
+```c
+axclError axclrtMemcmp(const void *devPtr1, const void *devPtr2, size_t count); 
+```
+
+**使用说明**：
+
+实现DEVICE内的内存比较，同步接口。
+
+**参数**：
+
+- `devPtr1 [IN]`：设备侧地址1指针。
+- `devPtr2 [IN]`：设备侧地址2指针。
+- `count [IN]`：比较长度，单位字节。
+
+**限制**：
+
+- 只支持设备侧内存的比较，且仅内存比较相同时返回AXCL_SUCC(0)。
 
 
 ### Engine API
