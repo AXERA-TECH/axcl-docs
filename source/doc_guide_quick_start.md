@@ -35,11 +35,11 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
 ```
 #### 环境搭建
 
-1. `sudo yum update`  更新软件包
+1. 更新软件包：`sudo yum update`
 
-2. `sudo yum install -y kernel-devel kernel-headers`
+2. 安装内核源码：`sudo yum install -y kernel-devel kernel-headers`
 
-3. 修改 `grub` 文件添加 `reserved cma size` （转码卡建议256MB）
+3. 修改 `grub` 文件添加 `reserved cma size`，转码卡建议设置为 256MB：
 
    ```bash
    [axera@localhost ~]$ cat /etc/default/grub
@@ -55,7 +55,7 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
 
    ![](../res/centos_grub_info.png)
 
-4. 更新 `grub`
+4. 更新 grub：
 
    ```bash
    sudo su
@@ -64,7 +64,7 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
    grubby --update-kernel=ALL --args="cma=256M"
    ```
 
-5. 关闭 `SELinux`
+5. 关闭 SELinux：
 
    ```bash
    [axera@localhost ~]$ cat /etc/selinux/config
@@ -99,16 +99,16 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
 
    ![](../res/centos_selinux.png)
 
-6. 安装 `make`, `gcc`, `patch`, `rpm-build`
+6. 安装 patch rpm-build 包：
 
    ```bash
    sudo yum install -y patch
    sudo yum install -y rpm-build
    ```
 
-7. 重启 `reboot`
+7. 重启，执行 `reboot` 或 `sudo reboot`
 
-8. `dmesg |  grep cma` 查看 `CMA reserved` 是否成功
+8. `dmesg | grep cma` 查看 CMA reserved 是否设置成功：
 
    ```bash
    [axera@localhost ~]$ dmesg | grep cma
@@ -121,13 +121,13 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
 
    ![](../res/centos_dmsg_grep_cma.png)
 
-#### `AXCL` `rpm` 安装
+#### rpm 安装
 
 rpm 的安装分为 2 个步骤：将 **src.rpm** 源码编译成二进制的 rpm，然后安装 rpm。
 
-> [!IMPORTANT]
 >
 > 因安装后将自动加载设备固件，因此安装前请确认子卡已和主机正确连接。
+>
 
 1. 源码安装:
 
