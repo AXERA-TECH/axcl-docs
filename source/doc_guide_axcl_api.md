@@ -1361,10 +1361,9 @@ axclError axclrtEngineExecuteAsync(uint64_t modelId, uint64_t contextId, uint32_
 |-----------------------------|
 ```
 
-> [!NOTE]
->
-> `libaxcl_lite.so` and `libaxcl_ppl.so` are open-source libraries which located in `axcl/sample/axclit` and `axcl/sample/ppl` directories.
-
+:::{Note}
+`libaxcl_lite.so` and `libaxcl_ppl.so` are open-source libraries which located in `axcl/sample/axclit` and `axcl/sample/ppl` directories.
+:::
 
 
 #### Supported PPLs
@@ -1496,10 +1495,9 @@ typedef struct {
 | cb        | callback function to receive encoded nalu frame data      | in     |
 | userdata  | userdata bypass to  axcl_ppl_encoded_stream_callback_func | in     |
 
-> [!WARNING]
->
-> Avoid high-latency processing inside the *axcl_ppl_encoded_stream_callback_func* function
-
+:::{Warning}
+Avoid high-latency processing inside the *axcl_ppl_encoded_stream_callback_func* function
+:::
 
 
 ```c
@@ -1520,14 +1518,14 @@ typedef struct {
 | output_order | AX_VDEC_OUTPUT_ORDER_DISP  \| AX_VDEC_OUTPUT_ORDER_DEC       | in     |
 | display_mode | AX_VDEC_DISPLAY_MODE_PREVIEW \| AX_VDEC_DISPLAY_MODE_PLAYBACK | in     |
 
-> [!IMPORTANT]
->
-> - **output_order**: 
->   - If decode sequence is same as display sequence such as IP stream, recommend to AX_VDEC_OUTPUT_ORDER_DEC to save memory.
->   - If decode sequence is different to display sequence such as IPB stream, set AX_VDEC_OUTPUT_ORDER_DISP.
-> - **display_mode**
->   - AX_VDEC_DISPLAY_MODE_PREVIEW:  preview mode which frame dropping is allowed typically for RTSP stream... etc.
->   - AX_VDEC_DISPLAY_MODE_PLAYBACK: playback mode which frame dropping is not forbidden typically for local stream file.
+:::{Important}
+- **output_order**: 
+  - If decode sequence is same as display sequence such as IP stream, recommend to AX_VDEC_OUTPUT_ORDER_DEC to save memory.
+  - If decode sequence is different to display sequence such as IPB stream, set AX_VDEC_OUTPUT_ORDER_DISP.
+- **display_mode**
+  - AX_VDEC_DISPLAY_MODE_PREVIEW:  preview mode which frame dropping is allowed typically for RTSP stream... etc.
+  - AX_VDEC_DISPLAY_MODE_PLAYBACK: playback mode which frame dropping is not forbidden typically for local stream file.
+:::
 
 ```c
 typedef struct {
@@ -1694,9 +1692,9 @@ axclError axcl_ppl_get_attr(axcl_ppl ppl, const char* name, void* attr);
  */
 ```
 
-> [!IMPORTANT]
->
-> **axcl.ppl.transcode.vdec.blk.cnt**:  blk count is related to the DBP size of input stream, recommend to set dbp + 1.
+:::{Important}
+**axcl.ppl.transcode.vdec.blk.cnt**:  blk count is related to the DBP size of input stream, recommend to set dbp + 1.
+:::
 
 ##### return
 
