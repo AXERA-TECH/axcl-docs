@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXCL错误代码查询</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        .input-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            align-items: center;
+        }
+        .input-box {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .button {
+            margin-top: 10px;
+            padding: 8px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .output-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .output-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            color: #333;
+            min-height: 24px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+		.description {
+			font-size: 12px;
+			color: #666;
+			margin-top: 10px;
+			text-align: center;
+		}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-row">
+            <label for="errorCode" class="label">请输入错误代码 (16进制)</label>
+            <input id="errorCode" class="input-box" type="text" placeholder="例如：0x80000123">
+            <button class="button" onclick="parseErrorCode()">解析</button>
+        </div>
+        <div class="output-row">
+            <div class="output-item">
+                <div class="label">AXCL模块</div>
+                <div class="box" id="axclmodule">-</div>
+            </div>
+            <div class="output-item">
+                <div class="label">主模块</div>
+                <div class="box" id="module">-</div>
+            </div>
+            <div class="output-item">
+                <div class="label">子模块</div>
+                <div class="box" id="sub">-</div>
+            </div>
+            <div class="output-item">
+                <div class="label">错误代码</div>
+                <div class="box" id="errid">-</div>
+            </div>
+			<div class="description">
+				如果主模块不是AXCL的错误代码，参考&lt;&lt;AX 软件错误码文档&gt;&gt;
+			</div>
+        </div>
+    </div>
+
+    <script>
+        const AX_ID_AXCL = 0x30;
+		
+		// ax_global_type.h
+		const nativeModuleNames = {
+			0x00: "AX_ID_MIN",
+            0x01: "AX_ID_ISP",
+            0x02: "AX_ID_CE",
+            0x03: "AX_ID_VO",
+            0x04: "AX_ID_VDSP",
+            0x05: "AX_ID_EFUSE",
+            0x06: "AX_ID_NPU",
+            0x07: "AX_ID_VENC",
+            0x08: "AX_ID_VDEC",
+            0x09: "AX_ID_JENC",
+            0x0A: "AX_ID_JDEC",
+            0x0B: "AX_ID_SYS",
+            0x0C: "AX_ID_AENC",
+            0x0D: "AX_ID_IVPS",
+            0x0E: "AX_ID_MIPI",
+            0x0F: "AX_ID_ADEC",
+            0x10: "AX_ID_DMA",
+            0x11: "AX_ID_VIN",
+            0x12: "AX_ID_USER",
+            0x13: "AX_ID_IVES",
+            0x14: "AX_ID_SKEL",
+            0x15: "AX_ID_IVE",
+            0x16: "AX_ID_AVS",
+            0x17: "AX_ID_AVSCALI",
+            0x19: "AX_ID_3A",
+            0x1A: "AX_ID_AUDIO",
+            0x1B: "AX_ID_PYRALITE",
+            0x1C: "AX_ID_SIF",
+            0x1D: "AX_ID_ENGINE",
+            0x1E: "AX_ID_GDC_LITE",
+            0x20: "AX_ID_AI",
+            0x21: "AX_ID_AO",
+            0x22: "AX_ID_SENSOR",
+            0x23: "AX_ID_NT",
+            0x24: "AX_ID_TDP",
+            0x25: "AX_ID_VPP",
+            0x26: "AX_ID_VGP",
+            0x27: "AX_ID_GDC",
+            0x28: "AX_ID_BASE",
+            0x29: "AX_ID_ALGO",
+            0x80: "AX_ID_CUST_MIN",
+            0xFF: "AX_ID_MAX"
+		};
+		
+		const AXCL_RUNTIME = 0x00;
+		const AXCL_NATIVE = 0x01;
+		const AXCL_LITE = 0x02;
+        const axclModuleNames = {
+            [AXCL_RUNTIME]: "AXCL_RUNTIME",
+            [AXCL_NATIVE]: "AXCL_NATIVE",
+            [AXCL_LITE]: "AXCL_LITE"
+        };
+		
+		const AXCL_RUNTIME_DEVICE = 0x01;
+		const AXCL_RUNTIME_CONTEXT = 0x02;
+		const AXCL_RUNTIME_STREAM = 0x03;
+		const AXCL_RUNTIME_TASK = 0x04;
+		const AXCL_RUNTIME_MEMORY = 0x05;
+		const AXCL_RUNTIME_CONFIG = 0x06;
+		const AXCL_RUNTIME_ENGINE = 0x07;
+		const AXCL_RUNTIME_SYSTEM = 0x08;
+
+        const axclrtSubModuleNames = {
+            [AXCL_RUNTIME_DEVICE]: "AXCL_RUNTIME_DEVICE",
+            [AXCL_RUNTIME_CONTEXT]: "AXCL_RUNTIME_CONTEXT",
+            [AXCL_RUNTIME_STREAM]: "AXCL_RUNTIME_STREAM",
+            [AXCL_RUNTIME_TASK]: "AXCL_RUNTIME_TASK",
+            [AXCL_RUNTIME_MEMORY]: "AXCL_RUNTIME_MEMORY",
+            [AXCL_RUNTIME_CONFIG]: "AXCL_RUNTIME_CONFIG",
+            [AXCL_RUNTIME_ENGINE]: "AXCL_RUNTIME_ENGINE",
+            [AXCL_RUNTIME_SYSTEM]: "AXCL_RUNTIME_SYSTEM"
+        };
+		
+		const axclNativeSubModuleNames = {
+			0x00: "SYS",
+			0x01: "VDEC",
+			0x02: "VENC",
+			0x03: "IVPS",
+			0x04: "IVE",
+			0x05: "ENGINE",
+			0x06: "DMADIM",
+			0x7F: "UNKNOWN"
+		};
+	
+		// axcl_base.h
+        const axclErrCodes = {
+            0x00: "AXCL_SUCC",
+            0x01: "AXCL_FAIL",
+            0x02: "AXCL_ERR_NULL_POINTER",
+            0x03: "AXCL_ERR_ILLEGAL_PARAM",
+            0x04: "AXCL_ERR_UNSUPPORT",
+            0x05: "AXCL_ERR_TIMEOUT",
+            0x06: "AXCL_ERR_BUSY",
+            0x07: "AXCL_ERR_NO_MEMORY",
+            0x08: "AXCL_ERR_ENCODE",
+            0x09: "AXCL_ERR_DECODE",
+            0x0A: "AXCL_ERR_UNEXPECT_RESPONSE",
+            0x0B: "AXCL_ERR_OPEN",
+            0x0C: "AXCL_ERR_EXECUTE_FAIL"
+        };
+		
+		// axcl_rt_device.h
+		const axclrtDeviceErrCodes = {
+			0x80: "AXCL_ERR_DEVICE_QUERY_DEVICE",
+			0x81: "AXCL_ERR_DEVICE_NO_CONNECT",
+			0x82: "AXCL_ERR_DEVICE_PROBE",
+			0x83: "AXCL_ERR_DEVICE_NOT_ACTIVE",
+			0x84: "AXCL_ERR_DEVICE_INVALID_ID",
+			0x85: "AXCL_ERR_DEVICE_NO_ACTIVE_DEVICE"
+		};
+			
+		// axcl_rt_context.h
+		const axclrtContextErrCodes = {
+			0x81: "AXCL_ERR_CONTEXT_CREATE",
+			0x82: "AXCL_ERR_CONTEXT_DESTROY",
+			0x83: "AXCL_ERR_CONTEXT_BIND_THREAD",
+			0x84: "AXCL_ERR_CONTEXT_NO_BIND_CONTEXT"
+		};
+		
+		// axcl_rt_stream.h
+		const axclrtStreamErrCodes = {
+			0x81: "AXCL_ERR_STREAM_CREATE",
+			0x82: "AXCL_ERR_STREAM_DESTROY"
+		};
+		
+		// axcl_rt_task.h
+		const axclrtTaskErrCodes = {
+			0x81: "AXCL_ERR_TASK_SUBMIT"
+		};
+		
+		// axcl_rt_memory.h
+		const axclrtMemoryErrCodes = {
+			0x81: "AXCL_ERR_MEMORY_NOT_DEVICE_MEMORY"
+		};
+		
+		// axcl_rt_engine.h
+		const axclrtEngineErrCodes = {
+			0x81: "AXCL_ERR_ENGINE_INVALID_INDEX"
+		};
+		
+		// axcl_rt_config.h
+		const axclrtConfigErrCodes = {
+			0x81: "AXCL_ERR_CONFIG_LOAD"
+		};
+		
+		// axclite_ivps_type.h
+		const axcliteIvpsErrCodes = {
+			0x81: "AXCL_ERR_LITE_IVPS_INVALID_GRP",
+			0x82: "AXCL_ERR_LITE_IVPS_INVALID_CHN",
+			0x83: "AXCL_ERR_LITE_IVPS_START_DISPATCH",
+			0x84: "AXCL_ERR_LITE_IVPS_STOP_DISPATCH"
+		};
+		
+		// axclite_msys_type.h
+		const axcliteMsysErrCodes = {
+			0x81: "AXCL_ERR_LITE_MSYS_NO_LINKED"
+		};
+		
+		// axclite_venc_type.h
+		const axcliteVencErrCodes = {
+			0x82: "AXCL_ERR_LITE_VENC_INVALID_CHN",
+			0x83: "AXCL_ERR_LITE_VENC_START_DISPATCH",
+			0x84: "AXCL_ERR_LITE_VENC_STOP_DISPATCH"
+		};
+		
+		// axclite_vdec_type.h
+		const axcliteVdecErrCodes = {
+			0x81: "AXCL_ERR_LITE_VDEC_INVALID_GRP",
+			0x82: "AXCL_ERR_LITE_VDEC_INVALID_CHN",
+			0x83: "AXCL_ERR_LITE_VDEC_NOT_STARTED",
+			0x84: "AXCL_ERR_LITE_VDEC_NOT_REGISTED"
+		};
+		
+		// ax_global_type.h
+		const nativeErrCodes = {
+			0x01: "AX_ERR_INVALID_MODID",
+			0x02: "AX_ERR_INVALID_DEVID",
+			0x03: "AX_ERR_INVALID_GRPID",
+			0x04: "AX_ERR_INVALID_CHNID",
+			0x05: "AX_ERR_INVALID_PIPEID",
+			0x06: "AX_ERR_INVALID_STITCHGRPID",
+			0x0A: "AX_ERR_ILLEGAL_PARAM",
+			0x0B: "AX_ERR_NULL_PTR",
+			0x0C: "AX_ERR_BAD_ADDR",
+			0x10: "AX_ERR_SYS_NOTREADY",
+			0x11: "AX_ERR_BUSY",
+			0x12: "AX_ERR_NOT_INIT",
+			0x13: "AX_ERR_NOT_CONFIG",
+			0x14: "AX_ERR_NOT_SUPPORT",
+			0x15: "AX_ERR_NOT_PERM",
+			0x16: "AX_ERR_EXIST",
+			0x17: "AX_ERR_UNEXIST",
+			0x18: "AX_ERR_NOMEM",
+			0x19: "AX_ERR_NOBUF",
+			0x1A: "AX_ERR_NOT_MATCH",
+			0x20: "AX_ERR_BUF_EMPTY",
+			0x21: "AX_ERR_BUF_FULL",
+			0x22: "AX_ERR_QUEUE_EMPTY",
+			0x23: "AX_ERR_QUEUE_FULL",
+			0x27: "AX_ERR_TIMED_OUT",
+			0x28: "AX_ERR_FLOW_END",
+			0x29: "AX_ERR_UNKNOWN",
+			0x30: "AX_ERR_OS_FAIL",
+			0x7F: "AX_ERR_BUTT"
+		};
+
+        function parseErrorCode() {
+            const input = document.getElementById("errorCode").value;
+            const errorCode = parseInt(input, 16);
+            if (isNaN(errorCode)) {
+                alert("请输入一个有效的16进制错误代码");
+                return;
+            }
+
+            const axclModule = (errorCode >> 24) & 0x7F;
+            const module = (errorCode >> 16) & 0xFF;
+            const subModule = (errorCode >> 8) & 0xFF;
+            const errId = errorCode & 0xFF;
+
+            if (module === AX_ID_AXCL) {
+				document.getElementById("axclmodule").textContent = axclModuleNames[axclModule] || `0x${axclModule.toString(16).toUpperCase()}`;
+				document.getElementById("module").textContent = "AXCL";
+                document.getElementById("errid").textContent = axclErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+                
+				if (axclModule == AXCL_RUNTIME) {
+					document.getElementById("sub").textContent = axclrtSubModuleNames[subModule] || `0x${subModule.toString(16).toUpperCase()}`;
+					
+					if (!(errId in axclErrCodes)) {
+						if (subModule == AXCL_RUNTIME_DEVICE) {
+							document.getElementById("errid").textContent = axclrtDeviceErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						} else if (subModule == AXCL_RUNTIME_CONTEXT) {
+							document.getElementById("errid").textContent = axclrtContextErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						} else if (subModule == AXCL_RUNTIME_STREAM) {
+							document.getElementById("errid").textContent = axclrtStreamErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						} else if (subModule == AXCL_RUNTIME_TASK) {
+							document.getElementById("errid").textContent = axclrtTaskErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						} else if (subModule == AXCL_RUNTIME_MEMORY) {
+							document.getElementById("errid").textContent = axclrtMemoryErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						} else if (subModule == AXCL_RUNTIME_ENGINE) {
+							document.getElementById("errid").textContent = axclrtEngineErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						} else if (subModule == AXCL_RUNTIME_CONFIG) {
+							document.getElementById("errid").textContent = axclrtConfigErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						}
+					}
+				} else if (axclModule == AXCL_NATIVE) {
+					document.getElementById("sub").textContent = axclNativeSubModuleNames[subModule] || `0x${subModule.toString(16).toUpperCase()}`;
+				} else if (axclModule == AXCL_LITE) {
+					document.getElementById("sub").textContent = nativeModuleNames[subModule] || `0x${subModule.toString(16).toUpperCase()}`;
+					if (!(errId in axclErrCodes)) {
+						if (subModule == Object.entries(nativeModuleNames).find(([key, value]) => value === "AX_ID_IVPS")?.[0]) {
+							document.getElementById("errid").textContent = axcliteIvpsErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						} else if (subModule == Object.entries(nativeModuleNames).find(([key, value]) => value === "AX_ID_SYS")?.[0]) {
+							document.getElementById("errid").textContent = axcliteMsysErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						} else if (subModule == Object.entries(nativeModuleNames).find(([key, value]) => value === "AX_ID_VDEC")?.[0]) {
+							document.getElementById("errid").textContent = axcliteVdecErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						} else if (subModule == Object.entries(nativeModuleNames).find(([key, value]) => value === "AX_ID_VENC")?.[0]) {
+							document.getElementById("errid").textContent = axcliteVencErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+						}
+					}
+				} else {
+					document.getElementById("sub").textContent = `0x${subModule.toString(16).toUpperCase()}`;
+				}
+            } else {
+				document.getElementById("axclmodule").textContent = "-";
+                document.getElementById("module").textContent = nativeModuleNames[module] || `0x${module.toString(16).toUpperCase()}`;
+                document.getElementById("sub").textContent = `0x${subModule.toString(16).toUpperCase()}`;
+				document.getElementById("errid").textContent = nativeErrCodes[errId] || `0x${errId.toString(16).toUpperCase()}`;
+            }
+        }
+    </script>
+</body>
+</html>
