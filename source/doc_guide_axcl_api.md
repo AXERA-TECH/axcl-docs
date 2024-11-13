@@ -1275,3 +1275,68 @@ axclError axclrtEngineExecuteAsync(uint64_t modelId, uint64_t contextId, uint32_
 **限制**：
 
 无特别限制。
+
+
+
+## Native API
+
+- AXCL NATIVE模块支持SYS、VDEC、VENC、IVPS、DMADIM、ENGINE、IVE模块。
+
+- AXCL NATIVE API和AX SDK API参数完全一致，差别在于函数命名由原来的AX前缀变更为AXCL，示例：
+
+  ```c
+  AX_S32 AXCL_SYS_Init(AX_VOID);
+  AX_S32 AXCL_SYS_Deinit(AX_VOID);
+  
+  /* CMM API */
+  AX_S32 AXCL_SYS_MemAlloc(AX_U64 *phyaddr, AX_VOID **pviraddr, AX_U32 size, AX_U32 align, const AX_S8 *token);
+  AX_S32 AXCL_SYS_MemAllocCached(AX_U64 *phyaddr, AX_VOID **pviraddr, AX_U32 size, AX_U32 align, const AX_S8 *token);
+  AX_S32 AXCL_SYS_MemFree(AX_U64 phyaddr, AX_VOID *pviraddr);
+  
+  ...
+     
+  AX_S32 AXCL_VDEC_Init(const AX_VDEC_MOD_ATTR_T *pstModAttr);
+  AX_S32 AXCL_VDEC_Deinit(AX_VOID);
+  
+  AX_S32 AXCL_VDEC_ExtractStreamHeaderInfo(const AX_VDEC_STREAM_T *pstStreamBuf, AX_PAYLOAD_TYPE_E enVideoType,
+                                           AX_VDEC_BITSTREAM_INFO_T *pstBitStreamInfo);
+  
+  AX_S32 AXCL_VDEC_CreateGrp(AX_VDEC_GRP VdGrp, const AX_VDEC_GRP_ATTR_T *pstGrpAttr);
+  AX_S32 AXCL_VDEC_CreateGrpEx(AX_VDEC_GRP *VdGrp, const AX_VDEC_GRP_ATTR_T *pstGrpAttr);
+  AX_S32 AXCL_VDEC_DestroyGrp(AX_VDEC_GRP VdGrp);
+  
+  ...
+  ```
+
+- 请参阅AX SDK API的文档，例如：《AX SYS API 文档.docx》、《AX VDEC API 文档.docx》等。
+
+- 动态库so命名由原来的libax_xxx.so 变更为libaxcl_xxx.so，对照表如下：
+
+  | 模块   | AX SDK          | AXCL NATIVE SDK   |
+  | ------ | --------------- | ----------------- |
+  | SYS    | libax_sys.so    | libaxcl_sys.so    |
+  | VDEC   | libax_vdec.so   | libaxcl_vdec.so   |
+  | VENC   | libax_venc.so   | libaxcl_venc.so   |
+  | IVPS   | libax_ivps.so   | libaxcl_ivps.so   |
+  | DMADIM | libax_dmadim.so | libaxcl_dmadim.so |
+  | ENGINE | libax_engine.so | libaxcl_engine.so |
+  | IVE    | libax_ive.so    | libaxcl_ive.so    |
+
+- 部分AX SDK API在AXCL NATIVE中没有支持，具体列表如下：
+
+  | 模块   | AXCL NATIVE API                 | 说明                                              |
+  | ------ | ------------------------------- | ------------------------------------------------- |
+  | SYS    | AXCL_SYS_EnableTimestamp        |                                                   |
+  |        | AXCL_SYS_Sleep                  |                                                   |
+  |        | AXCL_SYS_WakeLock               |                                                   |
+  |        | AXCL_SYS_WakeUnlock             |                                                   |
+  |        | AXCL_SYS_RegisterEventCb        |                                                   |
+  |        | AXCL_SYS_UnregisterEventCb      |                                                   |
+  | VENC   | AXCL_VENC_GetFd                 |                                                   |
+  |        | AXCL_VENC_JpegGetThumbnail      |                                                   |
+  | IVPS   | AXCL_IVPS_GetChnFd              |                                                   |
+  |        | AXCL_IVPS_CloseAllFd            |                                                   |
+  | DMADIM | AXCL_DMADIM_Cfg                 | 不支持设置回调函数，即AX_DMADIM_MSG_T.pfnCallBack |
+  | IVE    | AXCL_IVE_NPU_CreateMatMulHandle |                                                   |
+  |        | AX_IVE_NPU_DestroyMatMulHandle  |                                                   |
+  |        | AX_IVE_NPU_MatMul               |                                                   |
