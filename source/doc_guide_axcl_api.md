@@ -1340,3 +1340,386 @@ axclError axclrtEngineExecuteAsync(uint64_t modelId, uint64_t contextId, uint32_
   | IVE    | AXCL_IVE_NPU_CreateMatMulHandle |                                                   |
   |        | AX_IVE_NPU_DestroyMatMulHandle  |                                                   |
   |        | AX_IVE_NPU_MatMul               |                                                   |
+
+## PPL
+
+### Architecture 
+
+**libaxcl_ppl.so** is a highly integrated module that implements typical pipeline (PPL). The architecture diagram is as follows:
+
+```bash
+|-----------------------------|
+|        application          |
+|-----------------------------|
+|      libaxcl_ppl.so         |
+|-----------------------------|
+|      libaxcl_lite.so        |
+|-----------------------------|
+|         axcl sdk            |
+|-----------------------------|
+|         pcie driver         |
+|-----------------------------|
+```
+
+> [!NOTE]
+>
+> `libaxcl_lite.so` and `libaxcl_ppl.so` are open-source libraries which located in `axcl/sample/axclit` and `axcl/sample/ppl` directories.
+
+
+
+#### Supported PPLs
+
+##### transcode
+
+![](../res/transcode_ppl.png)
+
+Refer to the source code of **axcl_transcode_sample**  which located in path: `axcl/sample/ppl/transode`.
+
+
+
+### API
+
+#### axcl_ppl_init
+
+axcl runtime system and ppl initialization.
+
+##### prototype
+
+axclError axcl_ppl_init(const axcl_ppl_init_param* param);
+
+##### parameter
+
+| parameter | description | in/out |
+| --------- | ----------- | ------ |
+| param     |             | in     |
+
+```c
+typedef enum {
+    AXCL_LITE_NONE = 0,
+    AXCL_LITE_VDEC = (1 << 0),
+    AXCL_LITE_VENC = (1 << 1),
+    AXCL_LITE_IVPS = (1 << 2),
+    AXCL_LITE_JDEC = (1 << 3),
+    AXCL_LITE_JENC = (1 << 4),
+    AXCL_LITE_DEFAULT = (AXCL_LITE_VDEC | AXCL_LITE_VENC | AXCL_LITE_IVPS),
+    AXCL_LITE_MODULE_BUTT
+} AXCLITE_MODULE_E;
+
+typedef struct {
+    const char *json; /* axcl.json path */
+    AX_S32 device;
+    AX_U32 modules;
+    AX_U32 max_vdec_grp;
+    AX_U32 max_venc_thd;
+} axcl_ppl_init_param;
+```
+
+| parameter     | description                                  | in/out |
+| ------------- | -------------------------------------------- | ------ |
+| json          | json file path pass to **axclInit** API.     | in     |
+| device        | device id                                    | in     |
+| modules       | bitmask of AXCLITE_MODULE_E according to PPL | in     |
+| max_vdec_grp  | total VDEC groups of all processes           | in     |
+| max_venc_thrd | max VENC threads of each process             | in     |
+
+> [!IMPORTANT]
+>
+> - AXCL_PPL_TRANSCODE:  modules = AXCL_LITE_DEFAULT
+> - **max_vdec_grp** should be equal to or greater than the total number of VDEC groups across all processes. For example, if 16 processes are launched, with each process having one decoder, **max_vdec_grp** should be set to at least 16.
+> - **max_venc_thrd** usually be configured as same as the total VENC channels of each process.
+
+##### return
+
+0 (AXCL_SUCC)  if success, otherwise failure.
+
+
+
+#### axcl_ppl_deinit
+
+axcl runtime system and ppl deinitialization.
+
+##### prototype
+
+axclError axcl_ppl_deinit();
+
+##### return
+
+0 (AXCL_SUCC)  if success, otherwise failure.
+
+
+
+#### axcl_ppl_create
+
+create ppl.
+
+##### prototype
+
+axclError axcl_ppl_create(axcl_ppl* ppl, const axcl_ppl_param* param);
+
+##### parameter
+
+| parameter | description                         | in/out |
+| --------- | ----------------------------------- | ------ |
+| ppl       | ppl handle created                  | out    |
+| param     | parameters related to specified ppl | in     |
+
+```c
+typedef enum {
+    AXCL_PPL_TRANSCODE = 0, /* VDEC -> IVPS ->VENC */
+    AXCL_PPL_BUTT
+} axcl_ppl_type;
+
+typedef struct {
+    axcl_ppl_type ppl;
+    void *param;
+} axcl_ppl_param;
+```
+
+**AXCL_PPL_TRANSCODE** parameters as shown as follows:
+
+```C
+typedef AX_VENC_STREAM_T axcl_ppl_encoded_stream;
+typedef void (*axcl_ppl_encoded_stream_callback_func)(axcl_ppl ppl, const axcl_ppl_encoded_stream *stream, AX_U64 userdata);
+
+typedef struct {
+    axcl_ppl_transcode_vdec_attr vdec;
+    axcl_ppl_transcode_venc_attr venc;
+    axcl_ppl_encoded_stream_callback_func cb;
+    AX_U64 userdata;
+} axcl_ppl_transcode_param;
+```
+
+| parameter | description                                               | in/out |
+| --------- | --------------------------------------------------------- | ------ |
+| vdec      | decoder attribute                                         | in     |
+| venc      | encoder attribute                                         | in     |
+| cb        | callback function to receive encoded nalu frame data      | in     |
+| userdata  | userdata bypass to  axcl_ppl_encoded_stream_callback_func | in     |
+
+> [!WARNING]
+>
+> Avoid high-latency processing inside the *axcl_ppl_encoded_stream_callback_func* function
+
+
+
+```c
+typedef struct {
+    AX_PAYLOAD_TYPE_E payload;
+    AX_U32 width;
+    AX_U32 height;
+    AX_VDEC_OUTPUT_ORDER_E output_order;
+    AX_VDEC_DISPLAY_MODE_E display_mode;
+} axcl_ppl_transcode_vdec_attr;
+```
+
+| parameter    | description                                                  | in/out |
+| ------------ | ------------------------------------------------------------ | ------ |
+| payload      | PT_H264 \| PT_H265                                           | in     |
+| width        | max. width of input stream                                   | in     |
+| height       | max. height of input stream                                  | in     |
+| output_order | AX_VDEC_OUTPUT_ORDER_DISP  \| AX_VDEC_OUTPUT_ORDER_DEC       | in     |
+| display_mode | AX_VDEC_DISPLAY_MODE_PREVIEW \| AX_VDEC_DISPLAY_MODE_PLAYBACK | in     |
+
+> [!IMPORTANT]
+>
+> - **output_order**: 
+>   - If decode sequence is same as display sequence such as IP stream, recommend to AX_VDEC_OUTPUT_ORDER_DEC to save memory.
+>   - If decode sequence is different to display sequence such as IPB stream, set AX_VDEC_OUTPUT_ORDER_DISP.
+> - **display_mode**
+>   - AX_VDEC_DISPLAY_MODE_PREVIEW:  preview mode which frame dropping is allowed typically for RTSP stream... etc.
+>   - AX_VDEC_DISPLAY_MODE_PLAYBACK: playback mode which frame dropping is not forbidden typically for local stream file.
+
+```c
+typedef struct {
+    AX_PAYLOAD_TYPE_E payload;
+    AX_U32 width;
+    AX_U32 height;
+    AX_VENC_PROFILE_E profile;
+    AX_VENC_LEVEL_E level;
+    AX_VENC_TIER_E tile;
+    AX_VENC_RC_ATTR_T rc;
+    AX_VENC_GOP_ATTR_T gop;
+} axcl_ppl_transcode_venc_attr;
+```
+
+| parameter | description                         | in/out |
+| --------- | ----------------------------------- | ------ |
+| payload   | PT_H264 \| PT_H265                  | in     |
+| width     | output width of encoded nalu frame  | in     |
+| height    | output height of encoded nalu frame | in     |
+| profile   | h264 or h265 profile                | in     |
+| level     | h264 or h265 level                  | in     |
+| tile      | tile                                | in     |
+| rc        | rate control settings               | in     |
+| gop       | gop settings                        | in     |
+
+##### return
+
+0 (AXCL_SUCC)  if success, otherwise failure.
+
+
+
+#### axcl_ppl_destroy
+
+destroy ppl.
+
+##### prototype
+
+axclError axcl_ppl_destroy(axcl_ppl ppl)
+
+##### parameter
+
+| parameter | description        | in/out |
+| --------- | ------------------ | ------ |
+| ppl       | ppl handle created | in     |
+
+#### return
+
+0 (AXCL_SUCC)  if success, otherwise failure.
+
+
+
+#### axcl_ppl_start
+
+start ppl.
+
+##### prototype
+
+axclError axcl_ppl_start(axcl_ppl ppl);
+
+##### parameter
+
+| parameter | description        | in/out |
+| --------- | ------------------ | ------ |
+| ppl       | ppl handle created | in     |
+
+##### return
+
+0 (AXCL_SUCC)  if success, otherwise failure.
+
+
+
+#### axcl_ppl_stop
+
+stop ppl.
+
+##### prototype
+
+axclError axcl_ppl_stop(axcl_ppl ppl);
+
+##### parameter
+
+| parameter | description        | in/out |
+| --------- | ------------------ | ------ |
+| ppl       | ppl handle created | in     |
+
+##### return
+
+0 (AXCL_SUCC)  if success, otherwise failure.
+
+
+
+#### axcl_ppl_send_stream
+
+send nalu frame to ppl.
+
+##### prototype
+
+axclError axcl_ppl_send_stream(axcl_ppl ppl, const axcl_ppl_input_stream* stream, AX_S32 timeout);
+
+##### parameter
+
+| parameter | description             | in/out |
+| --------- | ----------------------- | ------ |
+| ppl       | ppl handle created      | in     |
+| stream    | nalu frame              | in     |
+| timeout   | timeout in milliseconds | in     |
+
+```c
+typedef struct {
+    AX_U8 *nalu;
+    AX_U32 nalu_len;
+    AX_U64 pts;
+    AX_U64 userdata;
+} axcl_ppl_input_stream;
+```
+
+| parameter | description                                                  | in/out |
+| --------- | ------------------------------------------------------------ | ------ |
+| nalu      | pointer to nalu frame data                                   | in     |
+| nalu_len  | bytes of nalu frame data                                     | in     |
+| pts       | timestamp of nalu frame                                      | in     |
+| userdata  | userdata bypass to ***axcl_ppl_encoded_stream.stPack.u64UserData*** | in     |
+
+##### return
+
+0 (AXCL_SUCC)  if success, otherwise failure.
+
+
+
+#### axcl_ppl_get_attr
+
+get attribute of ppl.
+
+##### prototype
+
+axclError axcl_ppl_get_attr(axcl_ppl ppl, const char* name, void* attr);
+
+##### parameter
+
+| parameter | description        | in/out |
+| --------- | ------------------ | ------ |
+| ppl       | ppl handle created | in     |
+| name      | attribute name     | in     |
+| attr      | attribute value    | out    |
+
+```c
+/**
+ *            name                                     attr type        default
+ *  axcl.ppl.id                             [R  ]       int32_t                            increment +1 for each axcl_ppl_create
+ *
+ *  axcl.ppl.transcode.vdec.grp             [R  ]       int32_t                            allocated by ax_vdec.ko
+ *  axcl.ppl.transcode.ivps.grp             [R  ]       int32_t                            allocated by ax_ivps.ko
+ *  axcl.ppl.transcode.venc.chn             [R  ]       int32_t                            allocated by ax_venc.ko
+ *
+ *  the following attributes take effect BEFORE the axcl_ppl_create function is called:
+ *  axcl.ppl.transcode.vdec.blk.cnt         [R/W]       uint32_t          8                depend on stream DPB size and decode mode
+ *  axcl.ppl.transcode.vdec.out.depth       [R/W]       uint32_t          4                out fifo depth
+ *  axcl.ppl.transcode.ivps.in.depth        [R/W]       uint32_t          4                in fifo depth
+ *  axcl.ppl.transcode.ivps.out.depth       [R  ]       uint32_t          0                out fifo depth
+ *  axcl.ppl.transcode.ivps.blk.cnt         [R/W]       uint32_t          4
+ *  axcl.ppl.transcode.ivps.engine          [R/W]       uint32_t   AX_IVPS_ENGINE_VPP      AX_IVPS_ENGINE_VPP|AX_IVPS_ENGINE_VGP|AX_IVPS_ENGINE_TDP
+ *  axcl.ppl.transcode.venc.in.depth        [R/W]       uint32_t          4                in fifo depth
+ *  axcl.ppl.transcode.venc.out.depth       [R/W]       uint32_t          4                out fifo depth
+ */
+```
+
+> [!IMPORTANT]
+>
+> **axcl.ppl.transcode.vdec.blk.cnt**:  blk count is related to the DBP size of input stream, recommend to set dbp + 1.
+
+##### return
+
+0 (AXCL_SUCC)  if success, otherwise failure.
+
+
+
+#### axcl_ppl_set_attr
+
+set attribute of ppl.
+
+##### prototype
+
+axclError axcl_ppl_set_attr(axcl_ppl ppl, const char* name, const void* attr);
+
+##### parameter
+
+| parameter | description                                      | in/out |
+| --------- | ------------------------------------------------ | ------ |
+| ppl       | ppl handle created                               | in     |
+| name      | attribute name, refer to ***axcl_ppl_get_attr*** | in     |
+| attr      | attribute value                                  | in     |
+
+##### return
+
+0 (AXCL_SUCC)  if success, otherwise failure.
