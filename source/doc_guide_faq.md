@@ -65,7 +65,7 @@ log type is -1
     axclSetLogLevel(3);
     ```
 
-  > [!NOTE]
-  >
-  > json文件支持更改Host侧的日志存放路径，日志级别以及Device侧的日志级别，而`axclSetLogLevel`接口只能动态更改Host侧的日志级别。
+  :::{Note}
+  json文件支持更改Host侧的日志存放路径，日志级别以及Device侧的日志级别，而`axclSetLogLevel`接口只能动态更改Host侧的日志级别。
+  :::
 
