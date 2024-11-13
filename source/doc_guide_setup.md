@@ -249,11 +249,9 @@ rpm 包卸载后会自动 reset 子卡，子卡会进入 `pcie download mode`。
 sudo rpm -e axcl_host
 ```
 
-### Others
 
 
-
-## Kylin
+## [Kylin 10](#kylinv10)
 
 ### 系统信息
 
@@ -391,7 +389,23 @@ KYLIN_RELEASE_ID="2403"
 
 > [!NOTE]
 >
-> - 对于PCIe传输，kernel config中的CMA和DMA必须打开，若无法打开，请尝试联络OS发行方的技术支持。
+> - 对于PCIe传输，kernel config中的CMA和DMA必须打开，若无法打开，请尝试订制内核或联络OS发行方的技术支持。
+>
+>   ```bash
+>   1. 使用 uname -r 查看current kernel version
+>   2. sudo apt install linux-source-$(uname -r) to fetch the kernel source
+>   3. copy /boot/config-$(uname -r) to /usr/src/linux-source-$(uname -r)/.config
+>   4. edit .config
+>      Locate CONFIG_DMA_CMA is not set
+>      change to CONFIG_DMA_CMA=y
+>   5. build kernel
+>   6. make -j[2 × # of cores]
+>   7. make -j[2 × # of cores] modules_install
+>   8. make install
+>   
+>   You have rebuilt the kernel
+>   ```
+>
 > - 环境搭建只需要配置一次，CMA size推荐不小于128MB。
 
 
@@ -432,10 +446,15 @@ KYLIN_RELEASE_ID="2403"
 正在处理用于 libc-bin (2.31-0kylin9.2k0.2) 的触发器 ...
 ```
 
+
+
 ## ubuntu
 
-### 系统信息
+> [!NOTE]
+>
+> - 系统配合和deb安装、卸载参考[Kylin](#kylinv10)。
+> - 系统版本支持22.04（含）以上版本。
 
-### deb 安装
 
-### deb 卸载
+
+## Others
