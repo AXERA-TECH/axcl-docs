@@ -121,6 +121,7 @@ axclError axclrtResetDevice(int32_t deviceId);
 -  [`axclrtCreateContext`](#axclrtcreatecontext)  显示创建的Context，推荐  [`axclrtDestroyContext`](#axclrtdestroycontext)  显示销毁后再调用本接口释放设备资源。
 - 和 [`axclrtSetDevice`](#axclrtsetdevice) 成对使用，系统将自动回收默认的Context资源。
 - 内部通过引用计数允许多次调用，仅当引用计数为0时释放资源。
+- **应用进程退出要确保`axclrtResetDevice`被调用，特别是异常信号捕获处理后，否则会导致C++抛出terminated abort异常。**
 
 #### [axclrtGetDevice](#axclrtgetdevice)
 
