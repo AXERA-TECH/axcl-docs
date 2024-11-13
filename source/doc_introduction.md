@@ -6,10 +6,9 @@ AXCL是用于在AX芯片平台上开发深度神经网络推理、转码等应�
 
 ![](../res/axcl_architecture.svg)
 
-> [!NOTE]
->
-> - ffmpeg和python尚在开发中，计划2025年2月发布。
-
+:::{Warning}
+ffmpeg 和 python 尚在开发中，计划 2025 年 2 月发布。
+:::
 
 
 ## 概念
