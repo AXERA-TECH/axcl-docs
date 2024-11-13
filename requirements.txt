@@ -1,7 +1,5 @@
 sphinx
-recommonmark
-sphinx_markdown_tables
 sphinx_rtd_theme
+sphinx-book-theme
 sphinx_copybutton
 myst-parser
-sphinxcontrib.mermaid
