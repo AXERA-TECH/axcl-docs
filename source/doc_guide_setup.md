@@ -141,7 +141,7 @@ rpm 的安装分为 2 个步骤：将 **src.rpm** 源码编译成二进制的 rp
    ################################# [100%]
    ```
 
-2. 源码安装完之后，在 `/home/$USER` 目录可以找到 **rmpbuild** 目录（如果是 sudo 安装，目录在 `/root` 下）
+2. 源码安装完之后，在 `$HOME` 用户目录可以找到 **rmpbuild** 目录（如果是 sudo 安装，目录在 `/root` 下）
 
     ```bash
     [axera@localhost ~]$ ls
@@ -250,3 +250,192 @@ sudo rpm -e axcl_host
 ```
 
 ### Others
+
+
+
+## Kylin
+
+### 系统信息
+
+系统版本：[V10 SP1 2403 HWE](https://product.kylinos.cn/productCase/171/36)
+
+```bash
+[axera@localhost ~]$ uname -a
+Linux localhost.localdomain 5.14.0-148.el9.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Aug 19 13:03:55 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux
+[axera@localhost ~]$ uname -r
+5.14.0-148.el9.x86_64
+
+[axera@localhost ~]$ cat /etc/os-release 
+NAME="Kylin"
+VERSION="银河麒麟桌面操作系统V10 (SP1)"
+VERSION_US="Kylin Linux Desktop V10 (SP1)"
+ID=kylin
+ID_LIKE=debian
+PRETTY_NAME="Kylin V10 SP1"
+VERSION_ID="v10"
+HOME_URL="http://www.kylinos.cn/"
+SUPPORT_URL="http://www.kylinos.cn/support/technology.html"
+BUG_REPORT_URL="http://www.kylinos.cn/"
+PRIVACY_POLICY_URL="http://www.kylinos.cn"
+VERSION_CODENAME=kylin
+UBUNTU_CODENAME=kylin
+PROJECT_CODENAME=V10SP1
+KYLIN_RELEASE_ID="2403"
+```
+
+### 环境搭建
+
+1. 查看CMA和DMA是否打开？ 即 `CONFIG_CMA=y` 和 `CONFIG_DMA_CMA=y`
+
+   ```bash
+   [axera@localhost ~]$ cat /boot/config-5.10.0-9-generic | grep CMA
+   CONFIG_CMA=y
+   # CONFIG_CMA_DEBUG is not set
+   # CONFIG_CMA_DEBUGFS is not set
+   CONFIG_CMA_AREAS=7
+   CONFIG_NETWORK_SECMARK=y
+   CONFIG_NF_CONNTRACK_SECMARK=y
+   CONFIG_NETFILTER_XT_TARGET_CONNSECMARK=m
+   CONFIG_NETFILTER_XT_TARGET_SECMARK=m
+   CONFIG_B43_BCMA=y
+   CONFIG_B43_BUSES_BCMA_AND_SSB=y
+   # CONFIG_B43_BUSES_BCMA is not set
+   CONFIG_B43_BCMA_PIO=y
+   CONFIG_INPUT_CMA3000=m
+   CONFIG_INPUT_CMA3000_I2C=m
+   CONFIG_BCMA_POSSIBLE=y
+   CONFIG_BCMA=m
+   CONFIG_BCMA_BLOCKIO=y
+   CONFIG_BCMA_HOST_PCI_POSSIBLE=y
+   CONFIG_BCMA_HOST_PCI=y
+   CONFIG_BCMA_HOST_SOC=y
+   CONFIG_BCMA_DRIVER_PCI=y
+   CONFIG_BCMA_SFLASH=y
+   CONFIG_BCMA_DRIVER_GMAC_CMN=y
+   CONFIG_BCMA_DRIVER_GPIO=y
+   # CONFIG_BCMA_DEBUG is not set
+   CONFIG_DRM_GEM_CMA_HELPER=y
+   CONFIG_DRM_KMS_CMA_HELPER=y
+   CONFIG_USB_HCD_BCMA=m
+   CONFIG_COMEDI_PCMAD=m
+   # CONFIG_ION_CMA_HEAP is not set
+   CONFIG_CRYPTO_CMAC=m
+   CONFIG_DMA_CMA=y
+   # CONFIG_DMA_PERNUMA_CMA is not set
+   CONFIG_CMA_SIZE_MBYTES=0
+   CONFIG_CMA_SIZE_SEL_MBYTES=y
+   # CONFIG_CMA_SIZE_SEL_PERCENTAGE is not set
+   # CONFIG_CMA_SIZE_SEL_MIN is not set
+   # CONFIG_CMA_SIZE_SEL_MAX is not set
+   CONFIG_CMA_ALIGNMENT=8
+   ```
+
+2. 如果kernel config没有打开CMA配置，参考 [stackoverflow](https://stackoverflow.com/questions/56508117/how-to-allocate-large-contiguous-memory-regions-in-linux) 帖子配置。
+
+3.  `dmesg | grep cma` 查看CMA reserved的大小
+
+   ```bash
+   [axera@localhost ~]$  dmesg | grep cma
+   [    0.000000] Command line: BOOT_IMAGE=/vmlinuz-5.10.0-9-generic root=UUID=c7a8075e-85dc-4a73-84e8-9b5bc3029204 ro cma=128MB quiet splash loglevel=0 resume=UUID=d27e8de7-dc17-47ab-92c6-5e7e34bca463 security=kysec
+   [    0.005838] cma: Reserved 128 MiB at 0x0000000487800000
+   [    0.026542] Kernel command line: BOOT_IMAGE=/vmlinuz-5.10.0-9-generic root=UUID=c7a8075e-85dc-4a73-84e8-9b5bc3029204 ro cma=128MB quiet splash loglevel=0 resume=UUID=d27e8de7-dc17-47ab-92c6-5e7e34bca463 security=kysec
+   [    0.052526] Memory: 15721272K/16458476K available (14345K kernel code, 6114K rwdata, 7480K rodata, 3828K init, 20636K bss, 605872K reserved, 131072K cma-reserved)
+   ```
+
+4.  如果CMA大小没有配置成合适size（推荐不小于128MB），按照如下步骤配置：
+
+   1. `sudo vim /etc/default/grub`，添加 `GRUB_CMDLINE_LINUX="cma=128MB"`, size 根据自己业务和实际内存情况设置。
+
+      ```bash
+      [axera@localhost ~]$ sudo vim /etc/default/grub
+      输入密码          
+      # If you change this file, run 'update-grub' afterwards to update
+      # /boot/grub/grub.cfg.
+      # For full documentation of the options in this file, see:
+      #   info -f grub -n 'Simple configuration'
+      
+      GRUB_DEFAULT=0
+      GRUB_TIMEOUT=1
+      GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`
+      GRUB_DISTRIBUTOR_RELEASE=`lsb_release -d -s | awk -F" " '{print $2 " " $3}' 2> /dev/null || echo ""`
+      GRUB_CMDLINE_LINUX_DEFAULT="quiet splash loglevel=0"
+      GRUB_CMDLINE_LINUX="cma=128MB"
+      GRUB_CMDLINE_LINUX_SECURITY="security=kysec"
+      
+      # Uncomment to enable BadRAM filtering, modify to suit your needs
+      # This works with Linux (no patch required) and with any kernel that obtains
+      # the memory map information from GRUB (GNU Mach, kernel of FreeBSD ...)
+      #GRUB_BADRAM="0x01234567,0xfefefefe,0x89abcdef,0xefefefef"
+      
+      # Uncomment to disable graphical terminal (grub-pc only)
+      #GRUB_TERMINAL=console
+      
+      # The resolution used on graphical terminal
+      # note that you can use only modes which your graphic card supports via VBE
+      # you can see them in real GRUB with the command `vbeinfo'
+      #GRUB_GFXMODE=640x480
+      
+      # Uncomment if you don't want GRUB to pass "root=UUID=xxx" parameter to Linux
+      #GRUB_DISABLE_LINUX_UUID=true
+      
+      # Uncomment to disable generation of recovery mode menu entries
+      #GRUB_DISABLE_RECOVERY="true"
+      
+      # Uncomment to get a beep at grub start
+      #GRUB_INIT_TUNE="480 440 1"
+      ```
+
+   2. `sudo update-grub` 更新grub
+
+   3. `sudo reboot`
+
+> [!NOTE]
+>
+> - 对于PCIe传输，kernel config中的CMA和DMA必须打开，若无法打开，请尝试联络OS发行方的技术支持。
+> - 环境搭建只需要配置一次，CMA size推荐不小于128MB。
+
+
+
+### deb 安装
+
+1.  `chmod +x` 给deb添加执行权限
+
+   ```bash
+    [axera@localhost ~]$ chmod +x axcl_host_V2.16.1_20241112130139_NO4433.deb
+   ```
+
+2. `sudo dpkg -i`  安装deb，安装完之后自动加载子卡固件。
+
+   ```bash
+   [axera@localhost ~]$ sudo dpkg -i axcl_host_V2.16.1_20241112130139_NO4433.deb
+   输入密码          
+   (正在读取数据库 ... 系统当前共安装有 202167 个文件和目录。)
+   准备解压 axcl_host_V2.16.1_20241112130139_NO4433.deb  ...
+   正在解压 axclhost (1.0) 并覆盖 (1.0) ...
+   正在设置 axclhost (1.0) ...
+   Need manual execute: source /etc/profile
+   正在处理用于 libc-bin (2.31-0kylin9.2k0.2) 的触发器 ...
+   ```
+
+3.  执行`source /etc/profile`更新环境变量
+
+   ```bash
+   [axera@localhost ~]$ source /etc/profile
+   ```
+
+### deb 卸载
+
+```bash
+[axera@localhost ~]$ sudo dpkg -r axclhost 
+(正在读取数据库 ... 系统当前共安装有 198866 个文件和目录。)
+正在卸载 axclhost (1.0) ...
+正在处理用于 libc-bin (2.31-0kylin9.2k0.2) 的触发器 ...
+```
+
+## ubuntu
+
+### 系统信息
+
+### deb 安装
+
+### deb 卸载
