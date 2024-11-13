@@ -48,9 +48,9 @@ AXCL运行时库有Device、Context、Stream、Task等基本概念，其关系�
 - 多线程推荐为每个线程显示创建一个Context。
 - 推荐通过`axclrtSetCurrentContext`切换Device。
 
+
+
 ## 已支持设备
 
 - M.2算力卡
-
-##  
 
