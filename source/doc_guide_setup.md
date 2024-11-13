@@ -251,7 +251,7 @@ sudo rpm -e axcl_host
 
 
 
-## [Kylin 10](#kylinv10)
+## [Kylin 10](#kylin)
 
 ### 系统信息
 
@@ -450,10 +450,8 @@ KYLIN_RELEASE_ID="2403"
 
 ## ubuntu
 
-> [!NOTE]
->
-> - 系统配合和deb安装、卸载参考[Kylin](#kylinv10)。
-> - 系统版本支持22.04（含）以上版本。
+- 系统配置和deb安装、卸载参考 [Kylin](#kylin)。
+- 系统版本支持22.04（含）以上版本。
 
 
 
