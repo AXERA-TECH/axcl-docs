@@ -387,26 +387,26 @@ KYLIN_RELEASE_ID="2403"
 
    3. `sudo reboot`
 
-> [!NOTE]
->
-> - 对于PCIe传输，kernel config中的CMA和DMA必须打开，若无法打开，请尝试订制内核或联络OS发行方的技术支持。
->
->   ```bash
->   1. 使用 uname -r 查看current kernel version
->   2. sudo apt install linux-source-$(uname -r) to fetch the kernel source
->   3. copy /boot/config-$(uname -r) to /usr/src/linux-source-$(uname -r)/.config
->   4. edit .config
->      Locate CONFIG_DMA_CMA is not set
->      change to CONFIG_DMA_CMA=y
->   5. build kernel
->   6. make -j[2 × # of cores]
->   7. make -j[2 × # of cores] modules_install
->   8. make install
->   
->   You have rebuilt the kernel
->   ```
->
-> - 环境搭建只需要配置一次，CMA size推荐不小于128MB。
+:::{Note}
+ - 对于PCIe传输，kernel config中的CMA和DMA必须打开，若无法打开，请尝试订制内核或联络OS发行方的技术支持。
+
+   ```bash
+   1. 使用 uname -r 查看current kernel version
+   2. sudo apt install linux-source-$(uname -r) to fetch the kernel source
+   3. copy /boot/config-$(uname -r) to /usr/src/linux-source-$(uname -r)/.config
+   4. edit .config
+      Locate CONFIG_DMA_CMA is not set
+      change to CONFIG_DMA_CMA=y
+   5. build kernel
+   6. make -j[2 × # of cores]
+   7. make -j[2 × # of cores] modules_install
+   8. make install
+   
+   You have rebuilt the kernel
+   ```
+
+ - 环境搭建只需要配置一次，CMA size推荐不小于128MB。
+ :::
 
 
 
