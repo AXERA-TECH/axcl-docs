@@ -69,3 +69,36 @@ log type is -1
   json文件支持更改Host侧的日志存放路径，日志级别以及Device侧的日志级别，而`axclSetLogLevel`接口只能动态更改Host侧的日志级别。
   :::
 
+
+
+## 调整PCIe传输DMA内存大小
+
+AXCL运行时库(`libaxcl_rt.so`) PCIe传输DMA内存从CMA分配，对每个进程需要3块`dma buf size`的内存，即总大小 = 3 x `dma buf size` Bytes。
+
+默认`dma buf size`大小为4MBytes，支持通过axcl.json配置，调用`axclInit`接口生效, json格式如下：
+
+```json
+{
+	"log": {
+		"host": {
+			"path": "/tmp/axcl/axcl_logs.txt",
+			"//   ": "0: trace, 1: debug, 2: info, 3: warn, 4: error, 5: critical, 6: off",
+			"level": 2
+		},
+		"device": {
+			"//   ": "0: trace, 1: debug, 2: info, 3: warn, 4: error, 5: critical, 6: off",
+			"level": 2
+		}
+	},
+    "dma buf size": "0x200000"
+}
+```
+
+如上所示，将`dma buf size`调整为2MBytes。
+
+:::{Note}
+
+- 应用根据实际业务需求和内存容量更改该参数，**最小大小为2MBytes**(0x200000)。
+- `dma buf size` **同时**修改Host和Device的PCIe CMA缓存分配。
+
+:::
