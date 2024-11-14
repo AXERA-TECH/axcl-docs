@@ -1721,3 +1721,72 @@ axclError axcl_ppl_set_attr(axcl_ppl ppl, const char* name, const void* attr);
 ##### return
 
 0 (AXCL_SUCC)  if success, otherwise failure.
+
+
+
+## 错误代码
+
+### 定义
+
+```c
+typedef int32_t axclError;
+
+typedef enum {
+    AXCL_SUCC                   = 0x00,
+    AXCL_FAIL                   = 0x01,
+    AXCL_ERR_UNKNOWN            = AXCL_FAIL,
+    AXCL_ERR_NULL_POINTER       = 0x02,
+    AXCL_ERR_ILLEGAL_PARAM      = 0x03,
+    AXCL_ERR_UNSUPPORT          = 0x04,
+    AXCL_ERR_TIMEOUT            = 0x05,
+    AXCL_ERR_BUSY               = 0x06,
+    AXCL_ERR_NO_MEMORY          = 0x07,
+    AXCL_ERR_ENCODE             = 0x08,
+    AXCL_ERR_DECODE             = 0x09,
+    AXCL_ERR_UNEXPECT_RESPONSE  = 0x0A,
+    AXCL_ERR_OPEN               = 0x0B,
+    AXCL_ERR_EXECUTE_FAIL       = 0x0C,
+
+    AXCL_ERR_BUTT               = 0x7F
+} AXCL_ERROR_E;
+
+#define AX_ID_AXCL           (0x30)
+
+/* module */
+#define AXCL_RUNTIME         (0x00)
+#define AXCL_NATIVE          (0x01)
+#define AXCL_LITE            (0x02)
+
+/* runtime sub module */
+#define AXCL_RUNTIME_DEVICE  (0x01)
+#define AXCL_RUNTIME_CONTEXT (0x02)
+#define AXCL_RUNTIME_STREAM  (0x03)
+#define AXCL_RUNTIME_TASK    (0x04)
+#define AXCL_RUNTIME_MEMORY  (0x05)
+#define AXCL_RUNTIME_CONFIG  (0x06)
+#define AXCL_RUNTIME_ENGINE  (0x07)
+#define AXCL_RUNTIME_SYSTEM  (0x08)
+
+/**
+ * |---------------------------------------------------------|
+ * | |   MODULE    |  AX_ID_AXCL | SUB_MODULE  |    ERR_ID   |
+ * |1|--- 7bits ---|--- 8bits ---|--- 8bits ---|--- 8bits ---|
+ **/
+#define AXCL_DEF_ERR(module, sub, errid) \
+    ((axclError)((0x80000000L) | (((module) & 0x7F) << 24) | ((AX_ID_AXCL) << 16 ) | ((sub) << 8) | (errid)))
+
+#define AXCL_DEF_RUNTIME_ERR(sub, errid)    AXCL_DEF_ERR(AXCL_RUNTIME, (sub), (errid))
+#define AXCL_DEF_NATIVE_ERR(sub,  errid)    AXCL_DEF_ERR(AXCL_NATIVE,  (sub), (errid))
+#define AXCL_DEF_LITE_ERR(sub,    errid)    AXCL_DEF_ERR(AXCL_LITE,    (sub), (errid))
+```
+
+:::{Note}
+
+错误代码分为AXCL运行时库和AX NATIVE SDK两种错误代码，通过`axclError`的第三字节区分。若第三个字节等于AX_ID_AXCL(0x30)，标识是AXCL运行时库的错误代码，反之则标识透传Device的AX NATIVE SDK模块的错误代码。
+- AXCL运行时库错误代码：参阅 `axcl_rt_xxx.h`头文件。
+- Device的NATIVE SDK错误代码是透传到HOST侧，参阅《AX 软件错误码文档》。
+:::
+
+### 解析
+
+请访问 https://gakki2019.github.io/axcl/ 在线解析错误代码。
