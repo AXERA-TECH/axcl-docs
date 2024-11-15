@@ -24,18 +24,36 @@ git clone https://github.com/AXERA-TECH/axcl-docs.git
 ├── LICENSE
 ├── Makefile
 ├── README.md
+├── build
+│   ├── doctrees
+│   └── html
 ├── requirements.txt
+├── res
+│   ├── M2_YUNJI_DSC05130.jpg
+│   ├── axcl_architecture.svg
+│   ├── axcl_concept.svg
+│   ├── centos_dmsg_grep_cma.png
+│   ├── centos_grub_info.png
+│   ├── centos_selinux.png
+│   ├── imagenet_cat.jpg
+│   ├── transcode_ppl.png
+│   ├── voc_dog.jpg
+│   ├── voc_dog_yolov5s_out.jpg
+│   ├── voc_horse.jpg
+│   └── voc_horse_yolov5s_out.jpg
 └── source
+    ├── axcl_error_lookup.html
     ├── conf.py
     ├── doc_guide_axcl_api.md
+    ├── doc_guide_faq.md
     ├── doc_guide_hardware.md
     ├── doc_guide_quick_start.md
+    ├── doc_guide_samples.md
+    ├── doc_guide_setup.md
     ├── doc_introduction.md
     ├── doc_update_info.md
     ├── index.rst
     └── media
-        ├── demo
-        └── hardware
 ```
 
 ### 2.2 编译
