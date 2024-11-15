@@ -899,4 +899,12 @@ Repeat 1 times, avg time 8.02 ms, max_time 8.02 ms, min_time 8.02 ms
 
 ### Others
 
+## 音频大模型
+
+### Whisper
+
+### MeloTTS
+
+## Others
+
 更多开源大模型示例请参考我们的 github repository [xxx]()
