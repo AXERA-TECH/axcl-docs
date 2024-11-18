@@ -123,7 +123,7 @@ sudo dpkg -r axclhost
 卸载的包名不是安装包的名字，是项目包名，即 axclhost。
 :::
 
-deb 包卸载时，会自动 reset 子卡，子卡进入pcie download mode.
+deb 包卸载时，会自动 reset 子卡，子卡进入pcie download mode。
 
 ## RK3588 等开发板
 
