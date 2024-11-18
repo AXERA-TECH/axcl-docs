@@ -2,6 +2,135 @@
 
 ## Raspberry Pi 5
 
+### 准备工作
+
+在树莓派 5 上安装 AX650 加速卡时，首先需要准备一块 M.2 HAT+ 扩展板。参考[官方链接](https://www.raspberrypi.com/news/using-m-2-hat-with-raspberry-pi-5/)，M.2 HAT+ 的官方版本只支持 2230、2242 的 M.2 M Key 卡，通常 AX650 加速卡是 2280 的，您可能需要考虑购买第三方的支持 2280 长度的 M.2 HAT+ 扩展板。
+
+:::{Warning}
+根据树莓派硬件批次不同，可能需要更新一下树莓派的 EEPROM 设置。具体步骤如下：
+:::
+
+如同 PC 中的 BIOS，EEPROM 设置独立于烧录 OS 的 TF 卡，烧录最新的树莓派镜像或者切换镜像版本并不会主动更新 EEPROM 的设置。首先执行 update：
+
+```bash
+sudo apt update && sudo apt full-upgrade
+```
+
+然后检查一下 EEPROM 中的版本：
+
+```bash
+sudo rpi-eeprom-update
+```
+
+如果看到的日期早于 `2023 年 12 月 6 日`，运行以下命令以打开 Raspberry Pi 配置 CLI：
+
+```bash
+sudo raspi-config
+```
+
+在 Advanced Options > Bootloader Version （引导加载程序版本） 下，选择 Latest （最新）。然后，使用 Finish 或 ESC 键退出 raspi-config。
+
+执行以下命令，将固件更新到最新版本。
+
+```bash
+sudo rpi-eeprom-update -a
+```
+
+最后使用 `sudo reboot` 重新启动。重启后就完成了 EEPROM 中 firmware 的更新。
+
+
+:::{Warning}
+取决于使用的树莓派 kernel 状态，目前的修改是以 2024年11月18日 以前的树莓派刚烧录好的系统为例进行说明的，客户需要根据树莓派系统更新情况识别这个步骤是否必须。
+:::
+
+在当前的树莓派 kernel 和 M.2 HAT+ 组合中，可能会遇到如下限制：
+
+> - PCIE Device 无法识别
+> - PCIE MSI IRQ 无法申请多个
+
+这些问题将导致安装失败或者子卡起不来。需要检查 Raspberry Pi 5 `/boot/firmware/config.txt` 文件，并进行修改。
+
+如果是第三方的兼容 M.2 HAT+ 产品，需要注意供电问题；在 config.txt 中添加如下描述：
+
+```bash
+dtparam=pciex1
+```
+该描述可以默认打开 PCIE 功能；然后继续增加 PCIE 的设备描述：
+
+```bash
+dtoverlay=pciex1-compat-pi5,no-mip
+```
+
+完成修改并重启后，可以使用 `lspci` 命令检查加速卡是否正确被识别：
+
+```bash
+axera@raspberrypi:~ $ lspci
+0000:00:00.0 PCI bridge: Broadcom Inc. and subsidiaries BCM2712 PCIe Bridge (rev 21)
+0000:01:00.0 Multimedia video controller: Axera Semiconductor Co., Ltd Device 0650 (rev 01)
+0001:00:00.0 PCI bridge: Broadcom Inc. and subsidiaries BCM2712 PCIe Bridge (rev 21)
+0001:01:00.0 Ethernet controller: Raspberry Pi Ltd RP1 PCIe 2.0 South Bridge
+```
+
+其中 `Multimedia video controller: Axera Semiconductor Co., Ltd Device 0650 (rev 01)` 就是 AX650 加速卡。
+
+### 生成或获取安装包
+
+可以从随 AX650 SDK 发布的发布包中获取已经随版本编译好的 `axcl_host_aarch64_V2.XX.X_202XXX.deb`，或使用 SDK 自行编译，其中编译生成的产物 `.deb` 的脚本可以根据需要自行修改定制。此外，树莓派可用的 OS 种类众多，这里主要以 `debian` 系列依赖 `.deb` 安装包的系统为例。
+
+SDK 编译的命令参考如下：
+
+```bash
+cd axcl/build
+make host=arm64 clean all install -j32
+cd build
+make p=AX650_card clean all install axp -j128
+```
+
+编译完成后，arm64 deb 包生成在 build/out 下。
+
+### 安装安装包
+
+:::{Warning}
+开发板需要编译支持，依赖 gcc, make, patch, linux-header-$(uname -r) 这几个包。需要提前安装好，或者保证安装时网络可用。
+:::
+
+将 aarch64 deb 包复制到树莓派开发板上，运行安装命令：
+
+```bash
+sudo dpkg -i axcl_host_aarch64_V2.16.1_20241118020146_NO4446.deb
+```
+
+安装将很快完成。安装时会自动增加环境变量，使得安装的 .so 和可执行程序可用。需要注意的是，如果需要可执行程序立即可用，还需要更新 bash 终端的环境：
+
+```bash
+source /etc/profile
+```
+
+如果是 ssh 的方式远程连接的板卡，还可以选择重连 ssh 进行自动更新(本机终端登录还可以重开一个终端进行自动更新)。
+
+### 启动子卡
+
+> - deb 包安装完成后将会自动启动子卡，无需再执行 `axclboot` 启动子卡
+> - 主机启动时，将会自动启动子卡
+
+### 卸载安装
+
+```bash
+sudo dpkg -r axclhost
+```
+
+:::{Warning}
+卸载的包名不是安装包的名字，是项目包名，即 axclhost。
+:::
+
+deb 包卸载时，会自动 reset 子卡，子卡进入pcie download mode.
+
+## RK3588 等开发板
+
+:::{Warning}
+RK3588、RK3568 等开发板的 deb 安装流程，除去环境配置，其它步骤与 `Raspberry Pi 5` 安装流程一样，不再单独说明；请参考树莓派的安装流程进行安装即可。
+:::
+
 ## CentOS 9
 
 ### 系统信息
