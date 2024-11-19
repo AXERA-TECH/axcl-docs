@@ -19,7 +19,7 @@
 | NPU           | 18TOPs@Int8，72TOPs@Int4                                |
 |              | 支持 CNN、Transformer 模型部署，支持 LLM、VLM 部署      |
 | 视频编码     | H.264/H.265，16路 1080@30fps 编码                       |
-| 视频解码     | H.264/H.265，32路 1080@30fps 编码                       |
+| 视频解码     | H.264/H.265，32路 1080@30fps 解码                       |
 | Host 适配    | 支持 Intel、AMD、NXP、Xilinx、Raspberry Pi、Rockchip 等 |
 | Host 系统    | Ubuntu、Debian、CentOS                                  |
 | 外形尺寸     | M.2 2280，M Key                                         |
