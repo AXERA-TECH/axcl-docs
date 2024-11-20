@@ -239,16 +239,127 @@ prompt >> q
 - 本小节只指导如何在 Raspberry Pi 5 上运行预编译好的基于 Whipser Small 的语音转文字示例；
 - 模型转换、示例源码编译请参考 [whisper.axcl](https://github.com/ml-inory/whisper.axcl)。
 
-**文件说明**
+**下载**
+
+```
+git clone https://github.com/ml-inory/whisper.axcl.git
+```
+
+**预编译模型**
+
+预编译模型下载([百度网盘](https://pan.baidu.com/s/1tOHVMZCin0A68T5HmKRJyg?pwd=axyz))  
+
+下载后放到 models 下  
+
+**编译**
+
+```
+cd whisper.axcl
+mkdir -p build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release ..
+make install -j4
+```
 
 **运行 Whisper**
+
+```
+cd install
+./whisper -w ../demo.wav
+```
+
+**运行结果**
+
+```
+(base) axera@raspberrypi:~/qtang/whisper.axcl/install $ ./whisper -w ../demo.wav
+encoder: ../models/small-encoder.axmodel
+decoder_main: ../models/small-decoder-main.axmodel
+decoder_loop: ../models/small-decoder-loop.axmodel
+wav_file: ../demo.wav
+language: zh
+Load encoder take 3336.25 ms
+Load decoder_main take 6091.89 ms
+Load decoder_loop take 5690.05 ms
+Read positional_embedding
+First token: 17556       take 51.44ms
+Next Token: 20844        take 30.15 ms
+Next Token: 7781         take 30.25 ms
+Next Token: 20204        take 30.22 ms
+Next Token: 28455        take 30.18 ms
+Next Token: 31962        take 30.19 ms
+Next Token: 6336         take 30.17 ms
+Next Token: 254          take 30.13 ms
+Next Token: 2930         take 30.02 ms
+Next Token: 236          take 30.13 ms
+Next Token: 36135        take 30.14 ms
+Next Token: 15868        take 30.15 ms
+Next Token: 252          take 30.12 ms
+Next Token: 1546         take 30.15 ms
+Next Token: 46514        take 30.18 ms
+Next Token: 50257        take 29.95 ms
+All Token: take 503.73ms, 31.76 token/s
+Result: 甚至出现交易几乎停滞的情况
+(base) axera@raspberrypi:~/qtang/whisper.axcl/install $
+```
 
 ### MeloTTS
 
 - 本小节只指导如何在 Raspberry Pi 5 上运行预编译好的 MeloTTS 文字转语音示例；
 - 模型转换、示例源码编译请参考 [melotts.axcl](https://github.com/ml-inory/melotts.axcl)。
 
-**文件说明**
+**下载**
+
+```
+git clone https://github.com/ml-inory/melotts.axcl.git
+```
+
+**预编译模型**
+
+```
+cd melotts.axcl
+./download_models.sh
+```
+
+**编译**
+
+```
+cd melotts.axcl
+mkdir -p build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release ..
+make install -j4
+```
 
 **运行 MeloTTS**
 
+```
+cd install
+./melotts -s 句子
+```
+
+**运行结果**
+
+```
+(base) axera@raspberrypi:~/qtang/melotts.axcl/install $ ./melotts
+encoder: ../models/encoder.onnx
+decoder: ../models/decoder.axmodel
+lexicon: ../models/lexicon.txt
+token: ../models/tokens.txt
+sentence: 爱芯元智半导体股份有限公司，致力于打造世界领先的人工智能感知与边缘计算芯片。服务智慧城市、智能驾驶、机器人的海量普惠的应用
+wav: output.wav
+speed: 0.800000
+sample_rate: 44100
+Load encoder
+Load decoder model
+Encoder run take 191.99ms
+decoder slice num: 9
+Decode slice(1/9) take 39.98ms
+Decode slice(2/9) take 39.69ms
+Decode slice(3/9) take 39.88ms
+Decode slice(4/9) take 39.60ms
+Decode slice(5/9) take 40.12ms
+Decode slice(6/9) take 39.69ms
+Decode slice(7/9) take 39.62ms
+Decode slice(8/9) take 39.61ms
+Decode slice(9/9) take 40.95ms
+Saved audio to output.wav
+(base) axera@raspberrypi:~/qtang/melotts.axcl/install $ 
+```
