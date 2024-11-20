@@ -887,24 +887,88 @@ Repeat 1 times, avg time 8.02 ms, max_time 8.02 ms, min_time 8.02 ms
 ![](../res/voc_horse_yolov5s_out.jpg)
 
 
-### Others
+### axcl-samples
 
-更多开源模型示例请参考我们的 github repository [axcl-samples](https://github.com/AXERA-TECH/axcl-sample)
+AXCL-Samples 由 爱芯元智 主导开发。该项目实现了常见的深度学习开源算法在基于 爱芯元智 的 SoC 实现的 PCIE算力卡 产品上的运行的示例代码，方便社区开发者进行快速评估和适配。
+
+- github repository [axcl-samples](https://github.com/AXERA-TECH/axcl-samples)；
+- 该仓库采用最简单的方式展示常用的开源模型，例如 Ultralytics 的 YOLO 系列，DepthAnything，YOLO-Worldv2 等等；
+
+#### 获取示例
+
+- AXCL-Samples 的预编译 ModelZoo 请参考
+  - [百度网盘]()
+
+#### DepthAnything 运行
+
+```
+axera@raspberrypi:~/temp/axcl-samples/build $ ./install/bin/ax_depth_anything -m depth_anything.axmodel -i ssd_horse.jpg
+--------------------------------------
+model file : depth_anything.axmodel
+image file : ssd_horse.jpg
+img_h, img_w : 384 640
+--------------------------------------
+input size: 1
+    name:    image [unknown] [unknown]
+        1 x 384 x 640 x 3
+
+
+output size: 1
+    name:    depth
+        1 x 1 x 384 x 640
+
+==================================================
+
+Engine push input is done.
+post process cost time:4.43 ms
+--------------------------------------
+Repeat 1 times, avg time 44.02 ms, max_time 44.02 ms, min_time 44.02 ms
+--------------------------------------
+```
+![](../res/depth_anything_out.png)
 
 ## LLM 示例
 
+- 模型转请参考[大模型编译文档](https://pulsar2-docs.readthedocs.io/zh-cn/latest/appendix/build_llm.html)
+- 预编译 ModelZoo 请参考[百度网盘]()
+
 ### Qwen2.5
+
+#### Qwen2.5 运行
+
+拷贝文档到 Host 指定文件夹中
+
+文件说明
+
+运行信息
 
 ### InternVL2
 
+#### InternVL2-1B 运行
+
+拷贝文档到 Host 指定文件夹中
+
+文件说明
+
+运行信息
+
 ### Others
+
+篇幅有限，已适配 Huggingface、魔搭 上的大模型包括但不限于以下种类
 
 ## 音频大模型
 
 ### Whisper
 
+- 本小节只指导如何在 Raspberry Pi 5 上运行预编译好的基于 Whipser Small 的语音转文字示例
+- 模型转换、示例源码编译请参考 [whisper.axcl](https://github.com/ml-inory/whisper.axcl)
+
+#### Whisper 运行
+
 ### MeloTTS
 
-## Others
+- 本小节只指导如何在 Raspberry Pi 5 上运行预编译好的 MeloTTS 文字转语音示例
+- 模型转换、示例源码编译请参考 [melotts.axcl](https://github.com/ml-inory/melotts.axcl)
 
-更多开源大模型示例请参考我们的 github repository [xxx]()
+#### MeloTTS 运行
+
