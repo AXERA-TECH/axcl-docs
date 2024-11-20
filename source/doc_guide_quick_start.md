@@ -885,26 +885,3 @@ Repeat 1 times, avg time 8.02 ms, max_time 8.02 ms, min_time 8.02 ms
 可见检测到了 6 个目标，并且给出了类别 `ID`、置信度和坐标。在 `sample` 执行的目录下，会保存一个名为 `yolov5s_out.jpg` 的检测结果，可以图片浏览器打开预览一下输出结果。
 
 ![](../res/voc_horse_yolov5s_out.jpg)
-
-
-### Others
-
-更多开源模型示例请参考我们的 github repository [axcl-samples](https://github.com/AXERA-TECH/axcl-sample)
-
-## LLM 示例
-
-### Qwen2.5
-
-### InternVL2
-
-### Others
-
-## 音频大模型
-
-### Whisper
-
-### MeloTTS
-
-## Others
-
-更多开源大模型示例请参考我们的 github repository [xxx]()
