@@ -12,7 +12,79 @@ AXCL-Samples 由 爱芯元智 主导开发。该项目实现了常见的深度�
 - AXCL-Samples 的预编译 ModelZoo 请参考
   - [百度网盘](https://pan.baidu.com/s/1cnMeqsD-hErlRZlBDDvuoA?pwd=oey4)
 
-### DepthAnything 运行
+### YOLO11x
+
+```
+(base) axera@raspberrypi:~/temp $ ./ax_yolo11 -i ssd_horse.jpg -m yolo11x.axmodel
+--------------------------------------
+model file : yolo11x.axmodel
+image file : ssd_horse.jpg
+img_h, img_w : 640 640
+--------------------------------------
+post process cost time:2.84 ms
+--------------------------------------
+Repeat 1 times, avg time 43.93 ms, max_time 43.93 ms, min_time 43.93 ms
+--------------------------------------
+detection num: 6
+17:  96%, [ 216,   71,  423,  370], horse
+16:  93%, [ 144,  203,  196,  345], dog
+ 0:  89%, [ 273,   14,  349,  231], person
+ 2:  88%, [   1,  105,  132,  197], car
+ 0:  82%, [ 431,  124,  451,  178], person
+19:  46%, [ 171,  137,  202,  169], cow
+--------------------------------------
+```
+![](../res/yolo11_out.jpg)
+
+### YOLO11x-Seg
+
+```
+(base) axera@raspberrypi:~/temp $ ./ax_yolo11_seg -i ssd_horse.jpg -m yolo11x-seg.axmodel
+--------------------------------------
+model file : yolo11x-seg.axmodel
+image file : ssd_horse.jpg
+img_h, img_w : 640 640
+--------------------------------------
+post process cost time:4.57 ms
+--------------------------------------
+Repeat 1 times, avg time 69.22 ms, max_time 69.22 ms, min_time 69.22 ms
+--------------------------------------
+detection num: 6
+17:  96%, [ 216,   71,  423,  370], horse
+16:  93%, [ 144,  203,  196,  345], dog
+ 0:  89%, [ 273,   14,  349,  231], person
+ 2:  88%, [   1,  105,  132,  197], car
+ 0:  82%, [ 431,  124,  451,  178], person
+19:  46%, [ 171,  137,  202,  169], cow
+--------------------------------------
+```
+![](../res/yolo11_seg_out.jpg)
+
+### YOLO11x-Pose
+
+```
+axera@raspberrypi:~/temp $ ./ax_yolo11_pose -i football.jpg -m yolo11x-pose.axmodel
+--------------------------------------
+model file : yolo11x-pose.axmodel
+image file : football.jpg
+img_h, img_w : 640 640
+--------------------------------------
+post process cost time:0.53 ms
+--------------------------------------
+Repeat 1 times, avg time 41.11 ms, max_time 41.11 ms, min_time 41.11 ms
+--------------------------------------
+detection num: 6
+ 0:  94%, [1350,  337, 1632, 1036], person
+ 0:  93%, [ 492,  477,  658, 1000], person
+ 0:  92%, [ 756,  219, 1126, 1154], person
+ 0:  91%, [   0,  354,  314, 1108], person
+ 0:  73%, [   0,  530,   81, 1017], person
+ 0:  54%, [ 142,  589,  239, 1013], person
+--------------------------------------
+```
+![](../res/yolo11_pose_out.jpg)
+
+### DepthAnything
 
 ```
 axera@raspberrypi:~/temp/axcl-samples/build $ ./install/bin/ax_depth_anything -m depth_anything.axmodel -i ssd_horse.jpg
@@ -21,18 +93,6 @@ model file : depth_anything.axmodel
 image file : ssd_horse.jpg
 img_h, img_w : 384 640
 --------------------------------------
-input size: 1
-    name:    image [unknown] [unknown]
-        1 x 384 x 640 x 3
-
-
-output size: 1
-    name:    depth
-        1 x 1 x 384 x 640
-
-==================================================
-
-Engine push input is done.
 post process cost time:4.43 ms
 --------------------------------------
 Repeat 1 times, avg time 44.02 ms, max_time 44.02 ms, min_time 44.02 ms
