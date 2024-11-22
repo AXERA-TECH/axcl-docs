@@ -14,6 +14,8 @@ AXCL-Samples 由 爱芯元智 主导开发。该项目实现了常见的深度�
 
 ### YOLO11x
 
+基于 Ultralytics YOLO11 系列模型详细的模型导出、量化、编译的流程请参考[《基于 AX650N 部署 YOLO11》](https://zhuanlan.zhihu.com/p/772269394)
+
 ```
 (base) axera@raspberrypi:~/temp $ ./ax_yolo11 -i ssd_horse.jpg -m yolo11x.axmodel
 --------------------------------------
@@ -84,7 +86,36 @@ detection num: 6
 ```
 ![](../res/yolo11_pose_out.jpg)
 
+### YOLO World v2
+
+YOLO-Worldv2 该模型的详细模型导出、量化、编译的流程请参考[《再谈 YOLO World 部署》](https://zhuanlan.zhihu.com/p/721856217)
+
+- 模型：yoloworldv2_4cls_50_npu3.axmodel
+- 输入图片：ssd_horse.jpg
+- 输入文本：dog.bin, 对应的 4 分类 'dog' 'horse' 'sheep' 'cow'
+
+```
+axera@raspberrypi:~/temp $ ./ax_yolo_world_open_vocabulary -m yoloworldv2_4cls_50_npu3.axmodel -t dog.bin -i ssd_horse.jpg
+--------------------------------------
+model file : yoloworldv2_4cls_50_npu3.axmodel
+image file : ssd_horse.jpg
+text_feature file : dog.bin
+img_h, img_w : 640 640
+--------------------------------------
+post process cost time:0.42 ms
+--------------------------------------
+Repeat 1 times, avg time 15.50 ms, max_time 15.50 ms, min_time 15.50 ms
+--------------------------------------
+detection num: 2
+ 1:  91%, [ 215,   71,  421,  374], class2
+ 0:  67%, [ 144,  204,  197,  346], class1
+--------------------------------------
+```
+![](../res/yolo_world_out.jpg)
+
 ### DepthAnything
+
+DepthAnything 该模型的详细模型导出、量化、编译的流程请参考[《基于 AX650N 的 Depth Anything》](https://zhuanlan.zhihu.com/p/681378259)
 
 ```
 axera@raspberrypi:~/temp/axcl-samples/build $ ./install/bin/ax_depth_anything -m depth_anything.axmodel -i ssd_horse.jpg
@@ -208,6 +239,8 @@ Type "q" to exit, Ctrl+c to stop current running
 ```
 
 ### InternVL2-1B
+
+InternVL2-1B 的详细模型导出、量化、编译的流程请参考[《基于 AX650N/AX630C 部署多模态大模型 InternVL2-1B》](https://zhuanlan.zhihu.com/p/4118849355)
 
 拷贝相关文件到 Host 
 
