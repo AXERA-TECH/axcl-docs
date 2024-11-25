@@ -250,99 +250,18 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
 
 ### rpm 安装
 
-rpm 的安装分为 2 个步骤：将 **src.rpm** 源码编译成二进制的 rpm，然后安装 rpm。
+`.rpm` 包有可以从发布 SDK 中进行编译，也可以使用编译好的 `axcl_host_x86_64_V2.xx.x_xxxxx.rpm` 进行安装。
 
->
-> 因安装后将自动加载设备固件，因此安装前请确认子卡已和主机正确连接。
->
-
-1. 源码安装:
-
-    源码使用命令进行安装：`rpm -Uvh axcl_host-V2.16.0_20241111020148-NO4430.src.rpm`
+从 SDK 编译 AXCL 流程时，步骤如下：
 
    ```bash
-   [axera@localhost]$ rpm -Uvh axcl_host-V2.16.0_20241111020148-NO4430.src.rpm
-   Updating / installing...
-      1:axcl_host-V2.16.0_20241111020148-warning: user jenkins does not exist - using root
-   warning: group jenkins does not exist - using root
-   warning: user jenkins does not exist - using root
-   warning: group jenkins does not exist - using root
-   ################################# [100%]
+   1.cd axcl/build
+   2.make host=x86 clean all install -j32
+   3.cd build
+   4.make p=AX650_card clean all install axp -j128
    ```
 
-2. 源码安装完之后，在 `$HOME` 用户目录可以找到 **rmpbuild** 目录（如果是 sudo 安装，目录在 `/root` 下）
-
-    ```bash
-    [axera@localhost ~]$ ls
-    Desktop  Documents  Downloads  jingxiaoping  mp4  Music  Pictures  Public  rpmbuild  Templates  Videos
-    ```
-
-3. 构建 rpm 安装包：
-
-    使用命令 `rpmbuild -bb --nodebuginfo rpmbuild/SPECS/axcl_host.spec` 进行构建：
-
-   ```bash
-   [axera@localhost rpmbuild]$ rpmbuild -bb --nodebuginfo SPECS/axcl_host.spec
-   warning: bogus date in %changelog: Thu Oct 30 2024 root <root@localhost> - 1.0-1
-   setting SOURCE_DATE_EPOCH=1730246400
-   Executing(%prep): /bin/sh -e /var/tmp/rpm-tmp.qShrCO
-   + umask 022
-   + cd /home/axera/rpmbuild/BUILD
-   + cd /home/axera/rpmbuild/BUILD
-   + rm -rf axcl
-   + /usr/bin/gzip -dc /home/axera/rpmbuild/SOURCES/axcl.tar.gz
-   + /usr/bin/tar -xof -
-   + STATUS=0
-   + '[' 0 -ne 0 ']'
-   + cd axcl
-   + /usr/bin/chmod -Rf a+rX,u+w,g-w,o-w .
-   ++ cat /etc/os-release
-   ++ grep '^VERSION_ID='
-   ++ cut -d = -f2
-   ++ tr -d '"'
-   + os_version=9
-   ++ cat /etc/os-release
-   ++ grep '^NAME='
-   ++ cut -d = -f2
-   ++ tr -d '"'
-   + os_name='CentOS Stream'
-   + [[ CentOS Stream == \C\e\n\t\O\S\ \S\t\r\e\a\m ]]
-   + [[ 9 == \9 ]]
-   + echo 'Apply patch for centos stream 9'
-   Apply patch for centos stream 9
-   + cd /home/axera/rpmbuild/BUILD/axcl/drv/pcie/driver
-   + patch -p3
-   patching file include/ax_pcie_dev.h
-   patching file net/rc-net/ax_pcie_net.c
-   + RPM_EC=0
-   ++ jobs -p
-   + exit 0
-   Executing(%build): /bin/sh -e /var/tmp/rpm-tmp.l1AJjV
-   + umask 022
-   + cd /home/axera/rpmbuild/BUILD
-   + cd axcl
-   + cd /home/axera/rpmbuild/BUILD/axcl/drv/pcie/driver
-   + make host=x86 clean all install -j8
-   + RPM_EC=0
-   ++ jobs -p
-   + exit 0
-   Executing(%install): /bin/sh -e /var/tmp/rpm-tmp.xiLHDC
-   ... ...
-   Checking for unpackaged file(s): /usr/lib/rpm/check-files /home/axera/rpmbuild/BUILDROOT/axcl_host-1.0-1.el9.x86_64
-   Wrote: /home/axera/rpmbuild/RPMS/x86_64/axcl_host-1.0-1.el9.x86_64.rpm
-   Executing(%clean): /bin/sh -e /var/tmp/rpm-tmp.a78fQ2
-   + umask 022
-   + cd /home/axera/rpmbuild/BUILD
-   + cd axcl
-   + /usr/bin/rm -rf /home/axera/rpmbuild/BUILDROOT/axcl_host-1.0-1.el9.x86_64
-   + RPM_EC=0
-   ++ jobs -p
-   + exit 0
-   ```
-
-4. 安装 rpm：
-
-    使用命令 `sudo rpm -Uvh --nodeps rpmbuild/RPMS/x86_64/axcl_host-1.0-1.el9.x86_64.rpm` 安装，参考如下：
+编译完成后，生成的 `.rpm` 生成在build/out 下。将 `.rpm` 上传到目标 `x86_64` 上后，使用以下命令安装 rpm：
     
    ```bash
    [axera@localhost rpmbuild]$ sudo rpm -Uvh --nodeps RPMS/x86_64/axcl_host-1.0-1.el9.x86_64.rpm
@@ -354,8 +273,7 @@ rpm 的安装分为 2 个步骤：将 **src.rpm** 源码编译成二进制的 rp
    [axera@localhost rpmbuild]$
    ```
 
-5. 加载环境：`source /etc/profile`
-    加载环境是为了使 `/usr/lib/axcl/` 下安装的可执行程序可以直接运行；还可以通过断开 `ssh` 重连的方式更新 ssh 环境。下列目录是 rpm 包安装的主要内容：
+为了使 `/usr/lib/axcl/` 下安装的可执行程序可以直接运行，安装完成后需要加载环境变量：`source /etc/profile`。对于 `ssh` 的连接，可以通过断开 `ssh` 重连的方式更新 ssh 环境。下列目录是 rpm 包安装的主要内容：
 
    ```bash
    [axera@localhost axcl]$ ls  /usr/lib/axcl/
@@ -374,11 +292,10 @@ rpm 的安装分为 2 个步骤：将 **src.rpm** 源码编译成二进制的 rp
 ### rpm 卸载
 
 rpm 包卸载后会自动 reset 子卡，子卡会进入 `pcie download mode`。卸载命令如下：
-```bash
-sudo rpm -e axcl_host
-```
 
-
+   ```bash
+   sudo rpm -e axcl_host
+   ```
 
 ## [Kylin 10](#kylin)
 
@@ -581,7 +498,6 @@ KYLIN_RELEASE_ID="2403"
 
 - 系统配置和deb安装、卸载参考 [Kylin](#kylin)。
 - 系统版本支持22.04（含）以上版本。
-
 
 
 ## Others
