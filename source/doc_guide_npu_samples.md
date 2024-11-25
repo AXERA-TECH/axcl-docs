@@ -373,23 +373,25 @@ Load encoder take 3336.25 ms
 Load decoder_main take 6091.89 ms
 Load decoder_loop take 5690.05 ms
 Read positional_embedding
-First token: 17556       take 51.44ms
-Next Token: 20844        take 30.15 ms
-Next Token: 7781         take 30.25 ms
-Next Token: 20204        take 30.22 ms
-Next Token: 28455        take 30.18 ms
-Next Token: 31962        take 30.19 ms
-Next Token: 6336         take 30.17 ms
-Next Token: 254          take 30.13 ms
-Next Token: 2930         take 30.02 ms
-Next Token: 236          take 30.13 ms
-Next Token: 36135        take 30.14 ms
+Encoder run take 190.32 ms
+First token: 17556       take 51.34ms
+Next Token: 20844        take 30.24 ms
+Next Token: 7781         take 30.18 ms
+Next Token: 20204        take 30.19 ms
+Next Token: 28455        take 30.28 ms
+Next Token: 31962        take 30.24 ms
+Next Token: 6336         take 30.16 ms
+Next Token: 254          take 30.20 ms
+Next Token: 2930         take 30.17 ms
+Next Token: 236          take 30.21 ms
+Next Token: 36135        take 30.17 ms
 Next Token: 15868        take 30.15 ms
-Next Token: 252          take 30.12 ms
-Next Token: 1546         take 30.15 ms
-Next Token: 46514        take 30.18 ms
-Next Token: 50257        take 29.95 ms
-All Token: take 503.73ms, 31.76 token/s
+Next Token: 252          take 30.20 ms
+Next Token: 1546         take 30.22 ms
+Next Token: 46514        take 30.20 ms
+Next Token: 50257        take 30.25 ms
+All Token: take 505.08ms, 31.68 token/s
+All take 736.65ms
 Result: 甚至出现交易几乎停滞的情况
 (base) axera@raspberrypi:~/qtang/whisper.axcl/install $
 ```
