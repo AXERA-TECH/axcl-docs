@@ -273,7 +273,9 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
    [axera@localhost rpmbuild]$
    ```
 
-为了使 `/usr/lib/axcl/` 下安装的可执行程序可以直接运行，安装完成后需要加载环境变量：`source /etc/profile`。对于 `ssh` 的连接，可以通过断开 `ssh` 重连的方式更新 ssh 环境。下列目录是 rpm 包安装的主要内容：
+为了使 `/usr/lib/axcl/` 下安装的可执行程序可以直接运行，安装完成后需要加载环境变量：`source /etc/profile`。
+
+对于 `ssh` 的连接，还可以通过断开重连的方式更新环境。下列目录是 rpm 包安装的主要内容：
 
    ```bash
    [axera@localhost axcl]$ ls  /usr/lib/axcl/
