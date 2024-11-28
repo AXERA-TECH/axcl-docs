@@ -12,7 +12,7 @@ Benchmark 是了解硬件平台网络模型运行速度的最佳途径。以下�
 
 *由于不同 Host 其 memcopy、pcie 性能差异，因此 axcl_run_model 只统计网络模型在 Device 上的推理耗时*
 
-## Benchmark
+## Vision Model
 
 | Models       | Input Size | Batch 1(IPS) | Batch 8(IPS) |
 | ------------ | ---------- | ------------ | ------------ |
@@ -35,4 +35,20 @@ Benchmark 是了解硬件平台网络模型运行速度的最佳途径。以下�
 | YOLOv11m     | 640        | 114          |              |
 | YOLOv11l     | 640        | 87           |              |
 | YOLOv11x     | 640        | 41           |              |
+
+## Audio Model
+| Models        | RTF  |
+| ------------- | ---- |
+| Whisper-Tiny  | 0.03 |
+| Whisper-Small | 0.18 |
+| MeloTTS       | 0.04 |
+
+## LLM
+
+| Models       | Prompt length（tokens） | TTFT（ms） | Generate（tokens/s) |
+| ------------ | ----------------------- | ---------- | ------------------- |
+| Qwen2.5-0.5B | 128                     | 188        | 28                  |
+
+## VLM
+
 

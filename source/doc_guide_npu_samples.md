@@ -17,15 +17,15 @@ AXCL-Samples 由 爱芯元智 主导开发。该项目实现了常见的深度�
 基于 Ultralytics YOLO11 系列模型详细的模型导出、量化、编译的流程请参考[《基于 AX650N 部署 YOLO11》](https://zhuanlan.zhihu.com/p/772269394)
 
 ```
-(base) axera@raspberrypi:~/temp $ ./ax_yolo11 -i ssd_horse.jpg -m yolo11x.axmodel
+(base) axera@raspberrypi:~/temp $ ./axcl_yolo11 -i ssd_horse.jpg -m yolo11x.axmodel
 --------------------------------------
 model file : yolo11x.axmodel
 image file : ssd_horse.jpg
 img_h, img_w : 640 640
 --------------------------------------
-post process cost time:2.84 ms
+post process cost time:1.44 ms
 --------------------------------------
-Repeat 1 times, avg time 43.93 ms, max_time 43.93 ms, min_time 43.93 ms
+Repeat 1 times, avg time 24.69 ms, max_time 24.69 ms, min_time 24.69 ms
 --------------------------------------
 detection num: 6
 17:  96%, [ 216,   71,  423,  370], horse
@@ -41,15 +41,15 @@ detection num: 6
 ### YOLO11x-Seg
 
 ```
-(base) axera@raspberrypi:~/temp $ ./ax_yolo11_seg -i ssd_horse.jpg -m yolo11x-seg.axmodel
+(base) axera@raspberrypi:~/temp $ ./axcl_yolo11_seg -i ssd_horse.jpg -m yolo11x-seg.axmodel
 --------------------------------------
 model file : yolo11x-seg.axmodel
 image file : ssd_horse.jpg
 img_h, img_w : 640 640
 --------------------------------------
-post process cost time:4.57 ms
+post process cost time:3.12 ms
 --------------------------------------
-Repeat 1 times, avg time 69.22 ms, max_time 69.22 ms, min_time 69.22 ms
+Repeat 1 times, avg time 34.75 ms, max_time 34.75 ms, min_time 34.75 ms
 --------------------------------------
 detection num: 6
 17:  96%, [ 216,   71,  423,  370], horse
@@ -65,15 +65,15 @@ detection num: 6
 ### YOLO11x-Pose
 
 ```
-axera@raspberrypi:~/temp $ ./ax_yolo11_pose -i football.jpg -m yolo11x-pose.axmodel
+axera@raspberrypi:~/temp $ ./axcl_yolo11_pose -i football.jpg -m yolo11x-pose.axmodel
 --------------------------------------
 model file : yolo11x-pose.axmodel
 image file : football.jpg
 img_h, img_w : 640 640
 --------------------------------------
-post process cost time:0.53 ms
+post process cost time:0.59 ms
 --------------------------------------
-Repeat 1 times, avg time 41.11 ms, max_time 41.11 ms, min_time 41.11 ms
+Repeat 1 times, avg time 25.02 ms, max_time 25.02 ms, min_time 25.02 ms
 --------------------------------------
 detection num: 6
  0:  94%, [1350,  337, 1632, 1036], person
@@ -95,16 +95,16 @@ YOLO-Worldv2 该模型的详细模型导出、量化、编译的流程请参考[
 - 输入文本：dog.bin, 对应的 4 分类 'dog' 'horse' 'sheep' 'cow'
 
 ```
-axera@raspberrypi:~/temp $ ./ax_yolo_world_open_vocabulary -m yoloworldv2_4cls_50_npu3.axmodel -t dog.bin -i ssd_horse.jpg
+axera@raspberrypi:~/temp $ ./axcl_yolo_world_open_vocabulary -m yoloworldv2_4cls_50_npu3.axmodel -t dog.bin -i ssd_horse.jpg
 --------------------------------------
 model file : yoloworldv2_4cls_50_npu3.axmodel
 image file : ssd_horse.jpg
 text_feature file : dog.bin
 img_h, img_w : 640 640
 --------------------------------------
-post process cost time:0.42 ms
+post process cost time:0.35 ms
 --------------------------------------
-Repeat 1 times, avg time 15.50 ms, max_time 15.50 ms, min_time 15.50 ms
+Repeat 1 times, avg time 4.47 ms, max_time 4.47 ms, min_time 4.47 ms
 --------------------------------------
 detection num: 2
  1:  91%, [ 215,   71,  421,  374], class2
@@ -112,6 +112,28 @@ detection num: 2
 --------------------------------------
 ```
 ![](../res/yolo_world_out.jpg)
+
+### YOLOv7-Face
+
+```
+axera@raspberrypi:~/temp $ ./axcl_yolov7_face -m yolov7-face.axmodel -i selfie.jpg
+--------------------------------------
+model file : yolov7-face.axmodel
+image file : selfie.jpg
+img_h, img_w : 640 640
+--------------------------------------
+post process cost time:8.28 ms
+--------------------------------------
+Repeat 1 times, avg time 12.17 ms, max_time 12.17 ms, min_time 12.17 ms
+--------------------------------------
+detection num: 277
+ 0:  91%, [1137,  869, 1283, 1065], face
+ 0:  91%, [1424,  753, 1570,  949], face
+......
+ 0:  20%, [1120,  570, 1145,  604], face
+ 0:  20%, [1025,  390, 1041,  413], face
+```
+![](../res/yolov7_face_out.jpg)
 
 ### DepthAnything
 
@@ -373,23 +395,25 @@ Load encoder take 3336.25 ms
 Load decoder_main take 6091.89 ms
 Load decoder_loop take 5690.05 ms
 Read positional_embedding
-First token: 17556       take 51.44ms
+Encoder run take 190.26 ms
+First token: 17556       take 51.49ms
 Next Token: 20844        take 30.15 ms
-Next Token: 7781         take 30.25 ms
-Next Token: 20204        take 30.22 ms
-Next Token: 28455        take 30.18 ms
-Next Token: 31962        take 30.19 ms
-Next Token: 6336         take 30.17 ms
-Next Token: 254          take 30.13 ms
-Next Token: 2930         take 30.02 ms
-Next Token: 236          take 30.13 ms
-Next Token: 36135        take 30.14 ms
-Next Token: 15868        take 30.15 ms
-Next Token: 252          take 30.12 ms
-Next Token: 1546         take 30.15 ms
-Next Token: 46514        take 30.18 ms
-Next Token: 50257        take 29.95 ms
-All Token: take 503.73ms, 31.76 token/s
+Next Token: 7781         take 30.21 ms
+Next Token: 20204        take 30.20 ms
+Next Token: 28455        take 30.17 ms
+Next Token: 31962        take 30.02 ms
+Next Token: 6336         take 30.09 ms
+Next Token: 254          take 30.22 ms
+Next Token: 2930         take 30.14 ms
+Next Token: 236          take 30.14 ms
+Next Token: 36135        take 30.12 ms
+Next Token: 15868        take 30.18 ms
+Next Token: 252          take 30.01 ms
+Next Token: 1546         take 30.17 ms
+Next Token: 46514        take 30.17 ms
+Next Token: 50257        take 30.15 ms
+All Token: take 503.68ms, 31.77 token/s
+All take 735.09ms
 Result: 甚至出现交易几乎停滞的情况
 (base) axera@raspberrypi:~/qtang/whisper.axcl/install $
 ```
