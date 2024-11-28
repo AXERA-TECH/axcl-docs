@@ -102,3 +102,20 @@ AXCL运行时库(`libaxcl_rt.so`) PCIe传输DMA内存从CMA分配，对每个进
 - `dma buf size` **同时**修改Host和Device的PCIe CMA缓存分配。
 
 :::
+
+
+## 调整 sysdump 时间戳
+
+在 sysdump 后，sysdump 文件名时间戳可能不对，需要进行以下设置:
+
+- 确认 RTC 是否设置为本地时区：
+
+  使用以下命令检查 RTC 是否设置为本地时区：`timedatectl | grep RTC`
+
+- 将 RTC 设置为本地时区：
+
+  使用以下命令将 RTC 设置为本地时区：`sudo timedatectl set-local-rtc 1`
+
+- 同步系统时间到 RTC：
+
+  如果需要，您可以将系统时间同步到 RTC：`sudo hwclock --systohc`
