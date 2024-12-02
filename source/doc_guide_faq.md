@@ -130,7 +130,20 @@ deb 安装时可能出现以下安装失败信息，一般导致安装失败原�
 
 ![](../res/faq_deb_install_1.png)
 
-安装失败后，会有安装文件保存，进入到/usr/src/axcl/drv/pcie/driver 手动编译确认是否编译有问题，或者查看/usr/src/axcl 目录下是否有out 目录确认编译是否有问题，如下：
+安装失败后，会有安装文件保存，进入到/usr/src/axcl/drv/pcie/driver 手动编译确认是否编译有问题，
+
+:::{Note}
+
+```bash
+# 主控芯片是x86架构的编译方法
+make host=x86 clean all install
+# 主控芯片是arm64架构的编译方法
+make host=arm64 clean all install
+```
+
+:::
+
+或者查看/usr/src/axcl 目录下是否有out 目录确认编译是否有问题，如下：
 
 ![](../res/faq_deb_install_2.png)
 
@@ -142,11 +155,11 @@ deb 安装时可能出现以下安装失败信息，一般导致安装失败原�
 
 :::{Note}
 
-​	如果第一次安装失败，如果不把第一次安装的残留文件清除，可能会导致后面的安装失败，清除步骤如下：
+如果第一次安装失败，如果不把第一次安装的残留文件清除，可能会导致后面的安装失败，清除步骤如下：
 
 ```bash
-	sudo rm -rf /var/lib/dpkg/info/axclhost.*
-	sudo rm dpkg -r axclhost
+sudo rm -rf /var/lib/dpkg/info/axclhost.*
+sudo rm dpkg -r axclhost
 ```
 
 :::

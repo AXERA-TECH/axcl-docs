@@ -21,4 +21,5 @@ AXCL
   doc_guide_samples.md
   doc_guide_npu_samples.md
   doc_guide_npu_benchmark.md
+  doc_guide_axcl_smi.md
   doc_guide_faq.md
