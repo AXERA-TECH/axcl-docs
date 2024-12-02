@@ -119,3 +119,34 @@ AXCL运行时库(`libaxcl_rt.so`) PCIe传输DMA内存从CMA分配，对每个进
 - 同步系统时间到 RTC：
 
   如果需要，您可以将系统时间同步到 RTC：`sudo hwclock --systohc`
+
+## 驱动安装
+
+### deb
+
+#### 缺少 linux-header
+
+deb 安装时可能出现以下安装失败信息，一般导致安装失败原因是缺少linux-header-$(uname -r) 目录文件，导致安装时pcie driver 编译失败
+
+![](../res/faq_deb_install_1.png)
+
+安装失败后，会有安装文件保存，进入到/usr/src/axcl/drv/pcie/driver 手动编译确认是否编译有问题，或者查看/usr/src/axcl 目录下是否有out 目录确认编译是否有问题，如下：
+
+![](../res/faq_deb_install_2.png)
+
+- arm开发板： linux-header-$(uname -r) 一般由开发板厂商提供，可以去厂商官网查找说明，如下:
+
+![](../res/faq_deb_install_3.png)
+
+- x86 pc：linux-header-$(uname -r) 可以通过apt 下载，sudo apt install kernel-headers-$(uname -r)
+
+:::{Note}
+
+​	如果第一次安装失败，如果不把第一次安装的残留文件清除，可能会导致后面的安装失败，清除步骤如下：
+
+```bash
+	sudo rm -rf /var/lib/dpkg/info/axclhost.*
+	sudo rm dpkg -r axclhost
+```
+
+:::
