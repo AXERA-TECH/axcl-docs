@@ -438,45 +438,47 @@ cd melotts.axcl
 
 **编译**
 
+x86_64 平台
 ```
-cd melotts.axcl
-mkdir -p build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release ..
-make install -j4
+./build.sh
+```
+
+aarch64 平台
+```
+./build_aarch64.sh
 ```
 
 **运行 MeloTTS**
-
+在 melotts.axcl 项目根目录下运行
 ```
-cd install
-./melotts -s 句子
+./install/melotts -s 句子
 ```
 
 **运行结果**
 
 ```
-(base) axera@raspberrypi:~/qtang/melotts.axcl/install $ ./melotts
-encoder: ../models/encoder.onnx
-decoder: ../models/decoder.axmodel
-lexicon: ../models/lexicon.txt
-token: ../models/tokens.txt
+(base) axera@raspberrypi:~/melotts.axcl $ ./install/melotts
+encoder: ./models/encoder.onnx
+decoder: ./models/decoder.axmodel
+lexicon: ./models/lexicon.txt
+token: ./models/tokens.txt
 sentence: 爱芯元智半导体股份有限公司，致力于打造世界领先的人工智能感知与边缘计算芯片。服务智慧城市、智能驾驶、机器人的海量普惠的应用
 wav: output.wav
 speed: 0.800000
 sample_rate: 44100
 Load encoder
 Load decoder model
-Encoder run take 191.99ms
+Encoder run take 191.25ms
 decoder slice num: 9
-Decode slice(1/9) take 39.98ms
-Decode slice(2/9) take 39.69ms
-Decode slice(3/9) take 39.88ms
-Decode slice(4/9) take 39.60ms
-Decode slice(5/9) take 40.12ms
-Decode slice(6/9) take 39.69ms
-Decode slice(7/9) take 39.62ms
-Decode slice(8/9) take 39.61ms
-Decode slice(9/9) take 40.95ms
+Decode slice(1/9) take 39.90ms
+Decode slice(2/9) take 39.66ms
+Decode slice(3/9) take 39.98ms
+Decode slice(4/9) take 39.57ms
+Decode slice(5/9) take 40.28ms
+Decode slice(6/9) take 39.68ms
+Decode slice(7/9) take 39.59ms
+Decode slice(8/9) take 39.58ms
+Decode slice(9/9) take 41.11ms
 Saved audio to output.wav
-(base) axera@raspberrypi:~/qtang/melotts.axcl/install $ 
+(base) axera@raspberrypi:~/melotts.axcl $ 
 ```
