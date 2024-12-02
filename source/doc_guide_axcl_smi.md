@@ -1,4 +1,4 @@
-# AXCL-SMI
+# AXCL SMI
 
 ## 概述
 
@@ -132,6 +132,11 @@ CMM Remain          :  3126852 kiB
 
 必须结合`[-d, --device]`选项指定设备
 
+```bash
+# ./axcl_smi set -f 1200000 -d 129
+set cpu frequency 1200000 to device 129 succeed.
+```
+
 :::
 
 ### 下载日志（log）
@@ -196,7 +201,7 @@ CMM Remain          :  3126852 kiB
 :::{Important}
 
 - 必须结合`[-d, --device]`选项指定设备
-- shell命令参数如果包含`-`,`--`,`>`等字段，可以用双引号`"-l"`将命令和参数包含在一个字符串中，比如`axcl_smi sh "ls -l"`
+- shell命令参数如果包含`-`,`--`,`>`等字段，可以用双引号`"-l"`将命令和参数包含在一个字符串中，比如`axcl_smi sh "ls -l" -d 129` 
 - 谨慎使用shell命令对设备进行配置
 
 :::
