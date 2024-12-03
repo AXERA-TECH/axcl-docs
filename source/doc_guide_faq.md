@@ -163,3 +163,89 @@ sudo rm dpkg -r axclhost
 ```
 
 :::
+
+## 设备内存布局
+
+### AX650N
+
+```
+ 0x100000000                           ramdisk_mem 
+      |              Linux OS              |   ramdisk   |                       CMM                       |
+```
+
+**DDR地址起始地址**：0x100000000
+
+
+
+#### 4+4 8G推荐配置
+
+| Linux OS | ramdisk | CMM    |
+| -------- | ------- | ------ |
+| 1024MB   | 128MB   | 7040MB |
+
+```
+kernel/linux/linux-5.15.73/arch/arm64/boot/dts/axera/AX650_card.dts：
+		ramdisk_mem@140000000 {
+			compatible = "axera, ramdisk";
+			reg = <0x1 0x40000000 0x0 0x8000000>;
+			addr = <0x1 0x40000000>;
+			size = <0x0 0x8000000>;
+			no-map;
+		};
+		
+build/projects/AX650_card.mak：
+# OS:RAMDISK:CMM
+OS_MEM         := mem=1152M
+# cmm memory config
+CMM_POOL_PARAM := anonymous,0,0x148000000,7040M
+
+tools/mkaxp/AX650X_card_pac.xml：
+		<Img flag="1" name="ROOTFS" select="1">
+			<ID>ROOTFS</ID>
+			<Type>CODE</Type>
+			<Block>
+				<Base>0x140000000</Base>
+				<Size>0x0</Size>
+			</Block>
+		<File>rootfs.ext4</File>
+			<Auth algo="0" />
+			<Description>Download ROOTFS image file</Description>
+		</Img>
+```
+
+#### 2+2 4G推荐配置
+
+| Linux OS | ramdisk | CMM    |
+| -------- | ------- | ------ |
+| 1024MB   | 128MB   | 2944MB |
+
+```
+kernel/linux/linux-5.15.73/arch/arm64/boot/dts/axera/AX650_card.dts：
+		ramdisk_mem@140000000 {
+			compatible = "axera, ramdisk";
+			reg = <0x1 0x40000000 0x0 0x8000000>;
+			addr = <0x1 0x40000000>;
+			size = <0x0 0x8000000>;
+			no-map;
+		};
+		
+build/projects/AX650_card.mak：
+# OS:RAMDISK:CMM
+OS_MEM         := mem=1152M
+# cmm memory config
+CMM_POOL_PARAM := anonymous,0,0x148000000,2944M
+
+tools/mkaxp/AX650X_card_pac.xml：
+		<Img flag="1" name="ROOTFS" select="1">
+			<ID>ROOTFS</ID>
+			<Type>CODE</Type>
+			<Block>
+				<Base>0x140000000</Base>
+				<Size>0x0</Size>
+			</Block>
+		<File>rootfs.ext4</File>
+			<Auth algo="0" />
+			<Description>Download ROOTFS image file</Description>
+		</Img>
+```
+
