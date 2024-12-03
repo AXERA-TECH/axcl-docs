@@ -91,6 +91,22 @@ Commands
 AXCL-SMI V2.18.0 BUILD: Dec  2 2024 13:14:36
 ```
 
+### 选项
+
+#### 设备ID (-d, --device)
+
+```bash
+-d, --device                            Specifies a device ID or 0 (default) select all devices
+```
+
+`[-d, --device]` 指定设备，默认参数 = 0，标识连接到HOST的全部设备， **-d或者--device 参数是十进制。**
+
+:::{Note}
+
+如何查询设备ID，参阅 [`FAQ`](#configdevice)  
+
+:::
+
 ### 信息查询（info）
 
 `axcl_smi info`用于显示设备的详细信息，支持子命令如下：
@@ -205,3 +221,53 @@ set cpu frequency 1200000 to device 129 succeed.
 - 谨慎使用shell命令对设备进行配置
 
 :::
+
+## FAQ
+
+### [查询设备ID，配置 -d, --device](#configdevice)
+
+执行axcl_smi或者lspci，从Bus-Id字段可以获取设备ID，填入-d或--device参数。
+
+**示例1：**
+
+Bus-Id: 0000:03:00.0，那么设备ID = 0x03，即`-d 3`
+
+```
+[axera@localhost ~]$ lspci
+00:00.0 Host bridge: Intel Corporation 8th Gen Core Processor Host Bridge/DRAM Registers (rev 07)
+...
+03:00.0 Multimedia video controller: Axera Semiconductor Co., Ltd Device 0650 (rev 01)
+[axera@localhost ~]$ axcl_smi
++------------------------------------------------------------------------------------------------+
+| AXCL-SMI  V2.18.0_20241202180518                                Driver  V2.18.0_20241202180518 |
++-----------------------------------------+--------------+---------------------------------------+
+| Card  Name                     Firmware | Bus-Id       |                          Memory-Usage |
+| Fan   Temp                Pwr:Usage/Cap | CPU      NPU |                             CMM-Usage |
+|=========================================+==============+=======================================|
+|    0  AX650N                    V2.18.0 | 0000:03:00.0 |                154 MiB /      954 MiB |
+|   --   37C                      -- / -- | 1%        0% |                 18 MiB /     3072 MiB |
++-----------------------------------------+--------------+---------------------------------------+
+```
+
+**示例2：**
+
+Bus-Id: `0001:81:00.0`，那么设备ID = 0x81 = 129，即`-d 129`
+
+```
+lspci
+0000:00:00.0 Class 0604: Device 16c3:abcd (rev 01)
+0001:80:00.0 Class 0604: Device 16c3:abcd (rev 01)
+0001:81:00.0 Class 0400: Device 1f4b:0650 (rev 01)
+/opt/bin/axcl # ./axcl_smi
+i 0 = 748  pid = 748
++------------------------------------------------------------------------------------------------+
+| AXCL-SMI  V2.18.0                                                              Driver  V2.18.0 |
++-----------------------------------------+--------------+---------------------------------------+
+| Card  Name                     Firmware | Bus-Id       |                          Memory-Usage |
+| Fan   Temp                Pwr:Usage/Cap | CPU      NPU |                             CMM-Usage |
+|=========================================+==============+=======================================|
+|    0  AX650N                    V2.18.0 | 0001:81:00.0 |                157 MiB /      954 MiB |
+|   --   42C                      -- / -- | 2%        0% |                 18 MiB /     3072 MiB |
++-----------------------------------------+--------------+---------------------------------------+
+```
+
