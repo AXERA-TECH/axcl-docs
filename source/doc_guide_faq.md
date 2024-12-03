@@ -170,7 +170,7 @@ sudo rm dpkg -r axclhost
 
 ```
  0x100000000                           ramdisk_mem 
-      |              Linux OS              |   ramdisk   |                       CMM                       |
+      |          Linux OS           |   ramdisk   |                    CMM                    |
 ```
 
 **DDR地址起始地址**：0x100000000
