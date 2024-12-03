@@ -169,7 +169,7 @@ sudo rm dpkg -r axclhost
 ### AX650N
 
 ```
- 0x100000000                           ramdisk_mem 
+ 0x100000000 
       |          Linux OS           |   ramdisk   |                    CMM                    |
 ```
 
@@ -179,9 +179,9 @@ sudo rm dpkg -r axclhost
 
 #### 4+4 8G推荐配置
 
-| Linux OS | ramdisk | CMM    |
-| -------- | ------- | ------ |
-| 1024MB   | 128MB   | 7040MB |
+| Linux OS | ramdisk |  CMM   |
+| :------: | :-----: | :----: |
+|  1024MB  |  128MB  | 7040MB |
 
 ```
 kernel/linux/linux-5.15.73/arch/arm64/boot/dts/axera/AX650_card.dts：
@@ -207,7 +207,7 @@ tools/mkaxp/AX650X_card_pac.xml：
 				<Base>0x140000000</Base>
 				<Size>0x0</Size>
 			</Block>
-		<File>rootfs.ext4</File>
+			<File>rootfs.ext4</File>
 			<Auth algo="0" />
 			<Description>Download ROOTFS image file</Description>
 		</Img>
@@ -215,9 +215,9 @@ tools/mkaxp/AX650X_card_pac.xml：
 
 #### 2+2 4G推荐配置
 
-| Linux OS | ramdisk | CMM    |
-| -------- | ------- | ------ |
-| 1024MB   | 128MB   | 2944MB |
+| Linux OS | ramdisk |  CMM   |
+| :------: | :-----: | :----: |
+|  1024MB  |  128MB  | 2944MB |
 
 ```
 kernel/linux/linux-5.15.73/arch/arm64/boot/dts/axera/AX650_card.dts：
@@ -243,7 +243,7 @@ tools/mkaxp/AX650X_card_pac.xml：
 				<Base>0x140000000</Base>
 				<Size>0x0</Size>
 			</Block>
-		<File>rootfs.ext4</File>
+			<File>rootfs.ext4</File>
 			<Auth algo="0" />
 			<Description>Download ROOTFS image file</Description>
 		</Img>
