@@ -173,9 +173,45 @@ sudo rm dpkg -r axclhost
       |          Linux OS           |   ramdisk   |                    CMM                    |
 ```
 
-**DDR地址起始地址**：0x100000000
+- **DDR地址起始地址**：0x100000000
 
+- **ramdisk**
 
+  - **分区大小** （`rootfs/card/Makefile`）：
+
+    ```bash
+    $(HOME_PATH)/tools/mkext4fs/make_ext4fs -l 128M $(BUILD_PATH)/out/$(PROJECT)/images/rootfs.ext4 $(BUILD_ROOT_DIR)/rootfs
+    $(HOME_PATH)/tools/mkext4fs/make_ext4fs -l 128M -s $(BUILD_PATH)/out/$(PROJECT)/images/rootfs_sparse.ext4 $(BUILD_ROOT_DIR)/rootfs
+    ```
+
+  - **内核DTS ramdisk配置 ** (`kernel/linux/linux-5.15.73/arch/arm64/boot/dts/axera/AX650_card.dts`)
+
+| 字段 | 说明                                                         | 示例                                                         |
+| ---- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| reg  | <起始地址高32位   起始地址低32位     大小高32位   大小低32位> | `<0x1 0x40000000 0x0 0x8000000>`<br />起始地址0x140000000,  大小 0x8000000 (128MB) |
+| addr | <起始地址高32位   起始地址低32位>                            | `<0x1 0x40000000>`  起始地址0x140000000                      |
+| size | <大小高32位   大小低32位>                                    | `<0x0 0x8000000>` 大小 0x8000000 (128MB)                     |
+
+- **子卡固件rootfs的下载地址** (`tools/mkaxp/AX650X_card_pac.xml`)
+  Base: ramdisk的地址
+
+  ```
+  <Img flag="1" name="ROOTFS" select="1">
+  			<ID>ROOTFS</ID>
+  			<Type>CODE</Type>
+  			<Block>
+  				<Base>0x140000000</Base>
+  				<Size>0x0</Size>
+  			</Block>
+  			<File>rootfs.ext4</File>
+  			<Auth algo="0" />
+  			<Description>Download ROOTFS image file</Description>
+  </Img>
+  ```
+
+- **Makefile** (`build/projects/AX650_card.mak`)
+  - **OS_MEM**:  OS+ramdisk的总大小
+  - **CMM_POOL_PARAM**： CMM的partiton分区名；flag（= 0）；起始地址；partition总大小。 其中起始地址 = LinuxOS + ramdisk的偏移地址
 
 #### 4+4 8G推荐配置
 
