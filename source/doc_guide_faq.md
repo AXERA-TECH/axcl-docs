@@ -73,7 +73,7 @@ log type is -1
 
 ## 调整PCIe传输DMA内存大小
 
-AXCL运行时库(`libaxcl_rt.so`) PCIe传输DMA内存从CMA分配，对每个进程需要3块`dma buf size`的内存，即总大小 = 3 x `dma buf size` Bytes。
+AXCL运行时库(`libaxcl_rt.so`) PCIe传输DMA内存从CMA分配，对每个进程需要3块`dma buf size`的内存，即总大小 = **3 x `dma buf size`** Bytes。
 
 默认`dma buf size`大小为4MBytes，支持通过axcl.json配置，调用`axclInit`接口生效, json格式如下：
 
@@ -98,7 +98,7 @@ AXCL运行时库(`libaxcl_rt.so`) PCIe传输DMA内存从CMA分配，对每个进
 
 :::{Note}
 
-- 应用根据实际业务需求和内存容量更改该参数，**最小大小为2MBytes**(0x200000)。
+- 应用根据实际业务需求和内存容量更改该参数，**最小大小为1MBytes**(0x100000)。
 - `dma buf size` **同时**修改Host和Device的PCIe CMA缓存分配。
 
 :::
@@ -184,7 +184,7 @@ sudo rm dpkg -r axclhost
     $(HOME_PATH)/tools/mkext4fs/make_ext4fs -l 128M -s $(BUILD_PATH)/out/$(PROJECT)/images/rootfs_sparse.ext4 $(BUILD_ROOT_DIR)/rootfs
     ```
 
-  - **内核DTS ramdisk配置 ** (`kernel/linux/linux-5.15.73/arch/arm64/boot/dts/axera/AX650_card.dts`)
+  - **内核DTS ramdisk配置 **  (`kernel/linux/linux-5.15.73/arch/arm64/boot/dts/axera/AX650_card.dts`)
 
 | 字段 | 说明                                                         | 示例                                                         |
 | ---- | ------------------------------------------------------------ | ------------------------------------------------------------ |
