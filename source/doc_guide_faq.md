@@ -73,7 +73,7 @@ log type is -1
 
 ## 调整PCIe传输DMA内存大小
 
-AXCL运行时库(`libaxcl_rt.so`) PCIe传输DMA内存从CMA分配，对每个进程需要3块`dma buf size`的内存，即总大小 = 3 x `dma buf size` Bytes。
+AXCL运行时库(`libaxcl_rt.so`) PCIe传输DMA内存从CMA分配，对每个进程需要3块`dma buf size`的内存，即总大小 = **3 x `dma buf size`** Bytes。
 
 默认`dma buf size`大小为4MBytes，支持通过axcl.json配置，调用`axclInit`接口生效, json格式如下：
 
@@ -98,7 +98,7 @@ AXCL运行时库(`libaxcl_rt.so`) PCIe传输DMA内存从CMA分配，对每个进
 
 :::{Note}
 
-- 应用根据实际业务需求和内存容量更改该参数，**最小大小为2MBytes**(0x200000)。
+- 应用根据实际业务需求和内存容量更改该参数，**最小大小为1MBytes**(0x100000)。
 - `dma buf size` **同时**修改Host和Device的PCIe CMA缓存分配。
 
 :::
@@ -184,7 +184,7 @@ sudo rm dpkg -r axclhost
     $(HOME_PATH)/tools/mkext4fs/make_ext4fs -l 128M -s $(BUILD_PATH)/out/$(PROJECT)/images/rootfs_sparse.ext4 $(BUILD_ROOT_DIR)/rootfs
     ```
 
-  - **内核DTS ramdisk配置 ** (`kernel/linux/linux-5.15.73/arch/arm64/boot/dts/axera/AX650_card.dts`)
+  - **内核DTS ramdisk配置 **  (`kernel/linux/linux-5.15.73/arch/arm64/boot/dts/axera/AX650_card.dts`)
 
 | 字段 | 说明                                                         | 示例                                                         |
 | ---- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -285,3 +285,82 @@ tools/mkaxp/AX650X_card_pac.xml：
 		</Img>
 ```
 
+## SDK 编译
+
+### HOST
+
+   cd 进入目标文件夹，比如sample
+
+- x86_x64:  `make host=x86 clean && make host=x86 all install -j128`
+
+- arm64    : `make host=arm64 clean && make host=arm64 all install -j128`
+
+- ax650N :  `make clean && make all install -j128`
+
+- 编译输出路径：
+
+  ```bash
+  /axcl/out$ tree -L 1
+  .
+  ├── axcl_linux_arm64
+  ├── axcl_linux_ax650
+  └── axcl_linux_x86
+  ```
+
+  
+
+   **PCIe drvier 编译示例**:
+
+```bash
+root@axcnshbussrv06p:~/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/drv$ make host=x86 clean && make host=x86 all install -j128
+In subdir pcie... 
+make[1]: Entering directory '/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/drv/pcie'
+In subdir driver...
+... ...
+In subdir host_dev ... 
+make[3]: Entering directory '/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/drv/pcie/driver/host_dev'
+make ARCH=x86 CROSS_COMPILE= KCFLAGS="-DIS_THIRD_PARTY_PLATFORM" -C /lib/modules/5.4.0-150-generic/build M=/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/build/out/axcl_linux_x86/objs/drv/pcie/driver/host_dev src=/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/drv/pcie/driver/host_dev O=/lib/modules/5.4.0-150-generic/build  HOME_PATH=/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477 modules
+make[4]: Entering directory '/usr/src/linux-headers-5.4.0-150-generic'
+  CC [M]  /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/build/out/axcl_linux_x86/objs/drv/pcie/driver/host_dev/ax_pcie_dev_host.o
+  CC [M]  /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/build/out/axcl_linux_x86/objs/drv/pcie/driver/host_dev/ax_pcie_opt.o
+  CC [M]  /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/build/out/axcl_linux_x86/objs/drv/pcie/driver/host_dev/ax_pcie_proc.o
+  CC [M]  /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/build/out/axcl_linux_x86/objs/drv/pcie/driver/host_dev/ax_pcie_msg_transfer.o
+  CC [M]  /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/build/out/axcl_linux_x86/objs/drv/pcie/driver/host_dev/version.o
+  LD [M]  /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/build/out/axcl_linux_x86/objs/drv/pcie/driver/host_dev/ax_pcie_host_dev.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC [M]
+```
+
+**sample编译示例：**
+
+```bash
+root@axcnshbussrv06p:~/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample$ make host=x86 clean && make host=x86 all install -j128
+In subdir runtime... 
+make[1]: Entering directory '/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample/runtime'
+make[1]: Leaving directory '/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample/runtime'
+
+... ...
+
+In subdir transcode... 
+make[2]: Entering directory '/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample/ppl/transcode'
+ INSTALL   /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/build/out/axcl_linux_x86/objs/sample/ppl/transcode/axcl_sample_transcode launch_transcode.sh to /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/out/axcl_linux_x86/bin/ 
+make[2]: Leaving directory '/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample/ppl/transcode'
+
+Install /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample/ppl success!!
+ 
+make[1]: Leaving directory '/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample/ppl'
+
+In subdir x86app... 
+make[1]: Entering directory '/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample/x86app'
+ INSTALL   /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/build/out/axcl_linux_x86/objs/sample/x86app/axcl_demo /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample/x86app/bin/* to /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/out/axcl_linux_x86/bin/axcl_demo 
+make[1]: Leaving directory '/home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample/x86app'
+
+Install /home/root/customer/AX650_SDK_V2.18.0_20241202130208_NO4477/axcl/sample success!!
+```
+
+### DEVICE
+
+1.  `cd build`  进入SDK根目录下的build目录，注意不是axcl/build
+2.  `make p=AX650_card clean all install -j128`
+3. deb, rpm生成路径：`build/out`
