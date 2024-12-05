@@ -29,6 +29,58 @@ log type is -1
 [2024-11-08 20:36:34.474][942][C][control][dump][60]: log dump finished: ./log_20241108203634.tar.gz
 ```
 
+## System Dump
+
+axcl host sysdump 流程嵌入在axcl host fimware load 流程中；sysdump 有三个proc 节点文件:
+
+```bash
+/root # ls /proc/ax_proc/pcie/sysdump/
+debug  path   size
+/root # cat /proc/ax_proc/pcie/sysdump/debug
+0
+/root # cat /proc/ax_proc/pcie/sysdump/path
+/opt
+/root # cat /proc/ax_proc/pcie/sysdump/size
+1073741824
+```
+:::{Note}
+- path：用来指定 dump 文件的路径
+- size：用来指定需要 dump 的大小
+- debug: 用来开关 dump 功能
+:::
+
+这三个节点可以根据需要进行修改：
+
+- 开启 dump：`echo 1 >debug` (默认为disabled)
+- 指定 path：`echo -n /mnt >path` (默认 path：/opt  注意: 一定要加 `-n` 去除echo自动带的 `/n`；并且保证路径目录有足够大的空间存储 dump 文件，否则部分数据丢失)
+- 指定 size：`echo 2097152 >size` (默认 size: 1073741824  注意：echo 时传十进制数值)
+
+当需要进行 system dump 时，可按如下步骤进行操作：
+
+1. 当子卡异常重启时，host 侧手动卸载 axcl_host.ko：
+
+    - arm host: `rmmod axcl_host`
+    - x86 host: `modprobe -r axcl_host`
+
+2. 打开 sysdump debug 开关
+
+    ```bash
+    echo 1 >/proc/ax_proc/pcie/sysdump/debug
+    ```
+
+3. 加载 axcl_host.ko
+
+    - arm host: insmod /soc/ko/axcl_host.ko
+    - x86 host: modprobe axcl_host
+
+此时日志已经被 Dump 到 `/proc/ax_proc/pcie/sysdump/path` 指定的路径下了，比如默认的 `/opt`。
+
+:::{Note}
+以上操作卸载ko，会reset 所有子卡; 加载ko 会拉启所有子卡，并dump 有异常的子卡。
+
+如果在业务执行过程中，某张子卡异常重启了，如只需dump 异常子卡数据，需要在应用代码中启动指定异常子卡，这个过程只会单独dump这张异常子卡数据，不会影响其它正常子卡运行。
+:::
+
 ## 调整运行时库日志级别
 
 - Host的AXCL日志默认路径: `/tmp/axcl/axcl_logs.txt`，Device侧的日志默认路径：`/opt/data/axclLog`
