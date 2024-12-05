@@ -1,5 +1,17 @@
 # AXCL NPU 示例
 
+## NPU 工具链
+
+经常在 AI 芯片上部署算法模型的同学都知道，想要把模型部署到芯片上的 NPU 中运行，都需要使用芯片原厂提供的 NPU 工具链，这里我们使用的是 Pulsar2。
+
+![](../res/pulsar2.png)
+
+- [Pulsar2 在线文档](https://pulsar2-docs.readthedocs.io/zh-cn/latest/index.html)
+  - [安装指导](https://pulsar2-docs.readthedocs.io/zh-cn/latest/user_guides_quick/quick_start_prepare.html)
+  - [快速上手](https://pulsar2-docs.readthedocs.io/zh-cn/latest/user_guides_quick/quick_start_ax650.html)
+  - [NPU 算子支持列表](https://pulsar2-docs.readthedocs.io/zh-cn/latest/appendix/op_support_list_ax650.html)
+  - [大模型转换](https://pulsar2-docs.readthedocs.io/zh-cn/latest/appendix/build_llm.html)
+
 ## AXCL-Samples
 
 AXCL-Samples 由 爱芯元智 主导开发。该项目实现了常见的深度学习开源算法在基于 爱芯元智 的 SoC 实现的 PCIE算力卡 产品上的运行的示例代码，方便社区开发者进行快速评估和适配。
