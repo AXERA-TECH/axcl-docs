@@ -393,7 +393,9 @@ Processing triggers for libc-bin (2.39-0ubuntu8.3) ...
    [  PASSED  ] 11 tests.
    ============= UT PASS =============
    ```
-   内存测试没问题会有类似以上输出打印。接下来测试 NPU：
+   内存测试没问题会有类似以上输出打印。
+
+- 测试 NPU：
    ```bash
    i@dell:~/projects$ axcl_ut_rt_engine
    [==========] Running 11 tests from 1 test suite.
