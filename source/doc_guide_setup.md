@@ -131,6 +131,348 @@ deb 包卸载时，会自动 reset 子卡，子卡进入pcie download mode。
 RK3588、RK3568 等开发板的 deb 安装流程，除去环境配置，其它步骤与 `Raspberry Pi 5` 安装流程一样，不再单独说明；请参考树莓派的安装流程进行安装即可。
 :::
 
+
+## Ubuntu on X86_64
+
+:::{Warning}
+ARM CPU/SOC 的 Ubuntu 请优先参考树莓派部分，与 x86_64 的流程不完全相同。 
+:::
+
+### 系统信息
+
+以典型 `x86_64` 的 Ubuntu 24.04 Desktop 安装为例，系统信息如下：
+
+```bash
+user@pc:~$ uname -a
+Linux pc 6.8.0-49-generic #49-Ubuntu SMP PREEMPT_DYNAMIC Mon Nov  4 02:06:24 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+```
+
+:::{Warning}
+准备安装计算卡驱动时，应首先考虑将系统更新到最新状态。
+
+```bash
+sudo apt update
+sudo apt upgrade 
+```
+:::
+
+如果安装过程中，更新时比较卡顿，需要考虑换源操作。对于 Ubuntu Desktop 或者安装了 GUI 的 Server 版本请在换源请优先考虑使用 GUI 界面的配置进行换源；对于没有安装 GUI 的 Desktop 或 Server 版本(或者安装了 GUI，但因为远程 SSH 连接的原因不能使用 GUI 的场景)，24.04(不含) 以前的版本考虑修改 `/etc/apt/sources.list` 进行换源；24.04(含) 之后的版本考虑修改 `/etc/apt/sources.list.d/ubuntu.sources` 进行换源。
+
+以 24.04 为例，GUI 换源的位置是：
+
+![](../res/ubuntu_apt_source.png)
+
+完成换源后，正常更新系统即可。
+
+:::{Warning}
+有 GUI 的情况下优先考虑 GUI 配置换源；没有 GUI 条件时可以参考清华源的帮助进行修改：[Tsinghua Tuna Ubuntu Help](https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/)
+:::
+
+### 环境准备
+
+安装好的 Ubuntu 是默认不打开 CMA 支持的，而 CMA 是 AXCL 驱动的必要条件；所以对于 X86_64 架构上的发行版系统，需要首先检查 CMA 支持情况；如果确实没有打开，需要重新编译内核安装，并配置 Kernel 启动参数修改 CMA 内存大小。
+
+:::{Note}
+已经安装了内核的系统，重新编译内核并安装并不是从头开始的过程，所以并没有“挑战”级别的难度；但如果您确实不愿意进行此步骤，不妨寻找您所在的公司的 `IT` 部门的帮助。
+:::
+
+确认 CMA 是否打开可以用如下命令：
+
+```bash
+user@pc:~$ cat /boot/config-$(uname -r) | grep CONFIG_CMA
+# CONFIG_CMA is not set
+user@pc:~$ cat /boot/config-$(uname -r) | grep CONFIG_DMA_CMA
+user@pc:~$
+```
+
+:::{Note}
+看到的打印可能和上面给出的示例不同。如果没有显示，也是 Kernel 没有配置(过)对应的选项。
+:::
+
+以典型的刚刚安装好的 24.04 为例(假设已经更新并**重启**完成)，重新编译内核的步骤如下：
+
+1. 安装内核源码：
+
+   :::{Note}
+   这里举例是以新手视角重新编译已有的内核版本，如果您有足够的经验，可以尝试不同的内核版本而不必遵守本段及后面编译安装内核的指导。
+   :::
+
+   通过 apt 安装内核源码有两种办法：`sudo apt install linux-source` 或者 `apt source linux-source`，默认推荐用前者进行安装；后者需要打开软件源中的源码包含。
+
+   此外，前者默认会把源码安装到 `/usr/src/linux-source-x.x.xx` 下并且不进行解压：
+
+   ```bash
+   user@pc:~/projects$ ls /usr/src/linux-source-6.8.0
+   linux-source-6.8.0.tar.bz2
+   ```
+   后者并不是 `apt --help` 直接显示支持的命令，源自于 apt 对 `apt-get source` 的兼容支持；使用 `apt source linux-source` 安装时，源码会下载到**当前目录**下并**试图解压**(所以不需要 sudo 权限)，如果解压依赖的 `dpkg-dev` 命令没有安装，还会报解压错误：
+
+   ```bash
+   user@pc:~/projects$ apt source linux-source
+   Reading package lists... Done
+   Picking 'linux-meta' as source package instead of 'linux-source'
+   NOTICE: 'linux-meta' packaging is maintained in the 'Git' version control system at:
+   git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-meta/+git/noble
+   Please use:
+   git clone git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-meta/+git/noble
+   to retrieve the latest (possibly unreleased) updates to the package.
+   Need to get 29.9 kB of source archives.
+   Get:1 http://mirrors.tuna.tsinghua.edu.cn/ubuntu noble-updates/main linux-meta 6.8.0-49.49 (dsc) [10.7 kB]
+   Get:2 http://mirrors.tuna.tsinghua.edu.cn/ubuntu noble-updates/main linux-meta 6.8.0-49.49 (tar) [19.2 kB]
+   Fetched 29.9 kB in 1s (21.0 kB/s)
+   sh: 1: dpkg-source: not found
+   E: Unpack command 'dpkg-source --no-check -x linux-meta_6.8.0-49.49.dsc' failed.
+   N: Check if the 'dpkg-dev' package is installed.
+   ```
+
+   这里假设用户使用全新安装并已经更新的系统，并没有打开 apt 的源码源，以 `sudo apt install linux-source` 为例进行安装。
+
+   :::{Warning}
+
+   一些教程可能会使用 `sudo apt install linux-source-$(uname -r)` 进行描述，但对于 Ubuntu 系统来说，全新安装并更新到最新的系统默认的 `linux-source` 包是指向当前的使用的最新内核的；使用 `$(uname -r)` 获取到的内核版本可能会带有额外的字段，比如 `-oem`、`-generic`，使用 `sudo apt install linux-source-$(uname -r)` 会报告一个类似于 `E: Unable to locate package linux-source-x.x.x-xx-generic` 这样的找不到 apt 包的错误。
+
+   您还可以通过 `apt show linux-source` 来确认这个包实际上是哪个具体版本的内核源码包的别名(显示在 `Depends` 项里)：
+
+   ```bash
+   user@pc:~$ apt show linux-source
+   Package: linux-source
+   Version: 6.8.0-49.49
+   Priority: optional
+   Section: devel
+   Source: linux-meta
+   Origin: Ubuntu
+   Maintainer: Ubuntu Kernel Team <kernel-team@lists.ubuntu.com>
+   Bugs: https://bugs.launchpad.net/ubuntu/+filebug
+   Installed-Size: 17.4 kB
+   Depends: linux-source-6.8.0
+   Download-Size: 10.2 kB
+   APT-Manual-Installed: yes
+   APT-Sources: http://cn.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages
+   Description: Linux kernel source with Ubuntu patches
+   This package will always depend on the latest Linux kernel source code
+   available. The Ubuntu patches have been applied.
+
+   N: There is 1 additional record. Please use the '-a' switch to see it
+   ```
+   :::
+
+2. 准备编译工具
+
+   安装编译内核需要的一系列工具：
+   
+   ```bash
+   sudo apt install build-essential libncurses-dev bison flex libssl-dev libelf-dev bc
+   ```
+
+3. 解压缩内核源码：
+
+   选取(新建)一个希望解压并编译内核的目录，进入该目录后运行命令解压(内核的版本需要根据实际情况进行修正，下同)：
+
+   ```bash
+   user@pc:~/projects/kernel$ tar -xjf /usr/src/linux-source-6.8.0/linux-source-6.8.0.tar.bz2
+   user@pc:~/projects/kernel$ ls
+   linux-source-6.8.0
+   user@pc:~/projects/kernel$ cd linux-source-6.8.0/
+   user@pc:~/projects/kernel/linux-source-6.8.0$ ls
+   arch  block  certs  COPYING  CREDITS  crypto  Documentation  drivers  dropped.txt  fs  generic.depmod.log  generic.inclusion-list.log  include  init  io_uring  ipc  Kbuild  Kconfig  kernel  lib  LICENSES  MAINTAINERS  Makefile  mm  net  README  rust  samples  scripts  security  sound  tools  ubuntu  Ubuntu.md  usr  virt
+   user@pc:~/projects/kernel/linux-source-6.8.0$
+   ```
+
+4. 复制内核配置文件：
+
+   ```bash 
+   user@pc:~/projects/kernel/linux-source-6.8.0$ cp /boot/config-6.8.0-49-generic ./.config
+   user@pc:~/projects/kernel/linux-source-6.8.0$ ls -al
+   total 1344
+   drwxr-xr-x  27 i i   4096 Dec  6 16:17 .
+   drwxrwxr-x   3 i i   4096 Dec  6 16:11 ..
+   drwxr-xr-x  23 i i   4096 Nov  4 10:42 arch
+   drwxr-xr-x   3 i i   4096 Nov  4 10:42 block
+   drwxr-xr-x   2 i i   4096 Nov  4 10:42 certs
+   -rw-r--r--   1 i i 287459 Dec  6 16:17 .config
+   ……
+   drwxr-xr-x   4 i i   4096 Nov  4 10:42 usr
+   drwxr-xr-x   4 i i   4096 Nov  4 10:42 virt
+   user@pc:~/projects/kernel/linux-source-6.8.0$
+   ```
+   
+   如上面的参考输出，`ls -al` 确认 `.config` 文件已经在当前内核的解压目录，然后使用如下命令修改内核配置内容：
+
+   ```bash
+   scripts/config --disable SYSTEM_TRUSTED_KEYS    # 关闭指定可信的公钥
+   scripts/config --disable SYSTEM_REVOCATION_KEYS # 关闭指定被撤销的公钥
+   scripts/config --enable CMA                     # 打开 CMA 选项
+   make olddefconfig                               # 更新配置，触发新增选项
+   scripts/config --enable DMA_CMA                 # 打开新增的 CONFIG_DMA_CMA 选项
+   scripts/config --set-val CMA_SIZE_MBYTES 256    # 配置新增的 CMA 大小为 256M，也可以更大
+   scripts/config --enable CMA_SIZE_SEL_MBYTES     # 打开新增的 CMA_SIZE_SEL_MBYTES 选项
+   make olddefconfig                               # 更新配置，触发新增选项
+   ```
+
+5. 开始编译：
+
+   ```bash
+   make -j $(nproc)
+   ```
+
+6. 安装内核(需要 sudo 提权)：
+
+   ```bash
+   sudo make modules_install -j $(nproc)           # 安装内核模块
+   sudo make headers_install                       # 安装内核头文件，后面安装驱动要用到
+   sudo make install                               # 安装内核
+   ```
+
+7. 重新启动：
+
+   ```bash
+   sudo reboot
+   ```
+
+   重启完成后检查 CMA 是否正确：
+
+   ```bash
+   user@pc:~$ cat /proc/meminfo | grep Cma
+   CmaTotal:         262144 kB
+   CmaFree:          188412 kB
+   ```
+
+   至此，环境准备就已经完成了。
+
+### 安装 AXCL
+
+安装命令需要注意根据获取到的 AXCL 安装包的版本修改，参考安装过程如下：
+
+```bash
+user@pc:~/projects$ sudo dpkg -i axcl_host_x86_64_V2.18.1_20241205130149_NO4484.deb
+Selecting previously unselected package axclhost.
+(Reading database ... 153876 files and directories currently installed.)
+Preparing to unpack axcl_host_x86_64_V2.18.1_20241205130149_NO4484.deb ...
+Unpacking axclhost (1.0) ...
+Setting up axclhost (1.0) ...
+Need manual execute: source /etc/profile
+Processing triggers for libc-bin (2.39-0ubuntu8.3) ...
+```
+
+安装完成后，新安装的可执行程序依赖的环境变量需要更新，可以手动执行 `source /etc/profile` 进行更新(当前终端更新一次即可，SSH 远程连接时，直接重开 SSH 连接也会自动更新)。
+
+首先进行两项测试，确认安装后成功：
+
+- 测试内存：
+   ```bash
+   user@pc:~/projects$ axcl_ut_rt_memory
+   [==========] Running 11 tests from 1 test suite.
+   [----------] Global test environment set-up.
+   [----------] 11 tests from axclrtDeviceTest
+   [ RUN      ] axclrtDeviceTest.Case01_axclrtMalloc
+   [       OK ] axclrtDeviceTest.Case01_axclrtMalloc (36 ms)
+   [ RUN      ] axclrtDeviceTest.Case02_axclrtMallocCached
+   [       OK ] axclrtDeviceTest.Case02_axclrtMallocCached (85 ms)
+   [ RUN      ] axclrtDeviceTest.Case03_axclrtMemcpy
+   [       OK ] axclrtDeviceTest.Case03_axclrtMemcpy (463 ms)
+   [ RUN      ] axclrtDeviceTest.Case04_axclrtMemcpyCached
+   [       OK ] axclrtDeviceTest.Case04_axclrtMemcpyCached (467 ms)
+   [ RUN      ] axclrtDeviceTest.Case05_axclrtMemcmp
+   [       OK ] axclrtDeviceTest.Case05_axclrtMemcmp (23 ms)
+   [ RUN      ] axclrtDeviceTest.Case06_axclrtMemcpyFromHostPhyToDevice
+   [       OK ] axclrtDeviceTest.Case06_axclrtMemcpyFromHostPhyToDevice (674 ms)
+   [ RUN      ] axclrtDeviceTest.Case07_axclrtMemcpyFromHostToDeviceLatency
+   [       OK ] axclrtDeviceTest.Case07_axclrtMemcpyFromHostToDeviceLatency (15921 ms)
+   [ RUN      ] axclrtDeviceTest.Case08_axclrtMemcpyFromDeviceToHostLatency
+   [       OK ] axclrtDeviceTest.Case08_axclrtMemcpyFromDeviceToHostLatency (15753 ms)
+   [ RUN      ] axclrtDeviceTest.Case09_axclrtMemcpyFromDeviceToDeviceLatency
+   [       OK ] axclrtDeviceTest.Case09_axclrtMemcpyFromDeviceToDeviceLatency (1188 ms)
+   [ RUN      ] axclrtDeviceTest.Case10_axclrtMemcpyRandom
+   [       OK ] axclrtDeviceTest.Case10_axclrtMemcpyRandom (454 ms)
+   [ RUN      ] axclrtDeviceTest.Case11_axclrtMemcpyCachedRandom
+   [       OK ] axclrtDeviceTest.Case11_axclrtMemcpyCachedRandom (473 ms)
+   [----------] 11 tests from axclrtDeviceTest (35543 ms total)
+
+   [----------] Global test environment tear-down
+   [==========] 11 tests from 1 test suite ran. (35762 ms total)
+   [  PASSED  ] 11 tests.
+   ============= UT PASS =============
+   ```
+   内存测试没问题会有类似以上输出打印。接下来测试 NPU：
+   ```bash
+   i@dell:~/projects$ axcl_ut_rt_engine
+   [==========] Running 11 tests from 1 test suite.
+   [----------] Global test environment set-up.
+   [----------] 11 tests from axclrtDeviceTest
+   [ RUN      ] axclrtDeviceTest.Case01_AXCL_EngineInitFinal
+   [       OK ] axclrtDeviceTest.Case01_AXCL_EngineInitFinal (207 ms)
+   [ RUN      ] axclrtDeviceTest.Case02_axclrtEngineGetVNpuKind
+   [       OK ] axclrtDeviceTest.Case02_axclrtEngineGetVNpuKind (832 ms)
+   [ RUN      ] axclrtDeviceTest.Case03_axclrtEngineGetModelTypeFromMem
+   [       OK ] axclrtDeviceTest.Case03_axclrtEngineGetModelTypeFromMem (831 ms)
+   [ RUN      ] axclrtDeviceTest.Case04_axclrtEngineLoadFromMem
+   [       OK ] axclrtDeviceTest.Case04_axclrtEngineLoadFromMem (832 ms)
+   [ RUN      ] axclrtDeviceTest.Case05_axclrtEngineCreateContext
+   [       OK ] axclrtDeviceTest.Case05_axclrtEngineCreateContext (830 ms)
+   [ RUN      ] axclrtDeviceTest.Case06_axclrtEngineGetModelTypeFromModelId
+   [       OK ] axclrtDeviceTest.Case06_axclrtEngineGetModelTypeFromModelId (831 ms)
+   [ RUN      ] axclrtDeviceTest.Case07_axclrtEngineGetModelCompilerVersion
+   [       OK ] axclrtDeviceTest.Case07_axclrtEngineGetModelCompilerVersion (832 ms)
+   [ RUN      ] axclrtDeviceTest.Case08_axclrtEngineGetUsageFromModelId
+   [       OK ] axclrtDeviceTest.Case08_axclrtEngineGetUsageFromModelId (830 ms)
+   [ RUN      ] axclrtDeviceTest.Case09_axclrtEngineSetGetAffinity
+   [       OK ] axclrtDeviceTest.Case09_axclrtEngineSetGetAffinity (208 ms)
+   [ RUN      ] axclrtDeviceTest.Case10_axclrtEngineGetIOInfo
+   [       OK ] axclrtDeviceTest.Case10_axclrtEngineGetIOInfo (207 ms)
+   [ RUN      ] axclrtDeviceTest.Case11_axclrtEngineExecute
+   [       OK ] axclrtDeviceTest.Case11_axclrtEngineExecute (270 ms)
+   [----------] 11 tests from axclrtDeviceTest (6719 ms total)
+
+   [----------] Global test environment tear-down
+   [==========] 11 tests from 1 test suite ran. (6938 ms total)
+   [  PASSED  ] 11 tests.
+   ============= UT PASS =============
+   ```
+   NPU 测试没问题会有类似以上输出打印。
+
+:::{Warning}
+
+由于 AXCL 的 PCIE 驱动的限制，Intel 的部分架构的 CPU 需要额外考虑关闭 IOMMU。如果测试发现测试通信不正确，可以修改内核启动参数，增加 `intel_iommu=off`：
+
+1. **编辑 GRUB 配置文件**：
+   使用文本编辑器打开 `/etc/default/grub` 文件。比如可以使用 `nano` 或其他编辑器(或其他你熟悉的工具)：
+   ```bash
+   sudo nano /etc/default/grub
+   ```
+
+2. **查找 GRUB_CMDLINE_LINUX_DEFAULT 行**：
+   在文件中找到类似于以下的行：
+   ```bash
+   GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+   ```
+
+3. **添加参数**：
+   在引号内添加 `intel_iommu=off`，使其看起来像这样：
+   ```bash
+   GRUB_CMDLINE_LINUX_DEFAULT="quiet splash intel_iommu=off"
+   ```
+
+4. **保存文件**：
+   如果使用的是 `nano`，可以按 `Ctrl + O` 保存文件，然后按 `Enter` 确认文件名，最后按 `Ctrl + X` 退出编辑器。
+
+5. **更新 GRUB 配置**：
+   在终端中运行以下命令以更新 GRUB 配置：
+   ```bash
+   sudo update-grub
+   ```
+
+6. **重启系统**：
+   运行以下命令重启系统：
+   ```bash
+   sudo reboot
+   ```
+
+   重启后，内核将使用添加的启动参数进行启动，启动后可以使用以下命令来确认参数是否生效：
+   ```bash
+   cat /proc/cmdline
+   ```
+:::
+
 ## CentOS 9
 
 ### 系统信息
@@ -496,13 +838,6 @@ KYLIN_RELEASE_ID="2403"
 正在卸载 axclhost (1.0) ...
 正在处理用于 libc-bin (2.31-0kylin9.2k0.2) 的触发器 ...
 ```
-
-
-
-## ubuntu
-
-- 系统配置和deb安装、卸载参考 [Kylin](#kylin)。
-- 系统版本支持22.04（含）以上版本。
 
 
 ## Others
