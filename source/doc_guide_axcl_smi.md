@@ -16,10 +16,10 @@ AXCL-SMI (System Management Interface) 工具用于设备信息收集，对设�
 
 ### 快速使用
 
-在正确安装AXCL驱动包后，AXCL-SMI即安装成功，直接执行`axcl_smi`显示内容如下：
+在正确安装AXCL驱动包后，AXCL-SMI即安装成功，直接执行`axcl-smi`显示内容如下：
 
 ```bash
-# ./axcl_smi
+# ./axcl-smi
 +------------------------------------------------------------------------------------------------+
 | AXCL-SMI  V2.18.0                                                              Driver  V2.18.0 |
 +-----------------------------------------+--------------+---------------------------------------+
@@ -55,13 +55,13 @@ AXCL-SMI (System Management Interface) 工具用于设备信息收集，对设�
 
 ### 帮助 (-h) 和版本 (-v)
 
-`axcl_smi -h`  查询帮助信息
+`axcl-smi -h`  查询帮助信息
 
 ```bash
-# ./axcl_smi -h
-usage: ./axcl_smi [<command> [<args>]] [--device] [--version] [--help]
+# ./axcl-smi -h
+usage: axcl-smi [<command> [<args>]] [--device] [--version] [--help]
 
-AXCL-SMI System Management Interface V2.18.0
+axcl-smi System Management Interface V2.18.1
 
 Commands
     info                                    Show device information
@@ -70,6 +70,16 @@ Commands
         --cmm                                   Show CMM usage
         --cpu                                   Show CPU usage
         --npu                                   Show NPU usage
+    proc                                    cat device proc
+        --vdec                                  cat /proc/ax_proc/vdec
+        --venc                                  cat /proc/ax_proc/venc
+        --jenc                                  cat /proc/ax_proc/jenc
+        --ivps                                  cat /proc/ax_proc/ivps
+        --rgn                                   cat /proc/ax_proc/rgn
+        --ive                                   cat /proc/ax_proc/ive
+        --pool                                  cat /proc/ax_proc/pool
+        --link                                  cat /proc/ax_proc/link_table
+        --cmm                                   cat /proc/ax_proc/mem_cmm_info
     set                                     Set
         -f[MHz], --freq=[MHz]                   Set CPU frequency in MHz. One of: 1200000, 1400000, 1700000
     log                                     Dump logs from device
@@ -80,15 +90,15 @@ Commands
         cmd                                     Shell command
         args...                                 Shell command arguments
 -d, --device                            Specifies a device ID or 0 (default) select all devices
--v, --version                           Show AXCL-SMI version
+-v, --version                           Show axcl-smi version
 -h, --help                              Show this help menu
 ```
 
-`axcl_smi -v` 查询AXCL-SMI工具的版本
+`axcl-smi -v` 查询AXCL-SMI工具的版本
 
 ```bash
-# ./axcl_smi -v
-AXCL-SMI V2.18.0 BUILD: Dec  2 2024 13:14:36
+# ./axcl-smi -v
+axcl-smi V2.18.0 BUILD: Dec  2 2024 13:14:36
 ```
 
 ### 选项
@@ -109,13 +119,13 @@ AXCL-SMI V2.18.0 BUILD: Dec  2 2024 13:14:36
 
 ### 信息查询（info）
 
-`axcl_smi info`用于显示设备的详细信息，支持子命令如下：
+`axcl-smi info`用于显示设备的详细信息，支持子命令如下：
 
 | 子命令 | 说明                                                         |
 | ------ | ------------------------------------------------------------ |
 | --temp | 显示设备芯片结温，单位是摄氏度x1000。                        |
 | --mem  | 显示设备系统详细内存使用情况。                               |
-| --cmm  | 显示设备媒体内存使用情况。如果需要更详细的媒体内存，执行`axcl_smi sh cat /proc/ax_proc/mem_cmm_info -d xx`  (xx是PCIe设备号)。 |
+| --cmm  | 显示设备媒体内存使用情况。如果需要更详细的媒体内存，执行`axcl-smi sh cat /proc/ax_proc/mem_cmm_info -d xx`  (xx是PCIe设备号)。 |
 | --cpu  | 显示设备CPU利用率。                                          |
 | --npu  | 显示设备NPU利用率。                                          |
 
@@ -125,7 +135,7 @@ AXCL-SMI V2.18.0 BUILD: Dec  2 2024 13:14:36
 
 ```bash
 # 查询设备129的媒体内存使用情况
-# ./axcl_smi info --cmm -d 129
+# ./axcl-smi info --cmm -d 129
 Device ID           : 129 (0x81)
 CMM Total           :  3145728 KiB
 CMM Used            :    18876 KiB
@@ -134,11 +144,35 @@ CMM Remain          :  3126852 kiB
 
 :::
 
+### PROC查询（proc）
 
+`axcl-smi proc`用于查询设备模块的proc信息，支持子命令如下：
+
+| 子命令 | 说明                                               |
+| ------ | -------------------------------------------------- |
+| --vdec | 查询VDEC模块proc (`cat /proc/ax_proc/vdec`)        |
+| --venc | 查询VENC模块proc (`cat /proc/ax_proc/venc`)        |
+| --jenc | 查询JENC模块proc (`cat /proc/ax_proc/jenc`)        |
+| --ivps | 查询IVPS模块proc (`cat /proc/ax_proc/ivps`)        |
+| --rgn  | 查询RGN模块proc (`cat /proc/ax_proc/rgn`)          |
+| --ive  | 查询IVE模块proc (`cat /proc/ax_proc/ive`)          |
+| --pool | 查询POOL模块proc (`cat /proc/ax_proc/pool`)        |
+| --link | 查询LINK模块proc (`cat /proc/ax_proc/link_table`)  |
+| --cmm  | 查询CMM模块proc (`cat /proc/ax_proc/mem_cmm_info`) |
+
+:::{Note}
+
+必须结合`[-d, --device]`选项指定设备
+
+```bash
+# ./axcl-smi proc --vdec -d 129
+```
+
+:::
 
 ### 参数设置（set）
 
-`axcl_smi set` 用户配置设备信息，支持的子命令如下：
+`axcl-smi set` 用户配置设备信息，支持的子命令如下：
 
 | 子命令                | 说明                                                         |
 | --------------------- | ------------------------------------------------------------ |
@@ -149,7 +183,7 @@ CMM Remain          :  3126852 kiB
 必须结合`[-d, --device]`选项指定设备
 
 ```bash
-# ./axcl_smi set -f 1200000 -d 129
+# ./axcl-smi set -f 1200000 -d 129
 set cpu frequency 1200000 to device 129 succeed.
 ```
 
@@ -157,7 +191,7 @@ set cpu frequency 1200000 to device 129 succeed.
 
 ### 下载日志（log）
 
-`axcl_smi log` 用于下载设备的日志文件到主控侧，支持的参数如下：
+`axcl-smi log` 用于下载设备的日志文件到主控侧，支持的参数如下：
 
 | 参数                      | 说明                                                         |
 | ------------------------- | ------------------------------------------------------------ |
@@ -170,7 +204,7 @@ set cpu frequency 1200000 to device 129 succeed.
 
 ```bash
 # 下载设备号129的全部日志，并保存到当前目录
-# ./axcl_smi log -d 129
+# ./axcl-smi log -d 129
 [2024-12-02 15:41:00.015][934][C][log][dump][73]: log dump finished: ./dev129_log_20241202154059.tar.gz
 ```
 
@@ -178,10 +212,10 @@ set cpu frequency 1200000 to device 129 succeed.
 
 ### shell命令（sh）
 
-`axcl_smi sh` 支持shell命令查询设备信息，通常用于查询设备侧模块的运行proc信息，示例：
+`axcl-smi sh` 支持shell命令查询设备信息，通常用于查询设备侧模块的运行proc信息，示例：
 
 ```
-# ./axcl_smi sh cat /proc/ax_proc/mem_cmm_info  -d 129
+# ./axcl-smi sh cat /proc/ax_proc/mem_cmm_info  -d 129
 --------------------SDK VERSION-------------------
 [Axera version]: ax_cmm V2.18.0_20241201230759 Dec  1 2024 23:23:40 JK
 +---PARTITION: Phys(0x180000000, 0x23FFFFFFF), Size=3145728KB(3072MB),    NAME="anonymous"
@@ -217,7 +251,7 @@ set cpu frequency 1200000 to device 129 succeed.
 :::{Important}
 
 - 必须结合`[-d, --device]`选项指定设备
-- shell命令参数如果包含`-`,`--`,`>`等字段，可以用双引号`"-l"`将命令和参数包含在一个字符串中，比如`axcl_smi sh "ls -l" -d 129` 
+- shell命令参数如果包含`-`,`--`,`>`等字段，可以用双引号`"-l"`将命令和参数包含在一个字符串中，比如`axcl-smi sh "ls -l" -d 129` 
 - 谨慎使用shell命令对设备进行配置
 
 :::
@@ -226,7 +260,7 @@ set cpu frequency 1200000 to device 129 succeed.
 
 ### [查询设备ID，配置 -d, --device](#configdevice)
 
-执行axcl_smi或者lspci，从Bus-Id字段可以获取设备ID，填入-d或--device参数。
+执行axcl-smi或者lspci，从Bus-Id字段可以获取设备ID，填入-d或--device参数。
 
 **示例1：**
 
@@ -237,7 +271,7 @@ Bus-Id: 0000:03:00.0，那么设备ID = 0x03，即`-d 3`
 00:00.0 Host bridge: Intel Corporation 8th Gen Core Processor Host Bridge/DRAM Registers (rev 07)
 ...
 03:00.0 Multimedia video controller: Axera Semiconductor Co., Ltd Device 0650 (rev 01)
-[axera@localhost ~]$ axcl_smi
+[axera@localhost ~]$ axcl-smi
 +------------------------------------------------------------------------------------------------+
 | AXCL-SMI  V2.18.0_20241202180518                                Driver  V2.18.0_20241202180518 |
 +-----------------------------------------+--------------+---------------------------------------+
@@ -258,7 +292,7 @@ lspci
 0000:00:00.0 Class 0604: Device 16c3:abcd (rev 01)
 0001:80:00.0 Class 0604: Device 16c3:abcd (rev 01)
 0001:81:00.0 Class 0400: Device 1f4b:0650 (rev 01)
-/opt/bin/axcl # ./axcl_smi
+/opt/bin/axcl # ./axcl-smi
 i 0 = 748  pid = 748
 +------------------------------------------------------------------------------------------------+
 | AXCL-SMI  V2.18.0                                                              Driver  V2.18.0 |
