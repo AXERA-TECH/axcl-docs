@@ -434,7 +434,14 @@ Processing triggers for libc-bin (2.39-0ubuntu8.3) ...
 
 :::{Warning}
 
-由于 AXCL 的 PCIE 驱动的限制，Intel 的部分架构的 CPU 需要额外考虑关闭 IOMMU。如果测试发现测试通信不正确，可以修改内核启动参数，增加 `intel_iommu=off`：
+由于 AXCL 的 PCIE 驱动的限制，Intel 的部分架构的 CPU 需要额外考虑关闭 IOMMU。如果测试发现测试通信不正确，`sudo dmesg` 打印类似如下：
+
+```bash
+[  101.801189] DMAR: [DMA Write NO_PASID] Request device [01:00.0] fault addr 0x100c16000 [fault reason 0x05] PTE Write access is not set
+[  101.801197] DMAR: DRHD: handling fault status reg 3
+```
+
+可以修改内核启动参数，增加 `intel_iommu=off` 关闭 `intel_iommu`：
 
 1. **编辑 GRUB 配置文件**：
    使用文本编辑器打开 `/etc/default/grub` 文件。比如可以使用 `nano` 或其他编辑器(或其他你熟悉的工具)：
