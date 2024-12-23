@@ -653,7 +653,8 @@ rpm 包卸载后会自动 reset 子卡，子卡会进入 `pcie download mode`。
    sudo rpm -e axcl_host
    ```
 
-## [Kylin 10](#kylin)
+(kylin)=
+## Kylin 10
 
 ### 系统信息
 

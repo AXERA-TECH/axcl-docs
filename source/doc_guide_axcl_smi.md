@@ -113,7 +113,7 @@ axcl-smi V2.18.0 BUILD: Dec  2 2024 13:14:36
 
 :::{Note}
 
-如何查询设备ID，参阅 [`FAQ`](#configdevice)  
+如何查询设备ID，参阅 [`FAQ 查询设备ID，配置 -d, –device`](#configdevice)  
 
 :::
 
@@ -258,7 +258,8 @@ set cpu frequency 1200000 to device 129 succeed.
 
 ## FAQ
 
-### [查询设备ID，配置 -d, --device](#configdevice)
+(configdevice)=
+### 查询设备ID，配置 -d, --device
 
 执行axcl-smi或者lspci，从Bus-Id字段可以获取设备ID，填入-d或--device参数。
 

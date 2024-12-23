@@ -7,8 +7,8 @@
 使用 `Runtime API` 可以在宿主系统上调用 `NPU` 完成计算功能，其中 `Memory API` 可以分别在宿主和计算卡上申请释放内存空间，`Engine API` 可以完成模型初始化、`IO` 设置到推理的全部 `NPU` 功能。
 
 ### Runtime API
-
-#### [axclInit](#axclinit)
+(axclinit)=
+#### axclInit
 
 ```c
 axclError axclInit(const char *config);
@@ -31,7 +31,9 @@ axclError axclInit(const char *config);
 - 当调用任何AXCL接口开发应用时，必须首先调用本接口。
 - 一个进程内只调用一次本接口。
 
-#### [axclFinailze](#axclfinalize)
+---
+(axclfinalize)=
+#### axclFinailze
 
 ```c
 axclError axclFinalize();
@@ -47,7 +49,9 @@ axclError axclFinalize();
 - 应用进程退出前，应显示调用本接口去初始化。
 - 对于C++应用，不建议在析构函数中调用，否则在进程退出时可能因为单例析构顺序不确定导致进程异常退出。
 
-#### [axclrtGetVersion](#axclrtgetversion)
+---
+(axclrtgetversion)=
+#### axclrtGetVersion
 
 ```c
 axclError axclrtGetVersion(int32_t *major, int32_t *minor, int32_t *patch);
@@ -67,7 +71,9 @@ axclError axclrtGetVersion(int32_t *major, int32_t *minor, int32_t *patch);
 
 无特别限制。
 
-#### [axclrtGetSocName](#axclrtgetsocname)
+---
+(axclrtgetsocname)=
+#### axclrtGetSocName
 
 ```c
 const char *axclrtGetSocName();
@@ -81,7 +87,9 @@ const char *axclrtGetSocName();
 
 无特别限制。
 
-#### [axclrtSetDevice](#axclrtsetdevice)
+---
+(axclrtsetdevice)=
+#### axclrtSetDevice
 
 ```c
 axclError axclrtSetDevice(int32_t deviceId);
@@ -102,7 +110,9 @@ axclError axclrtSetDevice(int32_t deviceId);
 - 和 [`axclrtResetDevice`](#axclrtresetdevice) 成对调用释放本进程使用的设备资源，内部通过引用计数允许多次调用，仅当引用计数为0时释放资源。
 - 多Device场景下，可以在进程中通过本接口或 [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext) 切换Device。
 
-#### [axclrtResetDevice](#axclrtresetdevice)
+---
+(axclrtresetdevice)=
+#### axclrtResetDevice
 
 ```c
 axclError axclrtResetDevice(int32_t deviceId);
@@ -123,7 +133,9 @@ axclError axclrtResetDevice(int32_t deviceId);
 - 内部通过引用计数允许多次调用，仅当引用计数为0时释放资源。
 - **应用进程退出要确保`axclrtResetDevice`被调用，特别是异常信号捕获处理后，否则会导致C++抛出terminated abort异常。**
 
-#### [axclrtGetDevice](#axclrtgetdevice)
+---
+(axclrtgetdevice)=
+#### axclrtGetDevice
 
 ```c
 axclError axclrtGetDevice(int32_t *deviceId);
@@ -141,8 +153,9 @@ axclError axclrtGetDevice(int32_t *deviceId);
 
 - 如果没有调用  [`axclrtSetDevice`](#axclrtsetdevice)  或者  [`axclrtCreateContext`](#axclrtcreatecontext)  指定设备，本接口返回错误。
 
-
-#### [axclrtGetDeviceCount](#axclrtgetdevicecount)
+---
+(axclrtgetdevicecount)=
+#### axclrtGetDeviceCount
 
 ```c
 axclError axclrtGetDeviceCount(uint32_t *count);
@@ -160,7 +173,9 @@ axclError axclrtGetDeviceCount(uint32_t *count);
 
 无特别限制。
 
-#### [axclrtGetDeviceList](#axclrtgetdevicelist)
+---
+(axclrtgetdevicelist)=
+#### axclrtGetDeviceList
 
 ```c
 axclError axclrtGetDeviceList(axclrtDeviceList *deviceList);
@@ -178,7 +193,9 @@ axclError axclrtGetDeviceList(axclrtDeviceList *deviceList);
 
 无特别限制。
 
-#### [axclrtSynchronizeDevice](#axclrtsynchronizedevice)
+---
+(axclrtsynchronizedevice)=
+#### axclrtSynchronizeDevice
 
 ```c
 axclError axclrtSynchronizeDevice();
@@ -192,7 +209,9 @@ axclError axclrtSynchronizeDevice();
 
 至少激活一个设备。
 
-#### [axclrtGetDeviceUtilizationRate](#axclrtgetdeviceutilizationrate)
+---
+(axclrtgetdeviceutilizationrate)=
+#### axclrtGetDeviceUtilizationRate
 
 ```c
 axclError axclrtGetDeviceUtilizationRate(int32_t deviceId, axclrtUtilizationInfo *utilizationInfo);
@@ -206,8 +225,9 @@ axclError axclrtGetDeviceUtilizationRate(int32_t deviceId, axclrtUtilizationInfo
 
 - 如果没有调用  [`axclrtSetDevice`](#axclrtsetdevice)  或者  [`axclrtCreateContext`](#axclrtcreatecontext)  指定设备，本接口返回错误。
 
-
-#### [axclrtCreateContext](#axclrtcreatecontext)
+---
+(axclrtcreatecontext)=
+#### axclrtCreateContext
 
 ```c
 axclError axclrtCreateContext(axclrtContext *context, int32_t deviceId);
@@ -229,7 +249,9 @@ axclError axclrtCreateContext(axclrtContext *context, int32_t deviceId);
 - 调用 [`axclrtDestroyContext`](#axclrtdestroycontext) 显示释放Context资源。
 - 允许多个线程共用一个Context（由 [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext)  绑定），但任务的执行取决于系统线程调度的顺序，用户需要自行管理和维护线程间任务的执行同步顺序问题。对于多线程，推荐为每个线程创建专属的Context，增加程序的可维护性。
 
-#### [axclrtDestroyContext](#axclrtdestroycontext)
+---
+(axclrtdestroycontext)=
+#### axclrtDestroyContext
 
 ```c
 axclError axclrtDestroyContext(axclrtContext context);
@@ -247,7 +269,9 @@ axclError axclrtDestroyContext(axclrtContext context);
 
 - 只能销毁 [`axclrtCreateContext`](#axclrtcreatecontext) 创建的Context资源。
 
-#### [axclrtSetCurrentContext](#axclrtsetcurrentcontext)
+---
+(axclrtsetcurrentcontext)=
+#### axclrtSetCurrentContext
 
 ```c
 axclError axclrtSetCurrentContext(axclrtContext context);
@@ -267,7 +291,9 @@ axclError axclrtSetCurrentContext(axclrtContext context);
 - 若绑定Context对应的设备Device已被 [`axclrtResetDevice`](#axclrtresetdevice) 复位，则不能将该Context设置为线程的Context，否则会导致异常。
 - 推荐在某一线程中创建的Context，在该线程中使用。若在线程A中调用  [`axclrtCreateContext`](#axclrtcreatecontext)  接口创建Context，在线程B中使用该Context，则需由用户自行保证两个线程中同一个Context下任务执行的顺序。 
 
-#### [axclrtGetCurrentContext](#axclrtgetcurrentcontext)
+---
+(axclrtgetcurrentcontext)=
+#### axclrtGetCurrentContext
 
 ```c
 axclError axclrtGetCurrentContext(axclrtContext *context);
@@ -288,7 +314,8 @@ axclError axclrtGetCurrentContext(axclrtContext *context);
 
 ### Memory API
 
-#### [axclrtMalloc](#axclrtmalloc)
+(axclrtmalloc)=
+#### axclrtMalloc
 
 ```c
 axclError axclrtMalloc(void **devPtr, size_t size, axclrtMemMallocPolicy policy);
@@ -311,7 +338,9 @@ axclError axclrtMalloc(void **devPtr, size_t size, axclrtMemMallocPolicy policy)
 - 调用[`axclrtFree`](#axclrtfree) 释放内存。
 - 频繁申请释放内存会损耗性能，建议用户做好预分配或二次管理，避免频繁申请和释放。
 
-#### [axclrtMallocCached](#axclrtmalloccached)
+---
+(axclrtmalloccached)=
+#### axclrtMallocCached
 
 ```c
 axclError axclrtMallocCached(void **devPtr, size_t size, axclrtMemMallocPolicy policy);
@@ -334,7 +363,9 @@ axclError axclrtMallocCached(void **devPtr, size_t size, axclrtMemMallocPolicy p
 - 调用[`axclrtFree`](#axclrtfree) 释放内存。
 - 频繁申请释放内存会损耗性能，建议用户做好预分配或二次管理，避免频繁申请和释放。
 
-#### [axclrtFree](#axclrtfree)
+---
+(axclrtfree)=
+#### axclrtFree
 
 ```c
 axclError axclrtFree(void *devPtr);
@@ -352,7 +383,9 @@ axclError axclrtFree(void *devPtr);
 
 - 只能释放 [`axclrtMalloc`](#axclrtmalloc)  或  [`axclrtMallocCached`](#axclrtmalloccached)  申请的设备侧内存。
 
-#### [axclrtMemFlush](#axclrtmemflush)
+---
+(axclrtmemflush)=
+#### axclrtMemFlush
 
 ```c
 axclError axclrtMemFlush(void *devPtr, size_t size);
@@ -371,7 +404,9 @@ axclError axclrtMemFlush(void *devPtr, size_t size);
 
 无特别限制
 
-#### [axclrtMemInvalidate](#axclrtmeminvalidate)
+---
+(axclrtmeminvalidate)=
+#### axclrtMemInvalidate
 
 ```c
 axclError axclrtMemInvalidate(void *devPtr, size_t size);
@@ -390,7 +425,9 @@ axclError axclrtMemInvalidate(void *devPtr, size_t size);
 
 - 无特别限制
 
-#### [axclrtMallocHost](#axclrtmallochost)
+---
+(axclrtmallochost)=
+#### axclrtMallocHost
 
 ```c
 axclError axclrtMallocHost(void **hostPtr, size_t size);
@@ -411,7 +448,9 @@ axclError axclrtMallocHost(void **hostPtr, size_t size);
 - 频繁申请释放内存会损耗性能，建议用户做好预分配或二次管理，避免频繁申请和释放。
 - 在HOST申请内存也可以直接调用malloc接口，但推荐调用 [`axclrtMallocHost`](#axclrtmallochost) 。
 
-#### [axclrtFreeHost](#axclrtfreehost)
+---
+(axclrtfreehost)=
+#### axclrtFreeHost
 
 ```c
 axclError axclrtFreeHost(void *hostPtr);
@@ -429,7 +468,9 @@ axclError axclrtFreeHost(void *hostPtr);
 
 - 只能释放 [`axclrtMallocHost`](#axclrtmallochost) 申请的HOST内存。
 
-#### [axclrtMemset](#axclrtmemset)
+---
+(axclrtmemset)=
+#### axclrtMemset
 
 ```c
 axclError axclrtMemset(void *devPtr, uint8_t value, size_t count);
@@ -451,7 +492,9 @@ axclError axclrtMemset(void *devPtr, uint8_t value, size_t count);
 - [`axclrtMallocCached`](#axclrtmalloccached)  申请的设备侧内存初始化需要调用 [`axclrtMemInvalidate`](#axclrtmeminvalidate)  保持一致性。
 -  [`axclrtMallocHost`](#axclrtmallochost) 申请的HOST内存请调用memset函数初始化。
 
-#### [axclrtMemcpy](#axclrtmemcpy)
+---
+(axclrtmemcpy)=
+#### axclrtMemcpy
 
 ```c
 axclError axclrtMemcpy(void *dstPtr, const void *srcPtr, size_t count, axclrtMemcpyKind kind);
@@ -479,7 +522,9 @@ axclError axclrtMemcpy(void *dstPtr, const void *srcPtr, size_t count, axclrtMem
 
 - 复制的源和目标内存需要满足`kind`的要求。
 
-#### [axclrtMemcmp](#axclrtmemcmp)
+---
+(axclrtmemcmp)=
+#### axclrtMemcmp
 
 ```c
 axclError axclrtMemcmp(const void *devPtr1, const void *devPtr2, size_t count); 
@@ -502,7 +547,8 @@ axclError axclrtMemcmp(const void *devPtr1, const void *devPtr2, size_t count);
 
 ### Engine API
 
-#### [axclrtEngineInit](#axclrtengineinit)
+(axclrtengineinit)=
+#### axclrtEngineInit
 ```c
 axclError axclrtEngineInit(axclrtEngineVNpuKind npuKind);
 ```
@@ -520,7 +566,8 @@ axclError axclrtEngineInit(axclrtEngineVNpuKind npuKind);
 
 ---
 
-#### [axclrtEngineGetVNpuKind](#axclrtenginegetvnpukind)
+(axclrtenginegetvnpukind)=
+#### axclrtEngineGetVNpuKind
 ```c
 axclError axclrtEngineGetVNpuKind(axclrtEngineVNpuKind *npuKind);
 ```
@@ -537,7 +584,8 @@ axclError axclrtEngineGetVNpuKind(axclrtEngineVNpuKind *npuKind);
 
 ---
 
-#### [axclrtEngineFinalize](#axclrtenginefinalize)
+(axclrtenginefinalize)=
+#### axclrtEngineFinalize
 ```c
 axclError axclrtEngineFinalize();
 ```
@@ -551,7 +599,8 @@ axclError axclrtEngineFinalize();
 
 ---
 
-#### [axclrtEngineLoadFromFile](#axclrtengineloadfromfile)
+(axclrtengineloadfromfile)=
+#### axclrtEngineLoadFromFile
 ```c
 axclError axclrtEngineLoadFromFile(const char *modelPath, uint64_t *modelId);
 ```
@@ -569,7 +618,8 @@ axclError axclrtEngineLoadFromFile(const char *modelPath, uint64_t *modelId);
 
 ---
 
-#### [axclrtEngineLoadFromMem](#axclrtengineloadfrommem)
+(axclrtengineloadfrommem)=
+#### axclrtEngineLoadFromMem
 ```c
 axclError axclrtEngineLoadFromMem(const void *model, uint64_t modelSize, uint64_t *modelId);
 ```
@@ -588,7 +638,8 @@ axclError axclrtEngineLoadFromMem(const void *model, uint64_t modelSize, uint64_
 
 ---
 
-#### [axclrtEngineUnload](#axclrtengineunload)
+(axclrtengineunload)=
+#### axclrtEngineUnload
 ```c
 axclError axclrtEngineUnload(uint64_t modelId);
 ```
@@ -604,8 +655,8 @@ axclError axclrtEngineUnload(uint64_t modelId);
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetModelCompilerVersion](#axclrtenginegetmodelcompilerversion)
+(axclrtenginegetmodelcompilerversion)=
+#### axclrtEngineGetModelCompilerVersion
 ```c
 const char* axclrtEngineGetModelCompilerVersion(uint64_t modelId);
 ```
@@ -621,8 +672,8 @@ const char* axclrtEngineGetModelCompilerVersion(uint64_t modelId);
 无特别限制。
 
 ---
-
-#### [axclrtEngineSetAffinity](#axclrtenginesetaffinity)
+(axclrtenginesetaffinity)=
+#### axclrtEngineSetAffinity
 ```c
 axclError axclrtEngineSetAffinity(uint64_t modelId, axclrtEngineSet set);
 ```
@@ -639,8 +690,8 @@ axclError axclrtEngineSetAffinity(uint64_t modelId, axclrtEngineSet set);
 不允许为零，设置的掩码位不能超出亲和性范围。
 
 ---
-
-#### [axclrtEngineGetAffinity](#axclrtenginegetaffinity)
+(axclrtenginegetaffinity)=
+#### axclrtEngineGetAffinity
 ```c
 axclError axclrtEngineGetAffinity(uint64_t modelId, axclrtEngineSet *set);
 ```
@@ -657,8 +708,8 @@ axclError axclrtEngineGetAffinity(uint64_t modelId, axclrtEngineSet *set);
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetUsage](#axclrtenginegetusage)
+(axclrtenginegetusage)=
+#### axclrtEngineGetUsage
 ```c
 axclError axclrtEngineGetUsage(const char *modelPath, int64_t *sysSize, int64_t *cmmSize);
 ```
@@ -676,8 +727,8 @@ axclError axclrtEngineGetUsage(const char *modelPath, int64_t *sysSize, int64_t 
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetUsageFromMem](#axclrtenginegetusagefrommem)
+(axclrtenginegetusagefrommem)=
+#### axclrtEngineGetUsageFromMem
 ```c
 axclError axclrtEngineGetUsageFromMem(const void *model, uint64_t modelSize, int64_t *sysSize, int64_t *cmmSize);
 ```
@@ -696,8 +747,8 @@ axclError axclrtEngineGetUsageFromMem(const void *model, uint64_t modelSize, int
 模型内存必须是设备内存，用户需要自行管理和释放。
 
 ---
-
-#### [axclrtEngineGetUsageFromModelId](#axclrtenginegetusagefrommodelid)
+(axclrtenginegetusagefrommodelid)=
+#### axclrtEngineGetUsageFromModelId
 ```c
 axclError axclrtEngineGetUsageFromModelId(uint64_t modelId, int64_t *sysSize, int64_t *cmmSize);
 ```
@@ -715,8 +766,8 @@ axclError axclrtEngineGetUsageFromModelId(uint64_t modelId, int64_t *sysSize, in
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetModelType](#axclrtenginegetmodeltype)
+(axclrtenginegetmodeltype)=
+#### axclrtEngineGetModelType
 ```c
 axclError axclrtEngineGetModelType(const char *modelPath, axclrtEngineModelKind *modelType);
 ```
@@ -733,8 +784,8 @@ axclError axclrtEngineGetModelType(const char *modelPath, axclrtEngineModelKind 
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetModelTypeFromMem](#axclrtenginegetmodeltypefrommem)
+(axclrtenginegetmodeltypefrommem)=
+#### axclrtEngineGetModelTypeFromMem
 ```c
 axclError axclrtEngineGetModelTypeFromMem(const void *model, uint64_t modelSize, axclrtEngineModelKind *modelType);
 ```
@@ -752,8 +803,8 @@ axclError axclrtEngineGetModelTypeFromMem(const void *model, uint64_t modelSize,
 模型内存必须是设备内存，用户需要自行管理和释放。
 
 ---
-
-#### [axclrtEngineGetModelTypeFromModelId](#axclrtenginegetmodeltypefrommodelid)
+(axclrtenginegetmodeltypefrommodelid)=
+#### axclrtEngineGetModelTypeFromModelId
 ```c
 axclError axclrtEngineGetModelTypeFromModelId(uint64_t modelId, axclrtEngineModelKind *modelType);
 ```
@@ -770,8 +821,8 @@ axclError axclrtEngineGetModelTypeFromModelId(uint64_t modelId, axclrtEngineMode
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetIOInfo](#axclrtenginegetioinfo)
+(axclrtenginegetioinfo)=
+#### axclrtEngineGetIOInfo
 ```c
 axclError axclrtEngineGetIOInfo(uint64_t modelId, axclrtEngineIOInfo *ioInfo);
 ```
@@ -788,8 +839,8 @@ axclError axclrtEngineGetIOInfo(uint64_t modelId, axclrtEngineIOInfo *ioInfo);
 用户在模型 `ID` 销毁前应调用 `axclrtEngineDestroyIOInfo` 来释放 `axclrtEngineIOInfo`。
 
 ---
-
-#### [axclrtEngineDestroyIOInfo](#axclrtenginedestroyioinfo)
+(axclrtenginedestroyioinfo)=
+#### axclrtEngineDestroyIOInfo
 ```c
 axclError axclrtEngineDestroyIOInfo(axclrtEngineIOInfo ioInfo);
 ```
@@ -805,8 +856,8 @@ axclError axclrtEngineDestroyIOInfo(axclrtEngineIOInfo ioInfo);
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetShapeGroupsCount](#axclrtenginegetshapegroupscount)
+(axclrtenginegetshapegroupscount)=
+#### axclrtEngineGetShapeGroupsCount
 ```c
 axclError axclrtEngineGetShapeGroupsCount(axclrtEngineIOInfo ioInfo, int32_t *count);
 ```
@@ -823,8 +874,8 @@ axclError axclrtEngineGetShapeGroupsCount(axclrtEngineIOInfo ioInfo, int32_t *co
 Pulsar2 工具链可以在模型转换时指定多个形状。普通模型只有一个形状，因此对于正常转换的模型，调用此函数没有必要。
 
 ---
-
-#### [axclrtEngineGetNumInputs](#axclrtenginegetnuminputs)
+(axclrtenginegetnuminputs)=
+#### axclrtEngineGetNumInputs
 ```c
 uint32_t axclrtEngineGetNumInputs(axclrtEngineIOInfo ioInfo);
 ```
@@ -840,8 +891,8 @@ uint32_t axclrtEngineGetNumInputs(axclrtEngineIOInfo ioInfo);
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetNumOutputs](#axclrtenginegetnumoutputs)
+(axclrtenginegetnumoutputs)=
+#### axclrtEngineGetNumOutputs
 ```c
 uint32_t axclrtEngineGetNumOutputs(axclrtEngineIOInfo ioInfo);
 ```
@@ -857,8 +908,8 @@ uint32_t axclrtEngineGetNumOutputs(axclrtEngineIOInfo ioInfo);
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetInputSizeByIndex](#axclrtenginegetinputsizebyindex)
+(axclrtenginegetinputsizebyindex)=
+#### axclrtEngineGetInputSizeByIndex
 ```c
 uint64_t axclrtEngineGetInputSizeByIndex(axclrtEngineIOInfo ioInfo, uint32_t group, uint32_t index);
 ```
@@ -876,8 +927,8 @@ uint64_t axclrtEngineGetInputSizeByIndex(axclrtEngineIOInfo ioInfo, uint32_t gro
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetOutputSizeByIndex](#axclrtenginegetoutputsizebyindex)
+(axclrtenginegetoutputsizebyindex)=
+#### axclrtEngineGetOutputSizeByIndex
 ```c
 uint64_t axclrtEngineGetOutputSizeByIndex(axclrtEngineIOInfo ioInfo, uint32_t group, uint32_t index);
 ```
@@ -895,8 +946,8 @@ uint64_t axclrtEngineGetOutputSizeByIndex(axclrtEngineIOInfo ioInfo, uint32_t gr
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetInputNameByIndex](#axclrtenginegetinputnamebyindex)
+(axclrtenginegetinputnamebyindex)=
+#### axclrtEngineGetInputNameByIndex
 ```c
 const char *axclrtEngineGetInputNameByIndex(axclrtEngineIOInfo ioInfo, uint32_t index);
 ```
@@ -913,8 +964,8 @@ const char *axclrtEngineGetInputNameByIndex(axclrtEngineIOInfo ioInfo, uint32_t 
 返回的输入张量名称与 `ioInfo` 的生命周期相同。
 
 ---
-
-#### [axclrtEngineGetOutputNameByIndex](#axclrtenginegetoutputnamebyindex)
+(axclrtenginegetoutputnamebyindex)=
+#### axclrtEngineGetOutputNameByIndex
 ```c
 const char *axclrtEngineGetOutputNameByIndex(axclrtEngineIOInfo ioInfo, uint32_t index);
 ```
@@ -931,8 +982,8 @@ const char *axclrtEngineGetOutputNameByIndex(axclrtEngineIOInfo ioInfo, uint32_t
 返回的输出张量名称与 `ioInfo` 的生命周期相同。
 
 ---
-
-#### [axclrtEngineGetInputIndexByName](#axclrtenginegetinputindexbyname)
+(axclrtenginegetinputindexbyname)=
+#### axclrtEngineGetInputIndexByName
 ```c
 int32_t axclrtEngineGetInputIndexByName(axclrtEngineIOInfo ioInfo, const char *name);
 ```
@@ -949,8 +1000,8 @@ int32_t axclrtEngineGetInputIndexByName(axclrtEngineIOInfo ioInfo, const char *n
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetOutputIndexByName](#axclrtenginegetoutputindexbyname)
+(axclrtenginegetoutputindexbyname)=
+#### axclrtEngineGetOutputIndexByName
 ```c
 int32_t axclrtEngineGetOutputIndexByName(axclrtEngineIOInfo ioInfo, const char *name);
 ```
@@ -967,8 +1018,8 @@ int32_t axclrtEngineGetOutputIndexByName(axclrtEngineIOInfo ioInfo, const char *
 无特别限制。
 
 ---
-
-#### [axclrtEngineGetInputDims](#axclrtenginegetinputdims)
+(axclrtenginegetinputdims)=
+#### axclrtEngineGetInputDims
 ```c
 axclError axclrtEngineGetInputDims(axclrtEngineIOInfo ioInfo, uint32_t group, uint32_t index, axclrtEngineIODims *dims);
 ```
@@ -987,8 +1038,8 @@ axclError axclrtEngineGetInputDims(axclrtEngineIOInfo ioInfo, uint32_t group, ui
 `axclrtEngineIODims` 的存储空间是用户申请的，用户在模型 `axclrtEngineIOInfo` 销毁前应释放 `axclrtEngineIODims`。
 
 ---
-
-#### [axclrtEngineGetOutputDims](#axclrtenginegetoutputdims)
+(axclrtenginegetoutputdims)=
+#### axclrtEngineGetOutputDims
 ```c
 axclError axclrtEngineGetOutputDims(axclrtEngineIOInfo ioInfo, uint32_t group, uint32_t index, axclrtEngineIODims *dims);
 ```
@@ -1007,8 +1058,8 @@ axclError axclrtEngineGetOutputDims(axclrtEngineIOInfo ioInfo, uint32_t group, u
 `axclrtEngineIODims` 的存储空间是用户申请的，用户在模型 `axclrtEngineIOInfo` 销毁前应释放 `axclrtEngineIODims`。
 
 ---
-
-#### [axclrtEngineCreateIO](#axclrtenginecreateio)
+(axclrtenginecreateio)=
+#### axclrtEngineCreateIO
 ```c
 axclError axclrtEngineCreateIO(axclrtEngineIOInfo ioInfo, axclrtEngineIO *io);
 ```
@@ -1025,8 +1076,8 @@ axclError axclrtEngineCreateIO(axclrtEngineIOInfo ioInfo, axclrtEngineIO *io);
 用户在模型 `ID` 销毁前应调用 `axclrtEngineDestroyIO` 来释放 `axclrtEngineIO`。
 
 ---
-
-#### [axclrtEngineDestroyIO](#axclrtenginedestroyio)
+(axclrtenginedestroyio)=
+#### axclrtEngineDestroyIO
 ```c
 axclError axclrtEngineDestroyIO(axclrtEngineIO io);
 ```
@@ -1042,8 +1093,8 @@ axclError axclrtEngineDestroyIO(axclrtEngineIO io);
 无特别限制。
 
 ---
-
-#### [axclrtEngineSetInputBufferByIndex](#axclrtenginesetinputbufferbyindex)
+(axclrtenginesetinputbufferbyindex)=
+#### axclrtEngineSetInputBufferByIndex
 ```c
 axclError axclrtEngineSetInputBufferByIndex(axclrtEngineIO io, uint32_t index, const void *dataBuffer, uint64_t size);
 ```
@@ -1062,8 +1113,8 @@ axclError axclrtEngineSetInputBufferByIndex(axclrtEngineIO io, uint32_t index, c
 数据缓冲区必须是设备内存，用户需要自行管理和释放。
 
 ---
-
-#### [axclrtEngineSetOutputBufferByIndex](#axclrtenginesetoutputbufferbyindex)
+(axclrtenginesetoutputbufferbyindex)=
+#### axclrtEngineSetOutputBufferByIndex
 ```c
 axclError axclrtEngineSetOutputBufferByIndex(axclrtEngineIO io, uint32_t index, const void *dataBuffer, uint64_t size);
 ```
@@ -1082,8 +1133,8 @@ axclError axclrtEngineSetOutputBufferByIndex(axclrtEngineIO io, uint32_t index, 
 数据缓冲区必须是设备内存，用户需要自行管理和释放。
 
 ---
-
-#### [axclrtEngineSetInputBufferByName](#axclrtenginesetinputbufferbyname)
+(axclrtenginesetinputbufferbyname)=
+#### axclrtEngineSetInputBufferByName
 ```c
 axclError axclrtEngineSetInputBufferByName(axclrtEngineIO io, const char *name, const void *dataBuffer, uint64_t size);
 ```
@@ -1102,8 +1153,8 @@ axclError axclrtEngineSetInputBufferByName(axclrtEngineIO io, const char *name, 
 数据缓冲区必须是设备内存，用户需要自行管理和释放。
 
 ---
-
-#### [axclrtEngineSetOutputBufferByName](#axclrtenginesetoutputbufferbyname)
+(axclrtenginesetoutputbufferbyname)=
+#### axclrtEngineSetOutputBufferByName
 ```c
 axclError axclrtEngineSetOutputBufferByName(axclrtEngineIO io, const char *name, const void *dataBuffer, uint64_t size);
 ```
@@ -1122,8 +1173,8 @@ axclError axclrtEngineSetOutputBufferByName(axclrtEngineIO io, const char *name,
 数据缓冲区必须是设备内存，用户需要自行管理和释放。
 
 ---
-
-#### [axclrtEngineGetInputBufferByIndex](#axclrtenginegetinputbufferbyindex)
+(axclrtenginegetinputbufferbyindex)=
+#### axclrtEngineGetInputBufferByIndex
 ```c
 axclError axclrtEngineGetInputBufferByIndex(axclrtEngineIO io, uint32_t index, void **dataBuffer, uint64_t *size);
 ```
@@ -1142,8 +1193,8 @@ axclError axclrtEngineGetInputBufferByIndex(axclrtEngineIO io, uint32_t index, v
 数据缓冲区必须是设备内存，用户需要自行管理和释放。
 
 ---
-
-#### [axclrtEngineGetOutputBufferByIndex](#axclrtenginegetoutputbufferbyindex)
+(axclrtenginegetoutputbufferbyindex)=
+#### axclrtEngineGetOutputBufferByIndex
 ```c
 axclError axclrtEngineGetOutputBufferByIndex(axclrtEngineIO io, uint32_t index, void **dataBuffer, uint64_t *size);
 ```
@@ -1162,8 +1213,8 @@ axclError axclrtEngineGetOutputBufferByIndex(axclrtEngineIO io, uint32_t index, 
 数据缓冲区必须是设备内存，用户需要自行管理和释放。
 
 ---
-
-#### [axclrtEngineGetInputBufferByName](#axclrtenginegetinputbufferbyname)
+(axclrtenginegetinputbufferbyname)=
+#### axclrtEngineGetInputBufferByName
 ```c
 axclError axclrtEngineGetInputBufferByName(axclrtEngineIO io, const char *name, void **dataBuffer, uint64_t *size);
 ```
@@ -1181,8 +1232,8 @@ axclError axclrtEngineGetInputBufferByName(axclrtEngineIO io, const char *name, 
 数据缓冲区必须是设备内存，用户需要自行管理和释放。
 
 ---
-
-#### [axclrtEngineGetOutputBufferByName](#axclrtenginegetoutputbufferbyname)
+(axclrtenginegetoutputbufferbyname)=
+#### axclrtEngineGetOutputBufferByName
 ```c
 axclError axclrtEngineGetOutputBufferByName(axclrtEngineIO io, const char *name, void **dataBuffer, uint64_t *size);
 ```
@@ -1200,8 +1251,8 @@ axclError axclrtEngineGetOutputBufferByName(axclrtEngineIO io, const char *name,
 数据缓冲区必须是设备内存，用户需要自行管理和释放。
 
 ---
-
-#### [axclrtEngineSetDynamicBatchSize](#axclrtenginesetdynamicbatchsize)
+(axclrtenginesetdynamicbatchsize)=
+#### axclrtEngineSetDynamicBatchSize
 ```c
 axclError axclrtEngineSetDynamicBatchSize(axclrtEngineIO io, uint32_t batchSize);
 ```
@@ -1218,8 +1269,8 @@ axclError axclrtEngineSetDynamicBatchSize(axclrtEngineIO io, uint32_t batchSize)
 无特别限制。
 
 ---
-
-#### [axclrtEngineCreateContext](#axclrtenginecreatecontext)
+(axclrtenginecreatecontext)=
+#### axclrtEngineCreateContext
 ```c
 axclError axclrtEngineCreateContext(uint64_t modelId, uint64_t *contextId);
 ```
@@ -1236,8 +1287,8 @@ axclError axclrtEngineCreateContext(uint64_t modelId, uint64_t *contextId);
 一个模型 `ID`  可以创建多个运行上下文，每个上下文仅在其自己的设置和内存空间中运行。
 
 ---
-
-#### [axclrtEngineExecute](#axclrtengineexecute)
+(axclrtengineexecute)=
+#### axclrtEngineExecute
 ```c
 axclError axclrtEngineExecute(uint64_t modelId, uint64_t contextId, uint32_t group, axclrtEngineIO io);
 ```
@@ -1256,8 +1307,8 @@ axclError axclrtEngineExecute(uint64_t modelId, uint64_t contextId, uint32_t gro
 无特别限制。
 
 ---
-
-#### [axclrtEngineExecuteAsync](#axclrtengineexecuteasync)
+(axclrtengineexecuteasync)=
+#### axclrtEngineExecuteAsync
 ```c
 axclError axclrtEngineExecuteAsync(uint64_t modelId, uint64_t contextId, uint32_t group, axclrtEngineIO io, axclrtStream stream);
 ```
