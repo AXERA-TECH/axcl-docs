@@ -289,7 +289,7 @@ axclError axclrtSetCurrentContext(axclrtContext context);
 
 - 如果多次调用本接口绑定线程，以最后一次的Context为准。
 - 若绑定Context对应的设备Device已被 [`axclrtResetDevice`](#axclrtresetdevice) 复位，则不能将该Context设置为线程的Context，否则会导致异常。
-- 推荐在某一线程中创建的Context，在该线程中使用。若在线程A中调用  [`axclrtCreateContext`](#axclrtcreatecontext)  接口创建Context，在线程B中使用该Context，则需由用户自行保证两个线程中同一个Context下任务执行的顺序。 
+- 推荐在某一线程中创建的Context，在该线程中使用。若在线程A中调用  [`axclrtCreateContext`](#axclrtcreatecontext)  接口创建Context，在线程B中使用该Context，则需由用户自行保证两个线程中同一个Context下任务执行的顺序。
 
 ---
 (axclrtgetcurrentcontext)=
@@ -439,7 +439,7 @@ axclError axclrtMallocHost(void **hostPtr, size_t size);
 
 **参数**：
 
-- `hostPtr [IN]`：已分配内存首地址。
+- `hostPtr [OUT]`：已分配内存首地址。
 - `size [IN]`：申请的内存大小，单位字节。
 
 **限制**：
@@ -527,7 +527,7 @@ axclError axclrtMemcpy(void *dstPtr, const void *srcPtr, size_t count, axclrtMem
 #### axclrtMemcmp
 
 ```c
-axclError axclrtMemcmp(const void *devPtr1, const void *devPtr2, size_t count); 
+axclError axclrtMemcmp(const void *devPtr1, const void *devPtr2, size_t count);
 ```
 
 **使用说明**：
@@ -573,7 +573,7 @@ axclError axclrtEngineGetVNpuKind(axclrtEngineVNpuKind *npuKind);
 ```
 **使用说明**：
 
-此函数用于获取 `Runtime Engine` 初始化的 `VNPU` 类型。  
+此函数用于获取 `Runtime Engine` 初始化的 `VNPU` 类型。
 
 **参数**：
 - `npuKind [OUT]`：返回 `VNPU` 类型。
@@ -591,7 +591,7 @@ axclError axclrtEngineFinalize();
 ```
 **使用说明**：
 
-此函数用于完成 `Runtime Engine` 的清理工作。用户在完成所有操作后需要调用此函数。  
+此函数用于完成 `Runtime Engine` 的清理工作。用户在完成所有操作后需要调用此函数。
 
 **限制**：
 
@@ -606,7 +606,7 @@ axclError axclrtEngineLoadFromFile(const char *modelPath, uint64_t *modelId);
 ```
 **使用说明**：
 
-此函数从文件加载模型数据，创建模型 `ID`。  
+此函数从文件加载模型数据，创建模型 `ID`。
 
 **参数**：
 - `modelPath [IN]`：离线模型文件的存储路径。
@@ -625,7 +625,7 @@ axclError axclrtEngineLoadFromMem(const void *model, uint64_t modelSize, uint64_
 ```
 **使用说明**：
 
-此函数从内存加载离线模型数据，并由系统内部管理模型运行的内存。  
+此函数从内存加载离线模型数据，并由系统内部管理模型运行的内存。
 
 **参数**：
 - `model [IN]`：存储在内存中的模型数据。
@@ -645,7 +645,7 @@ axclError axclrtEngineUnload(uint64_t modelId);
 ```
 **使用说明**：
 
-此函数用于卸载指定模型 `ID`  的模型。  
+此函数用于卸载指定模型 `ID`  的模型。
 
 **参数**：
 - `modelId [IN]`：要卸载的模型 `ID` 。
@@ -662,7 +662,7 @@ const char* axclrtEngineGetModelCompilerVersion(uint64_t modelId);
 ```
 **使用说明**：
 
-此函数用于获取模型构建工具链的版本。  
+此函数用于获取模型构建工具链的版本。
 
 **参数**：
 - `modelId [IN]`：模型 `ID` 。
@@ -679,7 +679,7 @@ axclError axclrtEngineSetAffinity(uint64_t modelId, axclrtEngineSet set);
 ```
 **使用说明**：
 
-此函数用于设置模型的 NPU 亲和性。  
+此函数用于设置模型的 NPU 亲和性。
 
 **参数**：
 - `modelId [IN]`：模型 `ID` 。
@@ -697,7 +697,7 @@ axclError axclrtEngineGetAffinity(uint64_t modelId, axclrtEngineSet *set);
 ```
 **使用说明**：
 
-此函数用于获取模型的 NPU 亲和性。  
+此函数用于获取模型的 NPU 亲和性。
 
 **参数**：
 - `modelId [IN]`：模型 `ID` 。
@@ -715,7 +715,7 @@ axclError axclrtEngineGetUsage(const char *modelPath, int64_t *sysSize, int64_t 
 ```
 **使用说明**：
 
-此函数根据模型文件获取模型执行所需的系统内存大小和 CMM 内存大小。  
+此函数根据模型文件获取模型执行所需的系统内存大小和 CMM 内存大小。
 
 **参数**：
 - `modelPath [IN]`：用于获取内存信息的模型路径。
@@ -734,7 +734,7 @@ axclError axclrtEngineGetUsageFromMem(const void *model, uint64_t modelSize, int
 ```
 **使用说明**：
 
-此函数根据模型数据在内存中获取模型执行所需的系统内存大小和 CMM 内存大小。  
+此函数根据模型数据在内存中获取模型执行所需的系统内存大小和 CMM 内存大小。
 
 **参数**：
 - `model [IN]`：用户管理的模型内存。
@@ -754,7 +754,7 @@ axclError axclrtEngineGetUsageFromModelId(uint64_t modelId, int64_t *sysSize, in
 ```
 **使用说明**：
 
-此函数根据模型 `ID`  获取模型执行所需的系统内存大小和 CMM 内存大小。  
+此函数根据模型 `ID`  获取模型执行所需的系统内存大小和 CMM 内存大小。
 
 **参数**：
 - `modelId [IN]`：模型 `ID` 。
@@ -773,7 +773,7 @@ axclError axclrtEngineGetModelType(const char *modelPath, axclrtEngineModelKind 
 ```
 **使用说明**：
 
-此函数根据模型文件获取模型类型。  
+此函数根据模型文件获取模型类型。
 
 **参数**：
 - `modelPath [IN]`：用于获取模型类型的模型路径。
@@ -791,7 +791,7 @@ axclError axclrtEngineGetModelTypeFromMem(const void *model, uint64_t modelSize,
 ```
 **使用说明**：
 
-此函数根据内存中的模型数据获取模型类型。  
+此函数根据内存中的模型数据获取模型类型。
 
 **参数**：
 - `model [IN]`：用户管理的模型内存。
@@ -810,7 +810,7 @@ axclError axclrtEngineGetModelTypeFromModelId(uint64_t modelId, axclrtEngineMode
 ```
 **使用说明**：
 
-此函数根据模型 `ID`  获取模型类型。  
+此函数根据模型 `ID`  获取模型类型。
 
 **参数**：
 - `modelId [IN]`：模型 `ID` 。
@@ -828,7 +828,7 @@ axclError axclrtEngineGetIOInfo(uint64_t modelId, axclrtEngineIOInfo *ioInfo);
 ```
 **使用说明**：
 
-此函数根据模型 `ID`  获取模型的 IO 信息。  
+此函数根据模型 `ID`  获取模型的 IO 信息。
 
 **参数**：
 - `modelId [IN]`：模型 `ID` 。
@@ -846,7 +846,7 @@ axclError axclrtEngineDestroyIOInfo(axclrtEngineIOInfo ioInfo);
 ```
 **使用说明**：
 
-此函数用于销毁类型为 `axclrtEngineIOInfo` 的数据。  
+此函数用于销毁类型为 `axclrtEngineIOInfo` 的数据。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -863,7 +863,7 @@ axclError axclrtEngineGetShapeGroupsCount(axclrtEngineIOInfo ioInfo, int32_t *co
 ```
 **使用说明**：
 
-此函数用于获取 IO 形状组的数量。  
+此函数用于获取 IO 形状组的数量。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -881,7 +881,7 @@ uint32_t axclrtEngineGetNumInputs(axclrtEngineIOInfo ioInfo);
 ```
 **使用说明**：
 
-此函数根据 `axclrtEngineIOInfo` 数据获取模型的输入数量。  
+此函数根据 `axclrtEngineIOInfo` 数据获取模型的输入数量。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -898,7 +898,7 @@ uint32_t axclrtEngineGetNumOutputs(axclrtEngineIOInfo ioInfo);
 ```
 **使用说明**：
 
-此函数根据 `axclrtEngineIOInfo` 数据获取模型的输出数量。  
+此函数根据 `axclrtEngineIOInfo` 数据获取模型的输出数量。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -915,7 +915,7 @@ uint64_t axclrtEngineGetInputSizeByIndex(axclrtEngineIOInfo ioInfo, uint32_t gro
 ```
 **使用说明**：
 
-此函数根据 `axclrtEngineIOInfo` 数据获取指定输入的大小。  
+此函数根据 `axclrtEngineIOInfo` 数据获取指定输入的大小。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -934,7 +934,7 @@ uint64_t axclrtEngineGetOutputSizeByIndex(axclrtEngineIOInfo ioInfo, uint32_t gr
 ```
 **使用说明**：
 
-此函数根据 `axclrtEngineIOInfo` 数据获取指定输出的大小。  
+此函数根据 `axclrtEngineIOInfo` 数据获取指定输出的大小。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -953,7 +953,7 @@ const char *axclrtEngineGetInputNameByIndex(axclrtEngineIOInfo ioInfo, uint32_t 
 ```
 **使用说明**：
 
-此函数获取指定输入的名称。  
+此函数获取指定输入的名称。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -971,7 +971,7 @@ const char *axclrtEngineGetOutputNameByIndex(axclrtEngineIOInfo ioInfo, uint32_t
 ```
 **使用说明**：
 
-此函数获取指定输出的名称。  
+此函数获取指定输出的名称。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -989,7 +989,7 @@ int32_t axclrtEngineGetInputIndexByName(axclrtEngineIOInfo ioInfo, const char *n
 ```
 **使用说明**：
 
-此函数根据输入张量的名称获取输入索引。  
+此函数根据输入张量的名称获取输入索引。
 
 **参数**：
 - `ioInfo [IN]`：模型描述。
@@ -1007,7 +1007,7 @@ int32_t axclrtEngineGetOutputIndexByName(axclrtEngineIOInfo ioInfo, const char *
 ```
 **使用说明**：
 
-此函数根据输出张量的名称获取输出索引。  
+此函数根据输出张量的名称获取输出索引。
 
 **参数**：
 - `ioInfo [IN]`：模型描述。
@@ -1025,7 +1025,7 @@ axclError axclrtEngineGetInputDims(axclrtEngineIOInfo ioInfo, uint32_t group, ui
 ```
 **使用说明**：
 
-此函数获取指定输入的维度信息。  
+此函数获取指定输入的维度信息。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -1045,7 +1045,7 @@ axclError axclrtEngineGetOutputDims(axclrtEngineIOInfo ioInfo, uint32_t group, u
 ```
 **使用说明**：
 
-此函数获取指定输出的维度信息。  
+此函数获取指定输出的维度信息。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -1065,7 +1065,7 @@ axclError axclrtEngineCreateIO(axclrtEngineIOInfo ioInfo, axclrtEngineIO *io);
 ```
 **使用说明**：
 
-此函数创建类型为 `axclrtEngineIO` 的数据。  
+此函数创建类型为 `axclrtEngineIO` 的数据。
 
 **参数**：
 - `ioInfo [IN]`：axclrtEngineIOInfo 指针。
@@ -1083,7 +1083,7 @@ axclError axclrtEngineDestroyIO(axclrtEngineIO io);
 ```
 **使用说明**：
 
-此函数用于销毁类型为 `axclrtEngineIO` 的数据。  
+此函数用于销毁类型为 `axclrtEngineIO` 的数据。
 
 **参数**：
 - `io [IN]`：要销毁的 axclrtEngineIO 指针。
@@ -1100,7 +1100,7 @@ axclError axclrtEngineSetInputBufferByIndex(axclrtEngineIO io, uint32_t index, c
 ```
 **使用说明**：
 
-此函数通过 IO 索引设置输入数据缓冲区。  
+此函数通过 IO 索引设置输入数据缓冲区。
 
 **参数**：
 - `io [IN]`：axclrtEngineIO 数据缓冲区的地址。
@@ -1120,7 +1120,7 @@ axclError axclrtEngineSetOutputBufferByIndex(axclrtEngineIO io, uint32_t index, 
 ```
 **使用说明**：
 
-此函数通过 IO 索引设置输出数据缓冲区。  
+此函数通过 IO 索引设置输出数据缓冲区。
 
 **参数**：
 - `io [IN]`：axclrtEngineIO 数据缓冲区的地址。
@@ -1140,7 +1140,7 @@ axclError axclrtEngineSetInputBufferByName(axclrtEngineIO io, const char *name, 
 ```
 **使用说明**：
 
-此函数通过 IO 名称设置输入数据缓冲区。  
+此函数通过 IO 名称设置输入数据缓冲区。
 
 **参数**：
 - `io [IN]`：axclrtEngineIO 数据缓冲区的地址。
@@ -1160,7 +1160,7 @@ axclError axclrtEngineSetOutputBufferByName(axclrtEngineIO io, const char *name,
 ```
 **使用说明**：
 
-此函数通过 IO 名称设置输出数据缓冲区。  
+此函数通过 IO 名称设置输出数据缓冲区。
 
 **参数**：
 - `io [IN]`：axclrtEngineIO 数据缓冲区的地址。
@@ -1180,7 +1180,7 @@ axclError axclrtEngineGetInputBufferByIndex(axclrtEngineIO io, uint32_t index, v
 ```
 **使用说明**：
 
-此函数通过 IO 索引获取输入数据缓冲区。  
+此函数通过 IO 索引获取输入数据缓冲区。
 
 **参数**：
 - `io [IN]`：axclrtEngineIO 数据缓冲区的地址。
@@ -1200,7 +1200,7 @@ axclError axclrtEngineGetOutputBufferByIndex(axclrtEngineIO io, uint32_t index, 
 ```
 **使用说明**：
 
-此函数通过 IO 索引获取输出数据缓冲区。  
+此函数通过 IO 索引获取输出数据缓冲区。
 
 **参数**：
 - `io [IN]`：axclrtEngineIO 数据缓冲区的地址。
@@ -1220,7 +1220,7 @@ axclError axclrtEngineGetInputBufferByName(axclrtEngineIO io, const char *name, 
 ```
 **使用说明**：
 
-此函数通过 IO 名称获取输入数据缓冲区。  
+此函数通过 IO 名称获取输入数据缓冲区。
 
 **参数**：
 - `io [IN]`：axclrtEngineIO 数据缓冲区的地址。
@@ -1239,7 +1239,7 @@ axclError axclrtEngineGetOutputBufferByName(axclrtEngineIO io, const char *name,
 ```
 **使用说明**：
 
-此函数通过 IO 名称获取输出数据缓冲区。  
+此函数通过 IO 名称获取输出数据缓冲区。
 
 **参数**：
 - `io [IN]`：axclrtEngineIO 数据缓冲区的地址。
@@ -1258,7 +1258,7 @@ axclError axclrtEngineSetDynamicBatchSize(axclrtEngineIO io, uint32_t batchSize)
 ```
 **使用说明**：
 
-此函数在动态批处理场景中设置一次处理的图像数量。  
+此函数在动态批处理场景中设置一次处理的图像数量。
 
 **参数**：
 - `io [IN]`：模型推理的 IO。
@@ -1276,7 +1276,7 @@ axclError axclrtEngineCreateContext(uint64_t modelId, uint64_t *contextId);
 ```
 **使用说明**：
 
-此函数为模型 `ID`  创建一个模型运行环境上下文。  
+此函数为模型 `ID`  创建一个模型运行环境上下文。
 
 **参数**：
 - `modelId [IN]`：模型 `ID` 。
@@ -1294,7 +1294,7 @@ axclError axclrtEngineExecute(uint64_t modelId, uint64_t contextId, uint32_t gro
 ```
 **使用说明**：
 
-此函数执行模型的同步推理，直到返回推理结果。  
+此函数执行模型的同步推理，直到返回推理结果。
 
 **参数**：
 - `modelId [IN]`：模型 `ID` 。
@@ -1314,7 +1314,7 @@ axclError axclrtEngineExecuteAsync(uint64_t modelId, uint64_t contextId, uint32_
 ```
 **使用说明**：
 
-此函数执行模型的异步推理，直到返回推理结果。  
+此函数执行模型的异步推理，直到返回推理结果。
 
 **参数**：
 - `modelId [IN]`：模型 `ID` 。
@@ -1338,24 +1338,24 @@ axclError axclrtEngineExecuteAsync(uint64_t modelId, uint64_t contextId, uint32_
   ```c
   AX_S32 AXCL_SYS_Init(AX_VOID);
   AX_S32 AXCL_SYS_Deinit(AX_VOID);
-  
+
   /* CMM API */
   AX_S32 AXCL_SYS_MemAlloc(AX_U64 *phyaddr, AX_VOID **pviraddr, AX_U32 size, AX_U32 align, const AX_S8 *token);
   AX_S32 AXCL_SYS_MemAllocCached(AX_U64 *phyaddr, AX_VOID **pviraddr, AX_U32 size, AX_U32 align, const AX_S8 *token);
   AX_S32 AXCL_SYS_MemFree(AX_U64 phyaddr, AX_VOID *pviraddr);
-  
+
   ...
-     
+
   AX_S32 AXCL_VDEC_Init(const AX_VDEC_MOD_ATTR_T *pstModAttr);
   AX_S32 AXCL_VDEC_Deinit(AX_VOID);
-  
+
   AX_S32 AXCL_VDEC_ExtractStreamHeaderInfo(const AX_VDEC_STREAM_T *pstStreamBuf, AX_PAYLOAD_TYPE_E enVideoType,
                                            AX_VDEC_BITSTREAM_INFO_T *pstBitStreamInfo);
-  
+
   AX_S32 AXCL_VDEC_CreateGrp(AX_VDEC_GRP VdGrp, const AX_VDEC_GRP_ATTR_T *pstGrpAttr);
   AX_S32 AXCL_VDEC_CreateGrpEx(AX_VDEC_GRP *VdGrp, const AX_VDEC_GRP_ATTR_T *pstGrpAttr);
   AX_S32 AXCL_VDEC_DestroyGrp(AX_VDEC_GRP VdGrp);
-  
+
   ...
   ```
 
@@ -1394,7 +1394,7 @@ axclError axclrtEngineExecuteAsync(uint64_t modelId, uint64_t contextId, uint32_
 
 ## PPL
 
-### Architecture 
+### Architecture
 
 **libaxcl_ppl.so** is a highly integrated module that implements typical pipeline (PPL). The architecture diagram is as follows:
 
@@ -1570,7 +1570,7 @@ typedef struct {
 | display_mode | AX_VDEC_DISPLAY_MODE_PREVIEW \| AX_VDEC_DISPLAY_MODE_PLAYBACK | in     |
 
 :::{Important}
-- **output_order**: 
+- **output_order**:
   - If decode sequence is same as display sequence such as IP stream, recommend to AX_VDEC_OUTPUT_ORDER_DEC to save memory.
   - If decode sequence is different to display sequence such as IPB stream, set AX_VDEC_OUTPUT_ORDER_DISP.
 - **display_mode**
