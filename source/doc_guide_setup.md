@@ -58,6 +58,7 @@ dtparam=pciex1
 该描述可以默认打开 PCIE 功能；然后继续增加 PCIE 的设备描述：
 
 ```bash
+[all]
 dtoverlay=pciex1-compat-pi5,no-mip
 ```
 
