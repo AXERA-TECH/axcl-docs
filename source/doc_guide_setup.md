@@ -1,5 +1,13 @@
 # AXCL 安装
 
+:::{admonition}  环境准备
+
+1.  **IOMMU**：在Intel、AMD等X86 CPU平台，不建议打开IOMMU。如果使能了IOMMU，请务必确认Linux内核启动参数`iommu=pt`。
+2.  **IRQBalance** 服务能让硬件中断信号平均上报在多个CPU上，从而解决单CPU过载的问题。子卡运行过程中会通过MSI等方式向主机CPU上报中断，如果多张卡同时运行繁忙的DMA拷贝任务，在未开启 **IRQBalance**的服务器上，中断将集中上报某个CPU，会存在性能问题，而且板卡越多，性能问题越严重。
+3.  安装新包，请先卸载旧包。
+
+:::
+
 ## Raspberry Pi 5
 
 ### 准备工作
@@ -37,7 +45,6 @@ sudo rpi-eeprom-update -a
 ```
 
 最后使用 `sudo reboot` 重新启动。重启后就完成了 EEPROM 中 firmware 的更新。
-
 
 :::{Warning}
 取决于使用的树莓派 kernel 状态，目前的修改是以 2024年11月18日 以前的树莓派刚烧录好的系统为例进行说明的，客户需要根据树莓派系统更新情况识别这个步骤是否必须。
@@ -136,7 +143,7 @@ RK3588、RK3568 等开发板的 deb 安装流程，除去环境配置，其它�
 ## Ubuntu on X86_64
 
 :::{Warning}
-ARM CPU/SOC 的 Ubuntu 请优先参考树莓派部分，与 x86_64 的流程不完全相同。 
+ARM CPU/SOC 的 Ubuntu 请优先参考树莓派部分，与 x86_64 的流程不完全相同。
 :::
 
 ### 系统信息
@@ -153,7 +160,7 @@ Linux pc 6.8.0-49-generic #49-Ubuntu SMP PREEMPT_DYNAMIC Mon Nov  4 02:06:24 UTC
 
 ```bash
 sudo apt update
-sudo apt upgrade 
+sudo apt upgrade
 ```
 :::
 
@@ -260,7 +267,7 @@ user@pc:~$
 2. 准备编译工具
 
    安装编译内核需要的一系列工具：
-   
+
    ```bash
    sudo apt install build-essential libncurses-dev bison flex libssl-dev libelf-dev bc
    ```
@@ -281,7 +288,7 @@ user@pc:~$
 
 4. 复制内核配置文件：
 
-   ```bash 
+   ```bash
    user@pc:~/projects/kernel/linux-source-6.8.0$ cp /boot/config-6.8.0-49-generic ./.config
    user@pc:~/projects/kernel/linux-source-6.8.0$ ls -al
    total 1344
@@ -296,7 +303,7 @@ user@pc:~$
    drwxr-xr-x   4 i i   4096 Nov  4 10:42 virt
    user@pc:~/projects/kernel/linux-source-6.8.0$
    ```
-   
+
    如上面的参考输出，`ls -al` 确认 `.config` 文件已经在当前内核的解压目录，然后使用如下命令修改内核配置内容：
 
    ```bash
@@ -481,7 +488,7 @@ Processing triggers for libc-bin (2.39-0ubuntu8.3) ...
    ```bash
    cat /proc/cmdline
    ```
-:::
+   :::
 
 ## CentOS 9
 
@@ -492,11 +499,11 @@ Processing triggers for libc-bin (2.39-0ubuntu8.3) ...
 ```bash
 [axera@localhost ~]$ uname -a
 Linux localhost.localdomain 5.14.0-522.el9.x86_64 #1 SMP PREEMPT_DYNAMIC Sun Oct 20 13:04:34 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
-[axera@localhost ~]$ 
+[axera@localhost ~]$
 [axera@localhost ~]$ uname -r
 5.14.0-522.el9.x86_64
-[axera@localhost ~]$ 
-[axera@localhost ~]$ cat /etc/os-release 
+[axera@localhost ~]$
+[axera@localhost ~]$ cat /etc/os-release
 NAME="CentOS Stream"
 VERSION="9"
 ID="centos"
@@ -547,7 +554,7 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
 
    ```bash
    [axera@localhost ~]$ cat /etc/selinux/config
-   
+
    # This file controls the state of SELinux on the system.
    # SELINUX= can take one of these three values:
    #     enforcing - SELinux security policy is enforced.
@@ -602,21 +609,10 @@ REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
 
 ### rpm 安装
 
-`.rpm` 包有可以从发布 SDK 中进行编译，也可以使用编译好的 `axcl_host_x86_64_V2.xx.x_xxxxx.rpm` 进行安装。
-
-从 SDK 编译 AXCL 流程时，步骤如下：
+` sudo rpm -Uvh --nodeps`安装rpm
 
    ```bash
-   1.cd axcl/build
-   2.make host=x86 clean all install -j32
-   3.cd build
-   4.make p=AX650_card clean all install axp -j128
-   ```
-
-编译完成后，生成的 `.rpm` 生成在build/out 下。将 `.rpm` 上传到目标 `x86_64` 上后，使用以下命令安装 rpm：
-    
-   ```bash
-   [axera@localhost rpmbuild]$ sudo rpm -Uvh --nodeps RPMS/x86_64/axcl_host-1.0-1.el9.x86_64.rpm
+   [axera@localhost rpmbuild]$ sudo rpm -Uvh --nodeps axcl_host_x86_64_Vxxx.rpm
    [sudo] password for axera:
    Verifying...                          ################################# [100%]
    Preparing...                          ################################# [100%]
@@ -635,15 +631,9 @@ source /etc/profile
 
    ```bash
    [axera@localhost axcl]$ ls  /usr/lib/axcl/
-   ffmpeg                libaxcl_ive.so      libaxcl_npu.so          libaxcl_pkg.so     libaxcl_skel.debug   libaxcl_vdec.debug  libspdlog.so.1.14.1
-   libaxcl_comm.debug    libaxcl_ivps.debug  libaxcl_pcie_dma.debug  libaxcl_ppl.debug  libaxcl_skel.so      libaxcl_vdec.so
-   libaxcl_comm.so       libaxcl_ivps.so     libaxcl_pcie_dma.so     libaxcl_ppl.so     libaxcl_sys.debug    libaxcl_venc.debug
-   libaxcl_dmadim.debug  libaxcl_lite.debug  libaxcl_pcie_msg.debug  libaxcl_proto.a    libaxcl_sys.so       libaxcl_venc.so
-   libaxcl_dmadim.so     libaxcl_lite.so     libaxcl_pcie_msg.so     libaxcl_rt.debug   libaxcl_token.debug  libspdlog.so
-   libaxcl_ive.debug     libaxcl_npu.debug   libaxcl_pkg.debug       libaxcl_rt.so      libaxcl_token.so     libspdlog.so.1.14
+   ...
    [axera@localhost axcl]$ ls  /usr/bin/axcl/
-   axcl_demo       axcl_sample_dmadim  axcl_sample_ivps    axcl_sample_runtime  axcl_sample_sys        axcl_sample_vdec  axcl_smi  launch_transcode.sh
-   axcl_run_model  axcl_sample_ive     axcl_sample_memory  axcl_sample_skel     axcl_sample_transcode  axcl_sample_venc  data      ut
+   ...
    ```
 
 ### rpm 卸载
@@ -667,7 +657,7 @@ Linux localhost.localdomain 5.14.0-148.el9.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Aug
 [axera@localhost ~]$ uname -r
 5.14.0-148.el9.x86_64
 
-[axera@localhost ~]$ cat /etc/os-release 
+[axera@localhost ~]$ cat /etc/os-release
 NAME="Kylin"
 VERSION="银河麒麟桌面操作系统V10 (SP1)"
 VERSION_US="Kylin Linux Desktop V10 (SP1)"
@@ -750,12 +740,12 @@ KYLIN_RELEASE_ID="2403"
 
       ```bash
       [axera@localhost ~]$ sudo vim /etc/default/grub
-      输入密码          
+      输入密码
       # If you change this file, run 'update-grub' afterwards to update
       # /boot/grub/grub.cfg.
       # For full documentation of the options in this file, see:
       #   info -f grub -n 'Simple configuration'
-      
+
       GRUB_DEFAULT=0
       GRUB_TIMEOUT=1
       GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`
@@ -763,26 +753,26 @@ KYLIN_RELEASE_ID="2403"
       GRUB_CMDLINE_LINUX_DEFAULT="quiet splash loglevel=0"
       GRUB_CMDLINE_LINUX="cma=128MB"
       GRUB_CMDLINE_LINUX_SECURITY="security=kysec"
-      
+
       # Uncomment to enable BadRAM filtering, modify to suit your needs
       # This works with Linux (no patch required) and with any kernel that obtains
       # the memory map information from GRUB (GNU Mach, kernel of FreeBSD ...)
       #GRUB_BADRAM="0x01234567,0xfefefefe,0x89abcdef,0xefefefef"
-      
+
       # Uncomment to disable graphical terminal (grub-pc only)
       #GRUB_TERMINAL=console
-      
+
       # The resolution used on graphical terminal
       # note that you can use only modes which your graphic card supports via VBE
       # you can see them in real GRUB with the command `vbeinfo'
       #GRUB_GFXMODE=640x480
-      
+
       # Uncomment if you don't want GRUB to pass "root=UUID=xxx" parameter to Linux
       #GRUB_DISABLE_LINUX_UUID=true
-      
+
       # Uncomment to disable generation of recovery mode menu entries
       #GRUB_DISABLE_RECOVERY="true"
-      
+
       # Uncomment to get a beep at grub start
       #GRUB_INIT_TUNE="480 440 1"
       ```
@@ -792,7 +782,17 @@ KYLIN_RELEASE_ID="2403"
    3. `sudo reboot`
 
 :::{Note}
- - 对于PCIe传输，kernel config中的CMA和DMA必须打开，若无法打开，请尝试订制内核或联络OS发行方的技术支持。
+ - Hygon等CPU系统，将**IOMMU**设置为pt或者off模式。
+
+   ```bash
+   sudo vi /etc/default/grub
+   GRUB_CMDLINE_LINUX="quiet splash iommu=pt"
+
+   sudo update-grub
+   sudo reboot
+   ```
+
+ - 对于PCIe传输，kernel config中的CMA和DMA推荐打开。*从SDK V2.24.0开始支持离散内存，也可以不配置CMA。*
 
    ```bash
    1. 使用 uname -r 查看current kernel version
@@ -805,28 +805,23 @@ KYLIN_RELEASE_ID="2403"
    6. make -j[2 × # of cores]
    7. make -j[2 × # of cores] modules_install
    8. make install
-   
+
    You have rebuilt the kernel
    ```
 
  - 环境搭建只需要配置一次，CMA size推荐不小于128MB。
+
  :::
 
 
 
 ### deb 安装
 
-1.  `chmod +x` 给deb添加执行权限
-
-   ```bash
-    [axera@localhost ~]$ chmod +x axcl_host_V2.16.1_20241112130139_NO4433.deb
-   ```
-
-2. `sudo dpkg -i`  安装deb，安装完之后自动加载子卡固件。
+1. `sudo dpkg -i`  安装deb，安装完之后自动加载子卡固件。
 
    ```bash
    [axera@localhost ~]$ sudo dpkg -i axcl_host_V2.16.1_20241112130139_NO4433.deb
-   输入密码          
+   输入密码
    (正在读取数据库 ... 系统当前共安装有 202167 个文件和目录。)
    准备解压 axcl_host_V2.16.1_20241112130139_NO4433.deb  ...
    正在解压 axclhost (1.0) 并覆盖 (1.0) ...
@@ -835,7 +830,7 @@ KYLIN_RELEASE_ID="2403"
    正在处理用于 libc-bin (2.31-0kylin9.2k0.2) 的触发器 ...
    ```
 
-3.  执行`source /etc/profile`更新环境变量
+2. 执行`source /etc/profile`更新环境变量
 
    ```bash
    [axera@localhost ~]$ source /etc/profile
@@ -844,7 +839,7 @@ KYLIN_RELEASE_ID="2403"
 ### deb 卸载
 
 ```bash
-[axera@localhost ~]$ sudo dpkg -r axclhost 
+[axera@localhost ~]$ sudo dpkg -r axclhost
 (正在读取数据库 ... 系统当前共安装有 198866 个文件和目录。)
 正在卸载 axclhost (1.0) ...
 正在处理用于 libc-bin (2.31-0kylin9.2k0.2) 的触发器 ...
