@@ -17,6 +17,7 @@ AXCL
   doc_guide_hardware.md
   doc_guide_axcl_api.md
   doc_guide_setup.md
+  doc_guide_compile.md
   doc_guide_quick_start.md
   doc_guide_samples.md
   doc_guide_npu_samples.md
