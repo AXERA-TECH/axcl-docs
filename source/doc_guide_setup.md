@@ -81,9 +81,13 @@ axera@raspberrypi:~ $ lspci
 
 其中 `Multimedia video controller: Axera Semiconductor Co., Ltd Device 0650 (rev 01)` 就是 AX650 加速卡。
 
-### 生成或获取安装包
+### 获取安装包
 
-可以从随 AX650 SDK 发布的发布包中获取已经随版本编译好的 `axcl_host_aarch64_V2.XX.X_202XXX.deb`，或使用 SDK 自行编译，其中编译生成的产物 `.deb` 的脚本可以根据需要自行修改定制。此外，树莓派可用的 OS 种类众多，这里主要以 `debian` 系列依赖 `.deb` 安装包的系统为例。
+- [芯茧加速卡](https://huggingface.co/AXERA-TECH/AXCL)
+
+### 生成安装包
+
+如果想自己编译生成 deb 安装包，可以从随 AX650 SDK 发布的发布包中获取已经随版本编译好的 `axcl_host_aarch64_V2.XX.X_202XXX.deb`，或使用 SDK 自行编译，其中编译生成的产物 `.deb` 的脚本可以根据需要自行修改定制。此外，树莓派可用的 OS 种类众多，这里主要以 `debian` 系列依赖 `.deb` 安装包的系统为例。
 
 SDK 编译的命令参考如下：
 
