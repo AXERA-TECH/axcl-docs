@@ -22,7 +22,7 @@ AXCL-Samples 由 爱芯元智 主导开发。该项目实现了常见的深度�
 ### 获取示例
 
 - AXCL-Samples 的预编译 ModelZoo 请参考
-  - [百度网盘](https://pan.baidu.com/s/1cnMeqsD-hErlRZlBDDvuoA?pwd=oey4)
+  - [百度网盘](https://pan.baidu.com/s/1MAAKElTI2wgiDehvd2Q1lA?pwd=p1k6)
 
 ### YOLO11x
 
