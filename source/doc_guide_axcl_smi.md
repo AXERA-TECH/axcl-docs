@@ -19,7 +19,7 @@ AXCL-SMI (System Management Interface) 工具用于设备信息收集，对设�
 在正确安装AXCL驱动包后，AXCL-SMI即安装成功，直接执行`axcl-smi`显示内容如下：
 
 ```bash
-# ./axcl-smi
+$ axcl-smi
 +------------------------------------------------------------------------------------------------+
 | AXCL-SMI  V2.18.0                                                              Driver  V2.18.0 |
 +-----------------------------------------+--------------+---------------------------------------+
@@ -58,7 +58,7 @@ AXCL-SMI (System Management Interface) 工具用于设备信息收集，对设�
 `axcl-smi -h`  查询帮助信息
 
 ```bash
-# ./axcl-smi -h
+$ axcl-smi -h
 usage: axcl-smi [<command> [<args>]] [--device] [--version] [--help]
 
 axcl-smi System Management Interface V2.18.1
@@ -89,7 +89,7 @@ Commands
     sh                                      Execute a shell command
         cmd                                     Shell command
         args...                                 Shell command arguments
--d, --device                            Specifies a device ID or 0 (default) select all devices
+-d, --device                            Card index [0, connected cards number - 1]
 -v, --version                           Show axcl-smi version
 -h, --help                              Show this help menu
 ```
@@ -97,23 +97,24 @@ Commands
 `axcl-smi -v` 查询AXCL-SMI工具的版本
 
 ```bash
-# ./axcl-smi -v
-axcl-smi V2.18.0 BUILD: Dec  2 2024 13:14:36
+$ axcl-smi -v
+AXCL-SMI V2.26.1 BUILD: Feb 13 2025 11:08:47
 ```
 
 ### 选项
 
-#### 设备ID (-d, --device)
+#### 设备号 (-d, --device)
 
 ```bash
--d, --device                            Specifies a device ID or 0 (default) select all devices
+-d, --device                             Card index [0, connected cards number - 1]
 ```
 
-`[-d, --device]` 指定设备，默认参数 = 0，标识连接到HOST的全部设备， **-d或者--device 参数是十进制。**
+`[-d, --device]` 指定设备号索引，范围：[0, 连接设备数量 - 1]， **默认为0号设备**。
 
-:::{Note}
+:::{Important}
 
-如何查询设备ID，参阅 [`FAQ 查询设备ID，配置 -d, –device`](#configdevice)  
+- SDK V2.25.0（含）以前的版本设备ID指的是PCIe bus number。
+- SDK V2.26.0（含）以后的版本设备ID指的是设备索引号。
 
 :::
 
@@ -129,20 +130,17 @@ axcl-smi V2.18.0 BUILD: Dec  2 2024 13:14:36
 | --cpu  | 显示设备CPU利用率。                                          |
 | --npu  | 显示设备NPU利用率。                                          |
 
-:::{Important}
-
-结合`[-d, --device]`选项查询指定设备的信息，不指定设备则查询全部连接的设备
+**示例**：查询索引号为0号的设备的媒体内存使用情况：
 
 ```bash
-# 查询设备129的媒体内存使用情况
-# ./axcl-smi info --cmm -d 129
+$ axcl-smi info --cmm -d 0
 Device ID           : 129 (0x81)
 CMM Total           :  3145728 KiB
 CMM Used            :    18876 KiB
 CMM Remain          :  3126852 kiB
 ```
 
-:::
+
 
 ### PROC查询（proc）
 
@@ -160,15 +158,13 @@ CMM Remain          :  3126852 kiB
 | --link | 查询LINK模块proc (`cat /proc/ax_proc/link_table`)  |
 | --cmm  | 查询CMM模块proc (`cat /proc/ax_proc/mem_cmm_info`) |
 
-:::{Note}
-
-必须结合`[-d, --device]`选项指定设备
+**示例**：查询0号设备的VDEC proc信息
 
 ```bash
-# ./axcl-smi proc --vdec -d 129
+$ axcl-smi proc --vdec -d 0
 ```
 
-:::
+
 
 ### 参数设置（set）
 
@@ -178,16 +174,14 @@ CMM Remain          :  3126852 kiB
 | --------------------- | ------------------------------------------------------------ |
 | -f[MHz], --freq=[MHz] | 设置设备的CPU频率，只支持 1200000, 1400000, 1700000 三种频率 |
 
-:::{Note}
-
-必须结合`[-d, --device]`选项指定设备
+**示例**：设置索引号为0号的设备CPU主频为1200MHz
 
 ```bash
-# ./axcl-smi set -f 1200000 -d 129
+$ axcl-smi set -f 1200000 -d 0
 set cpu frequency 1200000 to device 129 succeed.
 ```
 
-:::
+
 
 ### 下载日志（log）
 
@@ -198,26 +192,23 @@ set cpu frequency 1200000 to device 129 succeed.
 | -t[mask], --type=[mask]   | 指定下载的日志类别。设备侧日志类别如下：<br />-1： 全部日志<br />0x01：守护进程<br />0x02:  业务进程<br />0x10：syslog<br />0x20：内核日志<br />推荐-1下载全部日志 |
 | -o[path], --output=[path] | 指定日志保存路径，支持绝对和相对路径，默认是当前目录。注意目录需要有写权限。 |
 
-:::{Important}
-
-结合`[-d, --device]`选项下载指定设备的日志，不指定设备则依次下载全部连接的设备日志。
+**示例**：下载索引为0号的设备的全部日志，并保存到当前目录
 
 ```bash
-# 下载设备号129的全部日志，并保存到当前目录
-# ./axcl-smi log -d 129
-[2024-12-02 15:41:00.015][934][C][log][dump][73]: log dump finished: ./dev129_log_20241202154059.tar.gz
+$ axcl-smi log -d 0
+[2025-02-13 21:07:40.302][1265][C][log][dump][73]: log dump finished: ./dev129_log_20250213210740.tar.gz
 ```
 
-:::
+
 
 ### shell命令（sh）
 
-`axcl-smi sh` 支持shell命令查询设备信息，通常用于查询设备侧模块的运行proc信息，示例：
+`axcl-smi sh` 支持shell命令查询设备信息，通常用于查询设备侧模块的运行proc信息，**示例**：查询索引号为0号的设备CMM信息
 
 ```
-# ./axcl-smi sh cat /proc/ax_proc/mem_cmm_info  -d 129
+$ axcl-smi sh cat /proc/ax_proc/mem_cmm_info -d 0
 --------------------SDK VERSION-------------------
-[Axera version]: ax_cmm V2.18.0_20241201230759 Dec  1 2024 23:23:40 JK
+[Axera version]: ax_cmm V2.26.0_20250211193319 Feb 11 2025 19:52:13 JK
 +---PARTITION: Phys(0x180000000, 0x23FFFFFFF), Size=3145728KB(3072MB),    NAME="anonymous"
  nBlock(Max=0, Cur=23, New=0, Free=0)  nbytes(Max=0B(0KB,0MB), Cur=19329024B(18876KB,18MB), New=0B(0KB,0MB), Free=0B(0KB,0MB))  Block(Max=0B(0KB,0MB), Min=0B(0KB,0MB), Avg=0B(0KB,0MB)) 
    |-Block: phys(0x180000000, 0x180013FFF), cache =non-cacheable, length=80KB(0MB),    name="TDP_DEV"
@@ -250,59 +241,20 @@ set cpu frequency 1200000 to device 129 succeed.
 
 :::{Important}
 
-- 必须结合`[-d, --device]`选项指定设备
-- shell命令参数如果包含`-`,`--`,`>`等字段，可以用双引号`"-l"`将命令和参数包含在一个字符串中，比如`axcl-smi sh "ls -l" -d 129` 
+- shell命令参数如果包含`-`,`--`,`>`等字段，可以用双引号`"-l"`将命令和参数包含在一个字符串中，比如`axcl-smi sh "ls -l" -d 0` 
 - 谨慎使用shell命令对设备进行配置
 
 :::
 
-## FAQ
 
-(configdevice)=
-### 查询设备ID，配置 -d, --device
 
-执行axcl-smi或者lspci，从Bus-Id字段可以获取设备ID，填入-d或--device参数。
+### 重启（reboot）
 
-**示例1：**
+`axcl-smi reboot` 命令首先复位指定设备，随后将自动加载固件，示例如下：
 
-Bus-Id: 0000:03:00.0，那么设备ID = 0x03，即`-d 3`
-
-```
-[axera@localhost ~]$ lspci
-00:00.0 Host bridge: Intel Corporation 8th Gen Core Processor Host Bridge/DRAM Registers (rev 07)
-...
-03:00.0 Multimedia video controller: Axera Semiconductor Co., Ltd Device 0650 (rev 01)
-[axera@localhost ~]$ axcl-smi
-+------------------------------------------------------------------------------------------------+
-| AXCL-SMI  V2.18.0_20241202180518                                Driver  V2.18.0_20241202180518 |
-+-----------------------------------------+--------------+---------------------------------------+
-| Card  Name                     Firmware | Bus-Id       |                          Memory-Usage |
-| Fan   Temp                Pwr:Usage/Cap | CPU      NPU |                             CMM-Usage |
-|=========================================+==============+=======================================|
-|    0  AX650N                    V2.18.0 | 0000:03:00.0 |                154 MiB /      954 MiB |
-|   --   37C                      -- / -- | 1%        0% |                 18 MiB /     3072 MiB |
-+-----------------------------------------+--------------+---------------------------------------+
-```
-
-**示例2：**
-
-Bus-Id: `0001:81:00.0`，那么设备ID = 0x81 = 129，即`-d 129`
-
-```
-lspci
-0000:00:00.0 Class 0604: Device 16c3:abcd (rev 01)
-0001:80:00.0 Class 0604: Device 16c3:abcd (rev 01)
-0001:81:00.0 Class 0400: Device 1f4b:0650 (rev 01)
-/opt/bin/axcl # ./axcl-smi
-i 0 = 748  pid = 748
-+------------------------------------------------------------------------------------------------+
-| AXCL-SMI  V2.18.0                                                              Driver  V2.18.0 |
-+-----------------------------------------+--------------+---------------------------------------+
-| Card  Name                     Firmware | Bus-Id       |                          Memory-Usage |
-| Fan   Temp                Pwr:Usage/Cap | CPU      NPU |                             CMM-Usage |
-|=========================================+==============+=======================================|
-|    0  AX650N                    V2.18.0 | 0001:81:00.0 |                157 MiB /      954 MiB |
-|   --   42C                      -- / -- | 2%        0% |                 18 MiB /     3072 MiB |
-+-----------------------------------------+--------------+---------------------------------------+
+```bash
+# ./axcl-smi reboot -d 0
+Do you want to reboot device 0 ? (y/n): y
+[1970-01-01 14:33:06.325][933][W][device manager][reboot_device][314]: reboot device 129 success
 ```
 

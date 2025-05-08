@@ -210,20 +210,18 @@ axclError axclrtSynchronizeDevice();
 至少激活一个设备。
 
 ---
-(axclrtgetdeviceutilizationrate)=
-#### axclrtGetDeviceUtilizationRate
+(axclrtGetDeviceProperties)=
+#### axclrtGetDeviceProperties
 
 ```c
-axclError axclrtGetDeviceUtilizationRate(int32_t deviceId, axclrtUtilizationInfo *utilizationInfo);
+axclError axclrtGetDeviceProperties(int32_t deviceId, axclrtDeviceProperties *properties);
 ```
 
 **使用说明**：
 
-获取设备CPU、NPU和内存信息，，同步接口。**此接口暂未实现**。
+获取设备UID、CPU利用率、NPU利用率和内存等信息，同步接口。
 
 **限制**：
-
-- 如果没有调用  [`axclrtSetDevice`](#axclrtsetdevice)  或者  [`axclrtCreateContext`](#axclrtcreatecontext)  指定设备，本接口返回错误。
 
 ---
 (axclrtcreatecontext)=

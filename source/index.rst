@@ -24,3 +24,5 @@ AXCL
   doc_guide_npu_benchmark.md
   doc_guide_axcl_smi.md
   doc_guide_faq.md
+  doc_guide_ffmpeg.md
+  pyAXCL/pyAXCL
