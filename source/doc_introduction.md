@@ -6,6 +6,7 @@ AXCL 是用于在 [Axera](https://www.axera-tech.com/) 芯片平台上开发深�
 
 ![](../res/axcl_architecture.svg)
 
+
 ## 概念
 
 AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关系如下图所示：
