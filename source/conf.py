@@ -21,7 +21,7 @@ copyright = '2024, AXERA Semiconductor Co., Ltd.'
 author = 'kalcohol'
 
 # The full version, including alpha/beta/rc tags
-release = 'V3.0.2'
+release = 'V3.6.0'
 
 # -- General configuration ---------------------------------------------------
 
