@@ -22,7 +22,7 @@ AXCL-Samples 由 爱芯元智 主导开发。该项目实现了常见的深度�
 ### 获取示例
 
 - AXCL-Samples 的预编译 ModelZoo 请参考
-  - [百度网盘](https://pan.baidu.com/s/1cnMeqsD-hErlRZlBDDvuoA?pwd=oey4)
+  - [百度网盘](https://pan.baidu.com/s/1MAAKElTI2wgiDehvd2Q1lA?pwd=p1k6)
 
 ### YOLO11x
 
@@ -169,6 +169,7 @@ Repeat 1 times, avg time 44.02 ms, max_time 44.02 ms, min_time 44.02 ms
 
 - 模型转请参考[大模型编译文档](https://pulsar2-docs.readthedocs.io/zh-cn/latest/appendix/build_llm.html)
 - 预编译 ModelZoo-LLM 请参考[百度网盘](https://pan.baidu.com/s/1grJNjcpUln-fDBisJxuvCA?pwd=mys8)
+- 上板执行程序 main_pcie 请参考[ax-llm pcie 分支](https://github.com/AXERA-TECH/ax-llm/tree/axcl-llm-prefill)
 
 ### Tokenizer 解析器
 
@@ -276,7 +277,7 @@ Type "q" to exit, Ctrl+c to stop current running
 
 InternVL2-1B 的详细模型导出、量化、编译的流程请参考[《基于 AX650N/AX630C 部署多模态大模型 InternVL2-1B》](https://zhuanlan.zhihu.com/p/4118849355)
 
-拷贝相关文件到 Host 
+拷贝相关文件到 Host
 
 **文件说明**
 
@@ -354,7 +355,7 @@ image >> ./ssd_car.jpg
 [N][                             Run][ 751]: hit eos,avg 29.26 token/s
 
 prompt >> q
-(base) axera@raspberrypi:~/internvl2-1b-448-ax650 $ 
+(base) axera@raspberrypi:~/internvl2-1b-448-ax650 $
 ```
 
 ## 音频大模型
@@ -374,9 +375,9 @@ git clone https://github.com/ml-inory/whisper.axcl.git
 
 **预编译模型**
 
-预编译模型下载([百度网盘](https://pan.baidu.com/s/1tOHVMZCin0A68T5HmKRJyg?pwd=axyz))  
+预编译模型下载([百度网盘](https://pan.baidu.com/s/1tOHVMZCin0A68T5HmKRJyg?pwd=axyz))
 
-下载后放到 models 下  
+下载后放到 models 下
 
 **编译**
 
@@ -492,5 +493,5 @@ Decode slice(7/9) take 39.59ms
 Decode slice(8/9) take 39.58ms
 Decode slice(9/9) take 41.11ms
 Saved audio to output.wav
-(base) axera@raspberrypi:~/melotts.axcl $ 
+(base) axera@raspberrypi:~/melotts.axcl $
 ```
