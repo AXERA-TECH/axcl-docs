@@ -1,58 +1,118 @@
-# AXCL Samples 说明
+# SDK Samples
 
-## AXCL Runtime API Samples
+## runtime
 
 ### axcl_sample_runtime
 
-1. Initialize axcl runtime by axclrtInit.
-2. Active EP by axclrtSetDevice.
-3. Create context by axclrtCreateDevice for main thread. (optional)
-4. Create and destory thread context. (must)
-5. Destory context of main thread.
-6. Deactive EP by axclrtResetDevice
-7. Deinitialize runtime by axclFinalize
+Sample to invoke runtime APIs.
 
-**usage**：
+```
+1. Initialize runtime by `axclInit`.
+2. Active device by `axclrtSetDevice`.
+3. Create context by `axclrtCreateDevice` for main thread (optional).
+4. Create and destory thread context (must).
+5. Destory context of main thread.
+6. Deactive device by `axclrtResetDevice`.
+7. Deinitialize runtime by `axclFinalize`.
+```
+
+
+
+#### usage
 
 ```bash
+$ axcl_sampe_runtime --help
 usage: ./axcl_sample_runtime [options] ...
 options:
-  -d, --device    device index from 0 to connected device num - 1 (unsigned int [=0])
+  -d, --device    device index [-1, connected device num - 1], -1: traverse all devices (int [=-1])
       --json      axcl.json path (string [=./axcl.json])
+      --reboot    reboot device
   -?, --help      print this message
 ```
 
-**example**：
+| Args         | Default Value                                 | Description                                          |
+| ------------ | --------------------------------------------- | ---------------------------------------------------- |
+| -d, --device | -1,  range: [-1, 0 - connected device num -1] | Specifies the device index. -1: traverse all devices |
+| --json       | [axcl.json](#faq_axcl_json) file path         |                                                      |
+| --reboot     | NA                                            | Panic device and reboot.                             |
+
+
+
+#### example1
+
+Query the properties from device #0.
 
 ```bash
-$ ./axcl_sample_runtime -d 0
-[INFO ][                            main][  22]: ============== V2.26.1 sample started Feb 13 2025 11:09:56 ==============
-[INFO ][                            main][  34]: json: ./axcl.json
-[INFO ][                            main][  53]: device index: 0, bus number: 129
-[INFO ][                            main][  84]: ============== V2.26.1 sample exited Feb 13 2025 11:09:56 ==============
+$ axcl_sample_runtime -d 0
+[INFO ][                            main][  36]: ============== V3.5.0_20250515190238 sample started May 15 2025 19:29:09 =============
+json file
+[INFO ][                      operator()][ 130]: [0000:03.0] software version: Ax_Version V3.5.0_20250515190238
+[INFO ][                      operator()][ 131]: [0000:03.0] uid             : 0x6010b819428590c6
+[INFO ][                      operator()][ 132]: [0000:03.0] temperature     : 80000
+[INFO ][                      operator()][ 133]: [0000:03.0] total mem size  : 968356   KB
+[INFO ][                      operator()][ 134]: [0000:03.0] free  mem size  : 814932   KB
+[INFO ][                      operator()][ 135]: [0000:03.0] total cmm size  : 7208960  KB
+[INFO ][                      operator()][ 136]: [0000:03.0] free  cmm size  : 7190084  KB
+[INFO ][                      operator()][ 137]: [0000:03.0] avg cpu loading : 2.3%
+[INFO ][                      operator()][ 138]: [0000:03.0] avg npu loading : 0.0%
+[INFO ][                      operator()][ 149]: malloc 1048576 bytes memory from device  3 success, addr = 0x14926f000
+[INFO ][                            main][ 215]: ============== V3.5.0_20250515190238 sample exited May 15 2025 19:29:09 ==============
 ```
+
+
+
+#### example2
+
+Manually panic device #0 by sending `echo c > /proc/sysrq-trigger`, then reboot and download firmware again.
+
+```bash
+$ axcl_sample_runtime -d 0 --reboot
+[INFO ][                            main][  36]: ============== V3.5.0_20250515190238 sample started May 15 2025 19:29:09 =============
+json file
+[INFO ][                      operator()][ 130]: [0000:03.0] software version: Ax_Version V3.5.0_20250515190238
+[INFO ][                      operator()][ 131]: [0000:03.0] uid             : 0x6010b819428590c6
+[INFO ][                      operator()][ 132]: [0000:03.0] temperature     : 80294
+[INFO ][                      operator()][ 133]: [0000:03.0] total mem size  : 968356   KB
+[INFO ][                      operator()][ 134]: [0000:03.0] free  mem size  : 814840   KB
+[INFO ][                      operator()][ 135]: [0000:03.0] total cmm size  : 7208960  KB
+[INFO ][                      operator()][ 136]: [0000:03.0] free  cmm size  : 7190084  KB
+[INFO ][                      operator()][ 137]: [0000:03.0] avg cpu loading : 1.2%
+[INFO ][                      operator()][ 138]: [0000:03.0] avg npu loading : 0.0%
+[INFO ][                      operator()][ 149]: malloc 1048576 bytes memory from device  3 success, addr = 0x14926f000
+[INFO ][                            main][ 178]: panic device 0x3
+[INFO ][                            main][ 185]: wait for device 0x3 to reboot in 60 seconds
+[2025-05-20 19:16:08.784][33219][W][device manager][listen][292]: device 3 is dead
+[INFO ][          device_status_callback][  28]: device 0x3 is offline, rebooting ...
+[INFO ][          device_status_callback][  31]: device 0x3 is online, reboot success
+[INFO ][                            main][ 200]: check connection of device 0x3 success
+[INFO ][                            main][ 215]: ============== V3.5.0_20250515190238 sample exited May 15 2025 19:29:09 ==============
+```
+
+
 
 ### axcl_sample_memory
 
-sample for memcpy between host and device
+Sample for memory copy between HOST and devcie.
 
-        HOST                      DEVICE
-    host_mem[0] ---------------> dev_mem[0] ----
-                                               |
-                                               |
-    host_mem[1] <--------------- dev_mem[1] <---
+```
+         HOST          |               DEVICE
+      host_mem[0] -----------> dev_mem[0]
+                                    |---------> dev_mem[1]
+      host_mem[1] <----------------------------------|
 
-1. alloc 2 host memories: *host_mem[2]*
-2. alloc 2 device memories: *dev_mem[2]*
-3. memcpy from host_mem[0] to dev_mem[0] by AXCL_MEMCPY_HOST_TO_DEVICE
-4. memcpy from dev_mem[0] to dev_mem[1] by AXCL_MEMCPY_DEVICE_TO_DEVICE
-5. memcpy from dev_mem[1] to host_mem[0] by AXCL_MEMCPY_DEVICE_TO_HOST
-6. memcmp between host_mem[0] and host_mem[1]
+1. allocate host_mem[2] by `axclrtMallocHost` and dev_mem[2] by `axclrtMalloc`.
+2. axclrtMemcpy(dev_mem[0], host_mem[0], size, AXCL_MEMCPY_HOST_TO_DEVICE)
+3. axclrtMemcpy(dev_mem[1], dev_mem[0], size, AXCL_MEMCPY_DEVICE_TO_DEVICE)
+4. axclrtMemcpy(host_mem[1], dev_mem[1], size, AXCL_MEMCPY_DEVICE_TO_HOST)
+5. memcmp(host_mem[0], host_mem[1], size)
+```
 
 
-**usage**：
+
+#### usage
 
 ```bash
+$ axcl_sample_memory --help
 usage: ./axcl_sample_memory [options] ...
 options:
   -d, --device    device index from 0 to connected device num - 1 (int [=0])
@@ -60,95 +120,116 @@ options:
   -?, --help      print this message
 ```
 
-**example**：
+| Args         | Default Value                            | Description                |
+| ------------ | ---------------------------------------- | -------------------------- |
+| -d, --device | 0,  range: [0 - connected device num -1] | Specifies the device index |
+| --json       | [axcl.json](#faq_axcl_json) file path    |                            |
+
+
+
+#### example
 
 ```bash
-$ ./axcl_sample_memory  -d 0
-[INFO ][                            main][  32]: ============== V2.26.1 sample started Feb 13 2025 11:09:59 ==============
+$ axcl_sample_memory  -d 0
+[INFO ][                            main][  32]: ============== V3.5.0_20250515190238 sample started May 15 2025 19:29:10 ==============
 [INFO ][                           setup][ 112]: json: ./axcl.json
-[INFO ][                           setup][ 131]: device index: 0, bus number: 129
+json file
+[INFO ][                           setup][ 131]: device index: 0, bus number: 3
 [INFO ][                            main][  51]: alloc host and device memory, size: 0x800000
-[INFO ][                            main][  63]: memory [0]: host 0xffff967fb010, device 0x14926f000
-[INFO ][                            main][  63]: memory [1]: host 0xffff95ffa010, device 0x149a6f000
-[INFO ][                            main][  69]: memcpy from host memory[0] 0xffff967fb010 to device memory[0] 0x14926f000
+[INFO ][                            main][  63]: memory [0]: host 0x7fc451ffc010, device 0x14926f000
+[INFO ][                            main][  63]: memory [1]: host 0x7fc4517fb010, device 0x149a6f000
+[INFO ][                            main][  69]: memcpy from host memory[0] 0x7fc451ffc010 to device memory[0] 0x14926f000
 [INFO ][                            main][  75]: memcpy device memory[0] 0x14926f000 to device memory[1] 0x149a6f000
-[INFO ][                            main][  81]: memcpy device memory[1] 0x149a6f000 to host memory[0] 0xffff95ffa010
-[INFO ][                            main][  88]: compare host memory[0] 0xffff967fb010 and host memory[1] 0xffff95ffa010 success
-[INFO ][                         cleanup][ 146]: deactive device 129 and cleanup axcl
-[INFO ][                            main][ 106]: ============== V2.26.1 sample exited Feb 13 2025 11:09:59 ==============
+[INFO ][                            main][  81]: memcpy device memory[1] 0x149a6f000 to host memory[0] 0x7fc4517fb010
+[INFO ][                            main][  88]: compare host memory[0] 0x7fc451ffc010 and host memory[1] 0x7fc4517fb010 success
+[INFO ][                         cleanup][ 146]: deactive device 3 and cleanup axcl
+[INFO ][                            main][ 106]: ============== V3.5.0_20250515190238 sample exited May 15 2025 19:29:10 ==============
 ```
 
-## AXCL Native API Samples
+
+
+## native
 
 ### axcl_sample_sys
 
-​	This module is the sample code of the SYS module provided by the SDK package, which is convenient for customers to quickly understand and master the use of SYS related interfaces.
+Sample for the usage native **SYS** module including:
 
-​	The code demonstrates the following functions:
+- non-cached CMM memory allocation and release.
+- cached CMM memory allocation and release.
+- common memory pool allocation and release.
+- private memory pool allocation and release.
+- module link and query.
 
-- Non-cache type CMM memory application and release
-- Cache type CMM memory application and release
-- Common pool creation and use
-- User pool creation and use
-- Binding relationship creation and query.
 
-**usage:**
+
+#### usage
 
 ```bash
+$ axcl_sample_sys --help
+usage: axcl_sample_sys [options] ...
 options:
   -d, --device    device index from 0 to connected device num - 1 (unsigned int [=0])
+      --json      axcl.json path (string [=./axcl.json])
   -?, --help      print this message
 ```
 
-**example:**
+| Args         | Default Value                            | Description                |
+| ------------ | ---------------------------------------- | -------------------------- |
+| -d, --device | 0,  range: [0 - connected device num -1] | Specifies the device index |
+| --json       | [axcl.json](#faq_axcl_json) file path    |                            |
+
+
+
+#### example
 
 ```bash
 $ ./axcl_sample_sys -d 0
 [INFO ][                            main][  35]: json: ./axcl.json
-[INFO ][                            main][  55]: device index: 0, bus number: 129
+json file
+[INFO ][                            main][  55]: device index: 0, bus number: 3
 [INFO ][           sample_sys_alloc_free][  82]: sys_alloc_free begin
-[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14926f000,pVirAddr=0xffff82a3c000
-[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14936f000,pVirAddr=0xffff8293c000
-[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14946f000,pVirAddr=0xffff8283c000
-[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14956f000,pVirAddr=0xffff8273c000
-[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14966f000,pVirAddr=0xffff8263c000
-[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14976f000,pVirAddr=0xffff8253c000
-[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14986f000,pVirAddr=0xffff8243c000
-[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14996f000,pVirAddr=0xffff8233c000
-[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x149a6f000,pVirAddr=0xffff8223c000
-[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x149b6f000,pVirAddr=0xffff8213c000
-[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14926f000,pVirAddr=0xffff82a3c000
-[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14936f000,pVirAddr=0xffff8293c000
-[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14946f000,pVirAddr=0xffff8283c000
-[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14956f000,pVirAddr=0xffff8273c000
-[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14966f000,pVirAddr=0xffff8263c000
-[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14976f000,pVirAddr=0xffff8253c000
-[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14986f000,pVirAddr=0xffff8243c000
-[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14996f000,pVirAddr=0xffff8233c000
-[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x149a6f000,pVirAddr=0xffff8223c000
-[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x149b6f000,pVirAddr=0xffff8213c000
+[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14926f000,pVirAddr=0xffff9aace000
+[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14936f000,pVirAddr=0xffff9a9ce000
+[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14946f000,pVirAddr=0xffff9a8ce000
+[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14956f000,pVirAddr=0xffff9a7ce000
+[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14966f000,pVirAddr=0xffff9a6ce000
+[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14976f000,pVirAddr=0xffff9a5ce000
+[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14986f000,pVirAddr=0xffff9a4ce000
+[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x14996f000,pVirAddr=0xffff9a3ce000
+[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x149a6f000,pVirAddr=0xffff9a2ce000
+[INFO ][           sample_sys_alloc_free][  91]: alloc PhyAddr= 0x149b6f000,pVirAddr=0xffff9a1ce000
+[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14926f000,pVirAddr=0xffff9aace000
+[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14936f000,pVirAddr=0xffff9a9ce000
+[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14946f000,pVirAddr=0xffff9a8ce000
+[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14956f000,pVirAddr=0xffff9a7ce000
+[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14966f000,pVirAddr=0xffff9a6ce000
+[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14976f000,pVirAddr=0xffff9a5ce000
+[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14986f000,pVirAddr=0xffff9a4ce000
+[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x14996f000,pVirAddr=0xffff9a3ce000
+[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x149a6f000,pVirAddr=0xffff9a2ce000
+[INFO ][           sample_sys_alloc_free][ 100]: free PhyAddr= 0x149b6f000,pVirAddr=0xffff9a1ce000
 [INFO ][           sample_sys_alloc_free][ 103]: sys_alloc_free end success
 [INFO ][     sample_sys_alloc_cache_free][ 115]: sys_alloc_cache_free begin
-[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14926f000,pVirAddr=0xffff82a3c000
-[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14936f000,pVirAddr=0xffff8293c000
-[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14946f000,pVirAddr=0xffff8283c000
-[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14956f000,pVirAddr=0xffff8273c000
-[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14966f000,pVirAddr=0xffff8263c000
-[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14976f000,pVirAddr=0xffff8253c000
-[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14986f000,pVirAddr=0xffff8243c000
-[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14996f000,pVirAddr=0xffff8233c000
-[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x149a6f000,pVirAddr=0xffff8223c000
-[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x149b6f000,pVirAddr=0xffff8213c000
-[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14926f000,pVirAddr=0xffff82a3c000
-[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14936f000,pVirAddr=0xffff8293c000
-[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14946f000,pVirAddr=0xffff8283c000
-[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14956f000,pVirAddr=0xffff8273c000
-[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14966f000,pVirAddr=0xffff8263c000
-[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14976f000,pVirAddr=0xffff8253c000
-[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14986f000,pVirAddr=0xffff8243c000
-[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14996f000,pVirAddr=0xffff8233c000
-[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x149a6f000,pVirAddr=0xffff8223c000
-[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x149b6f000,pVirAddr=0xffff8213c000
+[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14926f000,pVirAddr=0xffff9aace000
+[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14936f000,pVirAddr=0xffff9a9ce000
+[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14946f000,pVirAddr=0xffff9a8ce000
+[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14956f000,pVirAddr=0xffff9a7ce000
+[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14966f000,pVirAddr=0xffff9a6ce000
+[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14976f000,pVirAddr=0xffff9a5ce000
+[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14986f000,pVirAddr=0xffff9a4ce000
+[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x14996f000,pVirAddr=0xffff9a3ce000
+[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x149a6f000,pVirAddr=0xffff9a2ce000
+[INFO ][     sample_sys_alloc_cache_free][ 124]: alloc PhyAddr= 0x149b6f000,pVirAddr=0xffff9a1ce000
+[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14926f000,pVirAddr=0xffff9aace000
+[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14936f000,pVirAddr=0xffff9a9ce000
+[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14946f000,pVirAddr=0xffff9a8ce000
+[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14956f000,pVirAddr=0xffff9a7ce000
+[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14966f000,pVirAddr=0xffff9a6ce000
+[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14976f000,pVirAddr=0xffff9a5ce000
+[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14986f000,pVirAddr=0xffff9a4ce000
+[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x14996f000,pVirAddr=0xffff9a3ce000
+[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x149a6f000,pVirAddr=0xffff9a2ce000
+[INFO ][     sample_sys_alloc_cache_free][ 133]: free PhyAddr= 0x149b6f000,pVirAddr=0xffff9a1ce000
 [INFO ][     sample_sys_alloc_cache_free][ 136]: sys_alloc_cache_free end success
 [INFO ][          sample_sys_commom_pool][ 148]: sys_commom_pool begin
 [INFO ][          sample_sys_commom_pool][ 157]: AXCL_SYS_Init success!
@@ -187,16 +268,22 @@ $ ./axcl_sample_sys -d 0
 
 ### axcl_sample_vdec
 
-1. Load .mp4 or .h264/h265 stream file
-2. Demux nalu by ffmpeg
-3. Send nalu to VDEC by frame
-4. Get decodec YUV
+Sample for H264|H265 video decoder (VDEC).
+
+1. Load .mp4 or .h264|.h265 raw stream file.
+2. Demux nalu frame by ffmpeg.
+3. Send nalu to video decoder by frame.
+4. Receive decoded nv12 image information.
+
+![sample_vdec](../res/sample_vdec.png)
 
 
-**usage**：
+
+#### usage
 
 ```bash
-usage: ./axcl_sample_vdec --url=string [options] ...
+$ axcl_sample_vdec --help
+usage: axcl_sample_vdec --url=string [options] ...
 options:
   -i, --url       mp4|.264|.265 file path (string)
   -d, --device    device index from 0 to connected device num - 1 (unsigned int [=0])
@@ -207,274 +294,284 @@ options:
       --VdChn     channel id (int [=0])
       --yuv       transfer nv12 from device (int [=0])
   -?, --help      print this message
-
---count: how many streams are decoded at same time
--w: width of decoded output nv12 image
--h: height of decoded output nv12 image
---VdChn: VDEC output channel index
-      0: PP0, same width and height for input stream, cannot support scaler down.
-	  1: PP1, support scale down. range: [48x48, 4096x4096]
-	  2: PP2, support scale down. range: [48x48, 1920x1080]
 ```
 
-**example**：
+| Args         | Default Value                            | Description                                                  |
+| ------------ | ---------------------------------------- | ------------------------------------------------------------ |
+| -d, --device | 0,  range: [0 - connected device num -1] | Specifies the device index                                   |
+| --json       | [axcl.json](#faq_axcl_json) file path    |                                                              |
+| -i, --url    | NA                                       | Specifies the path of stream file.                           |
+| --count      | 1                                        | Specifies the group count.                                   |
+| -w, --width  | 1920                                     | Specifies the width of decoded YUV image.                    |
+| -h, --height | 1080                                     | Specifies the height of decoded YUV image                    |
+| --VdChn      | 0                                        | Specifies the channel of VDEC.<br />0: output the original width and height of input stream.<br />1: output in range [48x48, 4096x4096],  support scale down.<br />2: output in range [48x48, 1920x1080],  support scale down. |
+| --yuv        | 0                                        | 1: Transfer decoded YUV image from device. 0: Not transfer image. |
 
-decode 4 streams:
+:::{tip}
 
 ```bash
-$ ./axcl_sample_vdec -i bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4 -d 0 --count 4
-[INFO ][                            main][  43]: ============== V2.26.1 sample started Feb 13 2025 11:10:18 ==============
+$ axcl_sample_vdec --help
+axcl_sample_vdec: error while loading shared libraries: libavcodec.so.61: cannot open shared object file: No such file or directory
 
-[INFO ][                            main][  67]: json: ./axcl.json
-[INFO ][                            main][  87]: device index: 0, bus number: 129
-[INFO ][             ffmpeg_init_demuxer][ 438]: [0] url: bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4
-[INFO ][             ffmpeg_init_demuxer][ 501]: [0] url bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4: codec 96, 1920x1080, fps 30
-[INFO ][             ffmpeg_init_demuxer][ 438]: [1] url: bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4
-[INFO ][             ffmpeg_init_demuxer][ 501]: [1] url bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4: codec 96, 1920x1080, fps 30
-[INFO ][             ffmpeg_init_demuxer][ 438]: [2] url: bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4
-[INFO ][             ffmpeg_init_demuxer][ 501]: [2] url bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4: codec 96, 1920x1080, fps 30
-[INFO ][             ffmpeg_init_demuxer][ 438]: [3] url: bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4
-[INFO ][             ffmpeg_init_demuxer][ 501]: [3] url bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4: codec 96, 1920x1080, fps 30
-[INFO ][                            main][ 115]: init sys
-[INFO ][                            main][ 124]: init vdec
-[INFO ][                            main][ 138]: start decoder 0
-[INFO ][sample_get_vdec_attr_from_stream_info][ 251]: stream info: 1920x1080 payload 96 fps 30
-[INFO ][                            main][ 175]: start demuxer 0
-[INFO ][ sample_get_decoded_image_thread][ 310]: [decoder  0] decode thread +++
-[INFO ][          ffmpeg_dispatch_thread][ 188]: [0] +++
-[INFO ][             ffmpeg_demux_thread][ 294]: [0] +++
-[INFO ][                            main][ 138]: start decoder 1
-[INFO ][sample_get_vdec_attr_from_stream_info][ 251]: stream info: 1920x1080 payload 96 fps 30
-[INFO ][                            main][ 175]: start demuxer 1
-[INFO ][ sample_get_decoded_image_thread][ 310]: [decoder  1] decode thread +++
-[INFO ][          ffmpeg_dispatch_thread][ 188]: [1] +++
-[INFO ][                            main][ 138]: start decoder 2
-[INFO ][sample_get_vdec_attr_from_stream_info][ 251]: stream info: 1920x1080 payload 96 fps 30
-[INFO ][             ffmpeg_demux_thread][ 294]: [1] +++
-[INFO ][                            main][ 175]: start demuxer 2
-[INFO ][ sample_get_decoded_image_thread][ 310]: [decoder  2] decode thread +++
-[INFO ][          ffmpeg_dispatch_thread][ 188]: [2] +++
-[INFO ][             ffmpeg_demux_thread][ 294]: [2] +++
-[INFO ][                            main][ 138]: start decoder 3
-[INFO ][sample_get_vdec_attr_from_stream_info][ 251]: stream info: 1920x1080 payload 96 fps 30
-[INFO ][ sample_get_decoded_image_thread][ 310]: [decoder  3] decode thread +++
-[INFO ][                            main][ 175]: start demuxer 3
-[INFO ][          ffmpeg_dispatch_thread][ 188]: [3] +++
-[INFO ][             ffmpeg_demux_thread][ 294]: [3] +++
-[INFO ][             ffmpeg_demux_thread][ 327]: [0] reach eof
-[INFO ][             ffmpeg_demux_thread][ 434]: [0] demuxed    total 470 frames ---
-[INFO ][             ffmpeg_demux_thread][ 327]: [1] reach eof
-[INFO ][             ffmpeg_demux_thread][ 434]: [1] demuxed    total 470 frames ---
-[INFO ][             ffmpeg_demux_thread][ 327]: [2] reach eof
-[INFO ][             ffmpeg_demux_thread][ 434]: [2] demuxed    total 470 frames ---
-[INFO ][             ffmpeg_demux_thread][ 327]: [3] reach eof
-[INFO ][             ffmpeg_demux_thread][ 434]: [3] demuxed    total 470 frames ---
-[INFO ][          ffmpeg_dispatch_thread][ 271]: [0] dispatched total 470 frames ---
-[INFO ][          ffmpeg_dispatch_thread][ 271]: [1] dispatched total 470 frames ---
-[INFO ][          ffmpeg_dispatch_thread][ 271]: [2] dispatched total 470 frames ---
-[INFO ][          ffmpeg_dispatch_thread][ 271]: [3] dispatched total 470 frames ---
-[WARN ][ sample_get_decoded_image_thread][ 356]: [decoder  2] flow end
-[INFO ][ sample_get_decoded_image_thread][ 391]: [decoder  2] total decode 470 frames
-[WARN ][ sample_get_decoded_image_thread][ 356]: [decoder  1] flow end
-[INFO ][ sample_get_decoded_image_thread][ 391]: [decoder  1] total decode 470 frames
-[WARN ][ sample_get_decoded_image_thread][ 356]: [decoder  0] flow end
-[INFO ][ sample_get_decoded_image_thread][ 391]: [decoder  0] total decode 470 frames
-[INFO ][                            main][ 196]: stop decoder 0
-[INFO ][ sample_get_decoded_image_thread][ 397]: [decoder  2] dfecode thread ---
-[INFO ][ sample_get_decoded_image_thread][ 397]: [decoder  1] dfecode thread ---
-[INFO ][ sample_get_decoded_image_thread][ 397]: [decoder  0] dfecode thread ---
-[INFO ][                            main][ 201]: decoder 0 is eof
-[INFO ][                            main][ 196]: stop decoder 1
-[INFO ][                            main][ 201]: decoder 1 is eof
-[INFO ][                            main][ 196]: stop decoder 2
-[WARN ][ sample_get_decoded_image_thread][ 356]: [decoder  3] flow end
-[INFO ][ sample_get_decoded_image_thread][ 391]: [decoder  3] total decode 470 frames
-[INFO ][ sample_get_decoded_image_thread][ 397]: [decoder  3] dfecode thread ---
-[INFO ][                            main][ 201]: decoder 2 is eof
-[INFO ][                            main][ 196]: stop decoder 3
-[INFO ][                            main][ 201]: decoder 3 is eof
-[INFO ][                            main][ 226]: stop demuxer 0
-[INFO ][                            main][ 226]: stop demuxer 1
-[INFO ][                            main][ 226]: stop demuxer 2
-[INFO ][                            main][ 226]: stop demuxer 3
-[INFO ][                            main][ 234]: deinit vdec
-[INFO ][                            main][ 238]: deinit sys
-[INFO ][                            main][ 242]: axcl deinit
-[INFO ][                            main][ 246]: ============== V2.26.1 sample exited Feb 13 2025 11:10:18 ==============
+$ export LD_LIBRARY_PATH=/usr/lib/axcl/ffmpeg:$LD_LIBRARY_PATH
+```
+
+  If above error,  please set enviroment by `export LD_LIBRARY_PATH=/usr/lib/axcl/ffmpeg:$LD_LIBRARY_PATH`  first.
+
+:::
+
+
+
+#### example
+
+```bash
+$ axcl_sample_vdec -i bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4 -d 0
+[INFO ][                            main][  43]: ============== V3.5.0_20250515190238 sample started May 15 2025 19:29:14 ==============
+[INFO ][                            main][  68]: json: ./axcl.json
+json file
+[INFO ][                            main][  88]: device index: 0, bus number: 3
+[INFO ][             ffmpeg_init_demuxer][ 439]: [0] url: bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4
+
+[INFO ][             ffmpeg_init_demuxer][ 502]: [0] url bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4: codec 96, 1920x1080, fps 30
+[INFO ][                            main][ 116]: init sys
+[INFO ][                            main][ 125]: init vdec
+[INFO ][                            main][ 139]: start decoder 0
+[INFO ][sample_get_vdec_attr_from_stream_info][ 252]: stream info: 1920x1080 payload 96 fps 30
+[INFO ][ sample_get_decoded_image_thread][ 311]: [decoder  0] decode thread +++
+[INFO ][                            main][ 176]: start demuxer 0
+[INFO ][          ffmpeg_dispatch_thread][ 189]: [0] +++
+[INFO ][             ffmpeg_demux_thread][ 295]: [0] +++
+[INFO ][             ffmpeg_demux_thread][ 328]: [0] reach eof
+[INFO ][             ffmpeg_demux_thread][ 435]: [0] demuxed    total 470 frames ---
+[INFO ][          ffmpeg_dispatch_thread][ 272]: [0] dispatched total 470 frames ---
+[WARN ][ sample_get_decoded_image_thread][ 357]: [decoder  0] flow end
+[INFO ][ sample_get_decoded_image_thread][ 392]: [decoder  0] total decode 470 frames
+[INFO ][ sample_get_decoded_image_thread][ 398]: [decoder  0] dfecode thread ---
+[INFO ][                            main][ 197]: stop decoder 0
+[INFO ][                            main][ 202]: decoder 0 is eof
+[INFO ][                            main][ 227]: stop demuxer 0
+[INFO ][                            main][ 235]: deinit vdec
+[INFO ][                            main][ 239]: deinit sys
+[INFO ][                            main][ 243]: axcl deinit
+[INFO ][                            main][ 247]: ============== V3.5.0_20250515190238 sample exited May 15 2025 19:29:14 ==============
 ```
 
 
 
 ### axcl_sample_venc
 
-​	This module is part of the SDK package and provides sample code for the video encoding unit (H.264, H.265, JPEG, MJPEG). It aims to help customers quickly understand and master the usage of video encoding-related interfaces. The code demonstrates the following processes: initialization of the video encoding module, sending frame data via an encoding Send thread, obtaining and saving encoded stream data via an encoding Get thread, and deinitialization of the video encoding module.
-
-   After compilation, the executable `axcl_sample_venc` is located in the `/usr/bin/axcl` directory and can be used to verify video encoding functionality.
-
-   - **-w**: Configure the source data width.
-   - **-h**: Configure the source data height.
-   - **-i**: Path to the input source data.
-   - **-l**: Input source data YUV format (1: I420; 3: NV12; 4: NV21; 13: YUYV422; 14: UYVY422). Default is 1.
-   - **-N**: Configure the number of encoding channels. By default, it enables four channels for encoding H.264, H.265, MJPEG, and JPEG.
-   - **-n**: When loop encoding is enabled, specify the number of frames to encode.
-   - **-W**: Whether to write the encoded stream to a file (default is 1, which means writing to a file. 0: do not write).
-
-:::{Note}
-
-  - Some parameters in the example code may not be optimal and are only intended for API demonstration. In actual development, users need to configure parameters according to specific business scenarios.
-  - H.264/H.265 support a maximum resolution of 8192x8192.
-  - JPEG/MJPEG support a maximum resolution of 16384x16384.
-
-:::
-
-**example:**
-
-​	Upon successful execution, press `Ctrl+C` to exit. Stream files should be generated in the current directory with extensions like .264, .265, .jpg, or .mjpg. Users can open these files to view the actual results.
-
-1. View help information
-   ```bash
-   axcl_sample_venc -H
-   ```
-
-2. Enable two channels to encode 1080p NV12 format (Channel 0: H.264, Channel 1: H.265)
-   ```bash
-   axcl_sample_venc -w 1920 -h 1080 -i 1080p_nv12.yuv -N 2 -l 3
-   ```
-
-3. Enable two channels to loop encode 3840x2160 NV21 format (Channel 0: H.264, Channel 1: H.265), encoding 10 frames
-   ```bash
-   axcl_sample_venc -w 3840 -h 2160 -i 3840x2160_nv21.yuv -N 2 -l 4 -n 10
-   ```
-
-4. Encode one MJPEG stream with resolution 1920x1080, YUV420P format, encoding 5 frames
-   ```bash
-   axcl_sample_venc -w 1920 -h 1080 -i 1920x1080_yuv420p.yuv -N 1 --bChnCustom 1 --codecType 2 -l 1 -n 5
-   ```
+Sample for H264|H265|JPEG|MJPEG encoder (VENC).
 
 
 
-### axcl_sample_transcode
-
- ![](../res/transcode_ppl.png)
-
-1. Load .mp4 or .h264/h265 stream file
-2. Demux nalu by ffmpeg
-3. Send nalu frame to VDEC
-4. VDEC send decoded nv12 to IVPS (if resize)
-5. IVPS send nv12 to VENC
-6. Send encoded nalu frame by VENC to host.
-
-
-**modules deployment**：
+#### usage
 
 ```bash
-|-----------------------------|
-|          sample             |
-|-----------------------------|
-|      libaxcl_ppl.so         |
-|-----------------------------|
-|      libaxcl_lite.so        |
-|-----------------------------|
-|         axcl sdk            |
-|-----------------------------|
-|         pcie driver         |
-|-----------------------------|
+$ axcl_sample_venc --help
+Usage:  axcl_sample_venc [options] -i input file
+
+  -H --help                        help information
+
+## Options for sample
+
+  -i[s] --input                         Read input video sequence from file. [input.yuv]
+  -o[s] --output                        Write output HEVC/H.264/jpeg/mjpeg stream to file.[stream.hevc]
+  -W[n] --write                         whether write output stream to file.[1]
+                                        0: do not write
+                                        1: write
+
+  -f[n] --dstFrameRate                  1..1048575 Output picture rate numerator. [30]
+
+  -j[n] --srcFrameRate                  1..1048575 Input picture rate numerator. [30]
+
+  -n[n] --encFrameNum                   the frame number want to encode. [0]
+  -N[n] --chnNum                        total encode channel number. [0]
+  -t[n] --encThdNum                     total encode thread number. [1]
+  -p[n] --bLoopEncode                   enable loop mode to encode. 0: disable. 1: enable. [0]
+  --codecType                           encoding payload type. [0]
+                                        0 - SAMPLE_CODEC_H264
+                                        1 - SAMPLE_CODEC_H265
+                                        2 - SAMPLE_CODEC_MJPEG
+                                        3 - SAMPLE_CODEC_JPEG
+  --bChnCustom                          whether encode all payload type. [0]
+                                        0 - encode all payload type
+                                        1 - encode payload type codecType specified by codecType.
+  --log                                 log info level. [2]
+                                        0 : ERR
+                                        1 : WARN
+                                        2 : INFO
+                                        3 : DEBUG
+  --json                                axcl.json path
+  --devId                               device index from 0 to connected device num - 1. [0]
+
+  --bStrmCached                         output stream use cached memory. [0]
+  --bAttachHdr                          support attach headers(sps/pps) to PB frame for h.265. [0]
+
+
+
+## Parameters affecting input frame and encoded frame resolutions and cropping:
+
+
+  -w[n] --picW                          Width of input image in pixels.
+  -h[n] --picH                          Height of input image in pixels.
+
+  -X[n] --cropX                         image horizontal cropping offset, must be even. [0]
+  -Y[n] --cropY                         image vertical cropping offset, must be even. [0]
+  -x[n] --cropW                         Height of encoded image
+  -y[n] --cropH                         Width of encoded image
+
+  --maxPicW                             max width of input image in pixels.
+  --maxPicH                             max height of input image in pixels.
+
+  --bCrop                               enable crop encode, 0: disable 1: enable crop. [0]
+
+
+## Parameters picture stride:
+
+  --strideY                             y stride
+  --strideU                             u stride
+  --strideV                             v stride
+
+
+## Parameters  for pre-processing frames before encoding:
+
+
+  -l[n] --picFormat                     Input YUV format. [1]
+                                        1 - AX_FORMAT_YUV420_PLANAR (IYUV/I420)
+                                        3 - AX_FORMAT_YUV420_SEMIPLANAR (NV12)
+                                        4 - AX_FORMAT_YUV420_SEMIPLANAR_VU (NV21)
+                                        13 - AX_FORMAT_YUV422_INTERLEAVED_YUYV (YUYV/YUY2)
+                                        14 - AX_FORMAT_YUV422_INTERLEAVED_UYVY (UYVY/Y422)
+                                        37 - AX_FORMAT_YUV420_PLANAR_10BIT_I010
+                                        42 - AX_FORMAT_YUV420_SEMIPLANAR_10BIT_P010
+
+## Parameters  affecting GOP pattern, rate control and output stream bitrate:
+
+
+  -g[n] --gopLen                        Intra-picture rate in frames. [30]
+                                        Forces every Nth frame to be encoded as intra frame.
+                                        0 = Do not force
+
+  -B[n] --bitRate                       target bitrate for rate control, in kbps. [2000]
+  --ltMaxBt                             the long-term target max bitrate.
+  --ltMinBt                             the long-term target min bitrate.
+  --ltStaTime                           the long-term rate statistic time.
+  --shtStaTime                          the short-term rate statistic time.
+  --minQpDelta                          Difference between FrameLevelMinQp and MinQp
+  --maxQpDelta                          Difference between FrameLevelMaxQp and MaxQp
+
+
+## Parameters  qp:
+
+  -q[n] --qFactor                       0..99, Initial target QP of jenc. [90]
+  -b[n] --bDblkEnable                   0: disable Deblock 1: enable Deblock. [0]
+  --startQp                             -1..51, start qp for first frame. [16]
+  --vq                                  0..9 video quality level for vbr, def 0, min/max qp is invalid when vq != 0
+  --minQp                               0..51, Minimum frame header qp for any picture. [16]
+  --maxQp                               0..51, Maximum frame header qp for any picture. [51]
+  --minIqp                              0..51, Minimum frame header qp for I picture. [16]
+  --maxIqp                              0..51, Maximum frame header qp for I picture. [51]
+  --chgPos                              vbr/avbr chgpos 20-100, def 90
+  --stillPercent                        avbr still percent 10-100 def 25
+  --stillQp                             0..51, the max QP value of I frame for still scene. [0]
+
+  --deltaQpI                            -51..51, QP adjustment for intra frames. [-2]
+  --maxIprop                            1..100, the max I P size ratio. [100]
+  --minIprop                            1..maxIprop, the min I P size ratio. [1]
+  --IQp                                 0..51, qp of the i frame. [25]
+  --PQp                                 0..51, qp of the p frame. [30]
+  --BQp                                 0..51, qp of the b frame. [32]
+  --fixedQp                             -1..51, Fixed qp for every frame(only for Mjpeg)
+                                          -1 : disable fixed qp mode.
+                                          [0, 51] : value of fixed qp.
+
+  --ctbRcMode                           0: diable ctbRc; 1: quality first; 2: bitrate first 3: quality and bitrate balance
+  --qpMapQpType                         0: disable qpmap; 1: deltaQp; 2: absQp
+  --qpMapBlkUnit                        0: 64x64, 1: 32x32, 2: 16x16;
+  --qpMapBlkType                        0: disable; 1: skip mode; 2: Ipcm mode
+
+
+  -r[n] --rcMode                        0: CBR 1: VBR 2: AVBR 3: QPMAP 4:FIXQP 5:CVBR. [0]
+
+
+  -M[n] --gopMode                       gopmode. 0: normalP. 1: oneLTR. 2: svc-t. [0]
+
+
+## other:
+
+  --vbCnt                               total frame buffer number of pool [1, 100]. [10]
+  --inFifoDep                           input fifo depth. [4]
+  --outFifoDep                          output fifo depth. [4]
+  --syncSend                            send frame mode. -1: block mode, >=0：non-block, in ms.
+  --syncGet                             get stream mode. -1: block mode, >=0：non-block, in ms.
+
+  --bLinkMode
+  --strmBitDep                          encode stream bit depth. [8]
+                                         8 : encode 8bit
+                                         10: encode 10bit
+
+  --strmBufSize                         output stream buffer size. [0]
+                                        0: use default memory setting in sdk.
+                                        >0：alloc some memory by user.
+
+  --virILen                             virtual I frame duration. should less than gop length.
 ```
 
-**transcode ppl attributes**：
+| Args         | Default Value                            | Description                |
+| ------------ | ---------------------------------------- | -------------------------- |
+| -d, --device | 0,  range: [0 - connected device num -1] | Specifies the device index |
+| --json       | [axcl.json](#faq_axcl_json) file path    |                            |
+| -i           | NA                                       | Input images file          |
+| -w           | NA                                       | Width of input image       |
+| -h           | NA                                       | Height of input image      |
+| -n           | 0                                        | The frame number to encode |
+| -l           | 1                                        | Input image file format    |
+| --codecType  | 0                                        | Encoded payload type       |
+
+
+
+#### example1
+
+Enable two channels to encode 1080p NV12 format (Channel 0: H.264, Channel 1: H.265)
 
 ```bash
-        attribute name                       R/W    attribute value type
- *  axcl.ppl.transcode.vdec.grp             [R  ]       int32_t                            allocated by ax_vdec.ko
- *  axcl.ppl.transcode.ivps.grp             [R  ]       int32_t                            allocated by ax_ivps.ko
- *  axcl.ppl.transcode.venc.chn             [R  ]       int32_t                            allocated by ax_venc.ko
- *
- *  the following attributes take effect BEFORE the axcl_ppl_create function is called:
- *  axcl.ppl.transcode.vdec.blk.cnt         [R/W]       uint32_t          8                depend on stream DPB size and decode mode
- *  axcl.ppl.transcode.vdec.out.depth       [R/W]       uint32_t          4                out fifo depth
- *  axcl.ppl.transcode.ivps.in.depth        [R/W]       uint32_t          4                in fifo depth
- *  axcl.ppl.transcode.ivps.out.depth       [R  ]       uint32_t          0                out fifo depth
- *  axcl.ppl.transcode.ivps.blk.cnt         [R/W]       uint32_t          4
- *  axcl.ppl.transcode.ivps.engine          [R/W]       uint32_t   AX_IVPS_ENGINE_VPP      AX_IVPS_ENGINE_VPP|AX_IVPS_ENGINE_VGP|AX_IVPS_ENGINE_TDP
- *  axcl.ppl.transcode.venc.in.depth        [R/W]       uint32_t          4                in fifo depth
- *  axcl.ppl.transcode.venc.out.depth       [R/W]       uint32_t          4                out fifo depth
-
-NOTE:
- The value of "axcl.ppl.transcode.vdec.blk.cnt" depends on input stream.
- Usually set to dpb + 1
+$ axcl_sample_venc -w 1920 -h 1080 -i 1080p_nv12.yuv -N 2 -l 3
 ```
 
-**usage**：
+
+
+#### example2
+
+Enable two channels to loop encode 3840x2160 NV21 format (Channel 0: H.264, Channel 1: H.265), encoding 10 frames
 
 ```bash
-usage: ./axcl_sample_transcode --url=string [options] ...
-options:
-  -i, --url       mp4|.264|.265 file path (string)
-  -d, --device    device index from 0 to connected device num - 1 (unsigned int [=0])
-  -w, --width     output width, 0 means same as input (unsigned int [=0])
-  -h, --height    output height, 0 means same as input (unsigned int [=0])
-      --codec     encoded codec: [h264 | h265] (default: h265) (string [=h265])
-      --json      axcl.json path (string [=./axcl.json])
-      --loop      1: loop demux for local file  0: no loop(default) (int [=0])
-      --dump      dump file path (string [=])
-      --hwclk     decoder hw clk, 0: 624M, 1: 500M, 2: 400M(default) (unsigned int [=2])
-      --ut        unittest
-  -?, --help      print this message
+$ axcl_sample_venc -w 3840 -h 2160 -i 3840x2160_nv21.yuv -N 2 -l 4 -n 10
 ```
 
->
-> ./axcl_sample_transcode: error while loading shared libraries: libavcodec.so.58: cannot open shared object file: No such file or directory
-> if above error happens, please configure ffmpeg libraries into LD_LIBRARY_PATH.
-> As for x86_x64 OS:  *export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/axcl/ffmpeg*
->
 
-**example**：
+
+#### example3
+
+Encode one MJPEG stream with resolution 1920x1080, YUV420P format, encoding 5 frames
 
 ```bash
-# transcode input 1080P@30fps 264 to 1080P@30fps 265, save into /tmp/axcl/transcode.dump.pidxxx file.
-$ ./axcl_sample_transcode -i bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4 -d 0 --dump /tmp/axcl/transcode.265
-[INFO ][                            main][  66]: ============== V2.26.1 sample started Feb 13 2025 16:37:03 pid 798 ==============
-[WARN ][                            main][  91]: if enable dump, disable loop automatically
-[INFO ][                            main][ 130]: pid: 798, device index: 0, bus number: 129
-[INFO ][             ffmpeg_init_demuxer][ 438]: [798] url: bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4
-[INFO ][             ffmpeg_init_demuxer][ 501]: [798] url bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4: codec 96, 1920x1080, fps 30
-[INFO ][         ffmpeg_set_demuxer_attr][ 570]: [798] set ffmpeg.demux.file.frc to 1
-[INFO ][         ffmpeg_set_demuxer_attr][ 573]: [798] set ffmpeg.demux.file.loop to 0
-[INFO ][                            main][ 194]: pid 798: [vdec 00] - [ivps -1] - [venc 00]
-[INFO ][                            main][ 212]: pid 798: VDEC attr ==> blk cnt: 8, fifo depth: out 4
-[INFO ][                            main][ 213]: pid 798: IVPS attr ==> blk cnt: 5, fifo depth: in 4, out 0, engine 1
-[INFO ][                            main][ 215]: pid 798: VENC attr ==> fifo depth: in 4, out 4
-[INFO ][          ffmpeg_dispatch_thread][ 188]: [798] +++
-[INFO ][             ffmpeg_demux_thread][ 294]: [798] +++
-[INFO ][             ffmpeg_demux_thread][ 327]: [798] reach eof
-[INFO ][             ffmpeg_demux_thread][ 434]: [798] demuxed    total 470 frames ---
-[INFO ][          ffmpeg_dispatch_thread][ 271]: [798] dispatched total 470 frames ---
-[INFO ][                            main][ 246]: ffmpeg (pid 798) demux eof
-[INFO ][                            main][ 282]: total transcoded frames: 470
-[INFO ][                            main][ 283]: ============== V2.26.1 sample exited Feb 13 2025 16:37:03 pid 798 ==============
+$ axcl_sample_venc -w 1920 -h 1080 -i 1920x1080_yuv420p.yuv -N 1 --bChnCustom 1 --codecType 2 -l 1 -n 5
 ```
-
-**launch_transcode.sh**：
-
-**launch_transcode.sh** supports to launch multi.(max. 16) axcl_sample_transcode and configure LD_LIBRARY_PATH automatically.
-
-```bash
-Usage:
-./launch_transcode.sh 16 -i bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4  -d 3 --dump /tmp/axcl/transcode.265
-```
-
->The 1st argument must be the number of *axcl_sample_transcode* processes. range: [1, 16]
 
 
 
 ### axcl_sample_dmadim
 
-1. memcpy between two device memories by `AXCL_DMA_MemCopy`
-2. memset device memory to `0xAB` by `AXCL_DMA_MemCopy`
-3. checksum by `AXCL_DMA_CheckSum`
-4. crop 1/4 image from (0, 0) by `AXCL_DMA_MemCopyXD` (`AX_DMADIM_2D`)
+Sample for DMA including:
 
-**usage**：
+- memcpy between two device memories by `AXCL_DMA_MemCopy`
+- memset device memory to `0xAB` by `AXCL_DMA_MemCopy`
+- checksum by `AXCL_DMA_CheckSum`
+- crop 1/4 image from (0, 0) by `AXCL_DMA_MemCopyXD` (`AX_DMADIM_2D`)
+
+
+
+#### usage
 
 ```bash
 usage: ./axcl_sample_dmadim --image=string --width=unsigned int --height=unsigned int [options] ...
@@ -487,13 +584,25 @@ options:
   -?, --help      print this message
 ```
 
-**example**：
+| Args         | Default Value                            | Description                |
+| ------------ | ---------------------------------------- | -------------------------- |
+| -d, --device | 0,  range: [0 - connected device num -1] | Specifies the device index |
+| --json       | [axcl.json](#faq_axcl_json) file path    |                            |
+| -i, --image  | NA                                       | Input image file path      |
+| -w, --width  | NA                                       | The width of input image   |
+| -h, --height | NA                                       | The height of input image  |
+
+
+
+#### example
 
 ```bash
-$ ./axcl_sample_dmadim -i 1920x1080.nv12.yuv -w 1920 -h 1080 -d 0
-[INFO ][                            main][  30]: ============== V2.26.1 sample started Feb 13 2025 11:10:23 ==============
+$ axcl_sample_dmadim -i 1920x1080.nv12.yuv -w 1920 -h 1080 -d 0
+[INFO ][                            main][  30]: ============== V3.5.0_20250515190238 sample started May 15 2025 19:29:17 ==============
+
 [INFO ][                            main][  46]: json: ./axcl.json
-[INFO ][                            main][  66]: device index: 0, bus number: 129
+json file
+[INFO ][                            main][  66]: device index: 0, bus number: 3
 [INFO ][                        dma_copy][ 119]: dma copy device memory succeed, from 0x14926f000 to 0x14966f000
 [INFO ][                      dma_memset][ 139]: dma memset device memory succeed, 0x14926f000 to 0xab
 [INFO ][                    dma_checksum][ 166]: dma checksum succeed, checksum = 0xaaa00000
@@ -501,21 +610,34 @@ $ ./axcl_sample_dmadim -i 1920x1080.nv12.yuv -w 1920 -h 1080 -d 0
 [INFO ][                      dma_copy2d][ 281]: [1] dma memcpy 2D succeed
 [INFO ][                      dma_copy2d][ 308]: ./dma2d_output_image_960x540.nv12 is saved
 [INFO ][                      dma_copy2d][ 328]: dma copy2d nv12 image pass
-[INFO ][                            main][  82]: ============== V2.26.1 sample exited Feb 13 2025 11:10:23 ==============
+[INFO ][                            main][  82]: ============== V3.5.0_20250515190238 sample exited May 15 2025 19:29:17 ==============
 ```
 
 
 
 ### axcl_sample_ive
 
-The sample code here is for the IVE (Intelligent Video Analysis Engine) module provided whithin the Aixin SDK package, which facilitates customers to quickly understand and rightly use these IVE related interfaces.
+Sample for Intelligent Video Engine (IVE).
 
-`axcl_sample_ive` is generated with this smaple code and located at the directory of `usr/bin/axcl/`，which is showing how to use it.
+:::{note}
 
-**usage:**
+   - Sample code is only for API demo, but in fact specific configrature parameter is needed according to user context.
+  - Please refer to document named `42 - AX IVE API` for paramter limition.
+  - Memory filled with input and output data must be alloced by user.
+  - Image data of input and output must be specified by user.
+  - The number of input images (or data) from different CV may not be similar.
+  - The data type of 2-D images must be defined clearly ,or as default value.
+  - These Key parameter is formated as Json string or Json file. Please refer to .json file and code in some directories of /opt/data/ive/.
+
+:::
+
+
+
+#### usage
 
 ```bash
-Usage : ./axcl_sample_ive -c case_index [options]
+$ axcl_sample_ive --help
+Usage : axcl_sample_ive -c case_index [options]
         -d | --device_id: Device index from 0 to connected device num - 1, optional
         -c | --case_index:Calc case index, default:0
                 0-DMA.
@@ -577,39 +699,29 @@ Usage : ./axcl_sample_ive -c case_index [options]
         -? | --help:Show usage help.
 ```
 
-**example:**
 
-:::{Note}
 
-   - Sample code is only for API demo, but in fact specific configrature parameter is needed according to user context.
-  - Please refer to document named `42 - AX IVE API` for paramter limition.
-  - Memory filled with input and output data must be alloced by user.
-  - Image data of input and output must be specified by user.
-  - The number of input images (or data) from different CV may not be similar.
-  - The data type of 2-D images must be defined clearly ,or as default value.
-  - These Key parameter is formated as Json string or Json file. Please refer to .json file and code in some directories of /opt/data/ive/.
+#### example1
 
-:::
+DMA usage (source resolution: 1280 x 720, input/output type : U8C1, Json file used to config control paramter)
 
-1. show help text
+```bash
+$ axcl_sample_ive -c 0 -w 1280 -h 720 -i /opt/data/ive/common/1280x720_u8c1_gray.yuv -o /opt/data/ive/dma/ -t 0 0 -p /opt/data/ive/dma/dma.json
+```
 
-   ```bash
-   ./axcl_sample_ive -?
-   ```
 
-2. DMA usage (source resolution: 1280 x 720, input/output type : U8C1, Json file used to config control paramter)
 
-   ```bash
-   ./axcl_sample_ive -c 0 -w 1280 -h 720 -i /opt/data/ive/common/1280x720_u8c1_gray.yuv -o /opt/data/ive/dma/ -t 0 0 -p /opt/data/ive/dma/dma.json
-   ```
+#### example2
 
-3. MagAndAng usage (source resolution: 1280 x 720, input parameter(grad_h, grad_v)'s data type: U16C1, output parameter (ang_output)'s data type : U8C1)
+MagAndAng usage (source resolution: 1280 x 720, input parameter(grad_h, grad_v)'s data type: U16C1, output parameter (ang_output)'s data type : U8C1)
 
-   ```bash
-   ./axcl_sample_ive -c 8 -w 1280 -h 720 -i /opt/data/ive/common/1280x720_u16c1_gray.yuv /opt/data/ive/common/1280x720_u16c1_gray_2.yuv -o /opt/data/ive/common/mag_output.bin /opt/data/ive/common/ang_output.bin -t 9 9 9 0
-   ```
+```bash
+$ axcl_sample_ive -c 8 -w 1280 -h 720 -i /opt/data/ive/common/1280x720_u16c1_gray.yuv /opt/data/ive/common/1280x720_u16c1_gray_2.yuv -o /opt/data/ive/common/mag_output.bin /opt/data/ive/common/ang_output.bin -t 9 9 9 0
+```
 
-**json file parameters:**
+
+
+#### json
 
 1. **dma.json**
    - `mode`, `x0`, `y0`, `h_seg`, `v_seg`, `elem_size` and `set_val` are the value of respective member in structure `AX_IVE_DMA_CTRL_T` such as `enMode`, `u16CrpX0`, `u16CrpY0`, `u8HorSegSize`, `u8VerSegRows`, `u8ElemSize`, `u64Val`.
@@ -655,16 +767,15 @@ Usage : ./axcl_sample_ive -c case_index [options]
 
 ### axcl_sample_ivps
 
-​	The IVPS(Image Video Process System) unit provided in the Axera SDK package is a video image processing subsystem that provides functions such as cropping, scaling, rotation, streaming, CSC, OSD, mosaic, quadrilateral, etc.
+Sample for Image Video Process System (IVE)  whichprovides functions such as cropping, scaling, rotation, streaming, CSC, OSD, mosaic, quadrilateral, etc.
 
-  	This module is an example code of IVPS unit, which is convenient for users to quickly understand and master the use of IVPS related interfaces.
 
-  	`axcl_sample_ivps` bin is located in the directory of `/usr/bin/axcl/`, and can be used for IVPS interface examples.
 
-**usage:**
+#### usage
 
 ```bash
-Usage: axcl_sample_ivps
+$ axcl_sample_ivps -h
+Usage: /axcl_sample_ivps
         -d             (required) : device index from 0 to connected device num - 1
         -v             (required) : video frame input
         -g             (optional) : overlay input
@@ -731,12 +842,12 @@ Usage: axcl_sample_ivps
         <Alpha>            (optional) : ( (0, 255], 0: transparent; 255: opaque)
 
 Example1:
-        axcl_sample_ivps -d 0 -v /opt/data/ivps/1920x1088.nv12@3@1920x1088@1920x1088  -n 1
+        /axcl_sample_ivps -d 0 -v /opt/data/ivps/1920x1088.nv12@3@1920x1088@1920x1088  -n 1
 ```
 
 
 
-:::{Note}
+:::{note}
 
 - ***\*-v\**** is a required item, with the input source image path and frame information.
   The cropping window should be within the height range of the source image, that is CropX0 + CropW <= Stride, CropY0 + CropH <= Height.
@@ -751,50 +862,177 @@ Example1:
 
 :::
 
-**example:**
 
-1. View help information
 
-   ```bash
-   axcl_sample_ivps -h
-   ```
+#### example1
 
-2. Process source image (3840x2160 NV12 format) once
+Process source image (3840x2160 NV12 format) once
 
-   ```bash
-   axcl_sample_ivps -v /opt/data/ivps/3840x2160.nv12@3@3840x2160@0x0+0+0 -d 0 -n 1
-   ```
+```bash
+$ axcl_sample_ivps -v /opt/data/ivps/3840x2160.nv12@3@3840x2160@0x0+0+0 -d 0 -n 1
+```
 
-3. Process source image (800x480 RGB 888 format) with cropping(X0=128 Y0=50 W=400 H=200) for three times
 
-   ```bash
-   axcl_sample_ivps -v /opt/data/ivps/800x480logo.rgb24@161@800x480@400x200+128+50 -d 0 -n 3
-   ```
 
-4. Process the source image (3840x2160 NV12 format) for five times, with overlaying three REGIONs
+#### example2
 
-   ```bash
-   axcl_sample_ivps -v /opt/data/ivps/3840x2160.nv12@3@3840x2160@0x0+0+0 -d 0 -n 5 -r 3
-   ```
+Process source image (800x480 RGB 888 format) with cropping(X0=128 Y0=50 W=400 H=200) for three times
 
-After running successfully, the following images will be generated in the same directory as the source image (`/opt/data/ivps`)， which can be opened and viewed through a tool.
+```bash
+$ axcl_sample_ivps -v /opt/data/ivps/800x480logo.rgb24@161@800x480@400x200+128+50 -d 0 -n 3
+```
 
-- FlipMirrorRotate_chn0_480x800.fmt_a1
-- OSD_chn0_3840x2160.fmt_3
-- AlphaBlend_chn0_3840x2160.fmt_3
-- Rotate_chn0_1088x1920.fmt_3
-- CSC_chn0_3840x2160.fmt_3
-- CropResize_chn0_1280x720.fmt_3
-- PIPELINEoutput_grp1chn0_1920x1080.fmt_3
-- PIPELINEoutput_grp1chn1_2688x1520.fmt_a1
-- PIPELINEoutput_grp1chn2_768x1280.fmt_a1
 
-:::{Note}
 
-- fmt_3：Represents NV12 format; fmt_a1：Represents RGB 888 format (a1 indicates hexadecimal 0xa1)
-- Execute Ctrl + C to exit.
-- The sample code is only used for API demonstration. In actual development, users need to configure parameters in combination with specific business scenarios.
-- The maximum resolution of input image and output image is 8192x8192.
+#### example3
+
+Process the source image (3840x2160 NV12 format) for five times, with overlaying three REGIONs
+
+```bash
+$ axcl_sample_ivps -v /opt/data/ivps/3840x2160.nv12@3@3840x2160@0x0+0+0 -d 0 -n 5 -r 3
+```
+
+
+
+### axcl_sample_transcode
+
+Sample for transcode which PPL shown as follow:
+
+ ![](../res/transcode_ppl.png)
+
+1. Load .mp4 or .h264/h265 stream file
+2. Demux nalu by ffmpeg
+3. Send nalu frame to VDEC
+4. VDEC send decoded nv12 to IVPS (if resize)
+5. IVPS send nv12 to VENC
+6. Send encoded nalu frame by VENC to host.
+
+
+
+#### deployment
+
+```bash
+|-----------------------------|
+|          sample             |
+|-----------------------------|
+|      libaxcl_ppl.so         |
+|-----------------------------|
+|      libaxcl_lite.so        |
+|-----------------------------|
+|         AXCL SDK            |
+|-----------------------------|
+```
+
+
+
+#### attributes
+
+```bash
+        attribute name                       R/W    attribute value type
+ *  axcl.ppl.transcode.vdec.grp             [R  ]       int32_t                            allocated by ax_vdec.ko
+ *  axcl.ppl.transcode.ivps.grp             [R  ]       int32_t                            allocated by ax_ivps.ko
+ *  axcl.ppl.transcode.venc.chn             [R  ]       int32_t                            allocated by ax_venc.ko
+ *
+ *  the following attributes take effect BEFORE the axcl_ppl_create function is called:
+ *  axcl.ppl.transcode.vdec.blk.cnt         [R/W]       uint32_t          8                depend on stream DPB size and decode mode
+ *  axcl.ppl.transcode.vdec.out.depth       [R/W]       uint32_t          4                out fifo depth
+ *  axcl.ppl.transcode.ivps.in.depth        [R/W]       uint32_t          4                in fifo depth
+ *  axcl.ppl.transcode.ivps.out.depth       [R  ]       uint32_t          0                out fifo depth
+ *  axcl.ppl.transcode.ivps.blk.cnt         [R/W]       uint32_t          4
+ *  axcl.ppl.transcode.ivps.engine          [R/W]       uint32_t   AX_IVPS_ENGINE_VPP      AX_IVPS_ENGINE_VPP|AX_IVPS_ENGINE_VGP|AX_IVPS_ENGINE_TDP
+ *  axcl.ppl.transcode.venc.in.depth        [R/W]       uint32_t          4                in fifo depth
+ *  axcl.ppl.transcode.venc.out.depth       [R/W]       uint32_t          4                out fifo depth
+
+NOTE:
+ The value of "axcl.ppl.transcode.vdec.blk.cnt" depends on input stream.
+ Usually set to dpb + 1
+```
+
+
+
+#### usage
+
+```bash
+$ axcl_sample_transcode --help
+usage: axcl_sample_transcode --url=string [options] ...
+options:
+  -i, --url       mp4|.264|.265 file path (string)
+  -d, --device    device index from 0 to connected device num - 1 (unsigned int [=0])
+  -w, --width     output width, 0 means same as input (unsigned int [=0])
+  -h, --height    output height, 0 means same as input (unsigned int [=0])
+      --codec     encoded codec: [h264 | h265] (default: h265) (string [=h265])
+      --json      axcl.json path (string [=./axcl.json])
+      --loop      1: loop demux for local file  0: no loop(default) (int [=0])
+      --dump      dump file path (string [=])
+      --hwclk     decoder hw clk, 0: 624M, 1: 500M, 2: 400M(default) (unsigned int [=2])
+      --ut        unittest
+  -?, --help      print this message
+```
+
+| Args         | Default Value                            | Description                                    |
+| ------------ | ---------------------------------------- | ---------------------------------------------- |
+| -d, --device | 0,  range: [0 - connected device num -1] | Specifies the device index                     |
+| --json       | [axcl.json](#faq_axcl_json) file path    |                                                |
+| -i, --url    | NA                                       | Specifies the path of stream file.             |
+| -w, --width  | 1920                                     | Specifies the width of decoded YUV image.      |
+| -h, --height | 1080                                     | Specifies the height of decoded YUV image      |
+| --codec      | h265                                     | Specifies the payload type                     |
+| --loop       | 0                                        | 1: loop to transcode until CTRL+C   0: no loop |
+| --dump       |                                          | Specifies the dump file path                   |
+| --hwclk      | 2 (400M)                                 | Set the clock of VDEC in MHz                   |
+| --ut         |                                          | Internal used                                  |
+
+:::{tip}
+
+```bash
+$ axcl_sample_transcode --help
+axcl_sample_transcode: error while loading shared libraries: libavcodec.so.61: cannot open shared object file: No such file or directory
+
+$ export LD_LIBRARY_PATH=/usr/lib/axcl/ffmpeg:$LD_LIBRARY_PATH
+```
+
+  If above error,  please set enviroment by `export LD_LIBRARY_PATH=/usr/lib/axcl/ffmpeg:$LD_LIBRARY_PATH`  first.
 
 :::
 
+
+
+#### example
+
+Transcode input 1080P@30fps 264 to 1080P@30fps 265, save into `/tmp/axcl/transcode.dump.pidxxx` file.
+
+```bash
+$ axcl_sample_transcode -i bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4 -d 0 --dump /tmp/axcl/transcode.265
+[INFO ][                            main][  67]: ============== V3.5.0_20250515190238 sample started May 15 2025 19:29:29 pid 91189 ==============
+
+[WARN ][                            main][  92]: if enable dump, disable loop automatically
+json file
+[INFO ][                            main][ 131]: pid: 91189, device index: 0, bus number: 3
+[INFO ][             ffmpeg_init_demuxer][ 439]: [91189] url: bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4
+[INFO ][             ffmpeg_init_demuxer][ 502]: [91189] url bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4: codec 96, 1920x1080, fps 30
+[INFO ][         ffmpeg_set_demuxer_attr][ 571]: [91189] set ffmpeg.demux.file.frc to 1
+[INFO ][         ffmpeg_set_demuxer_attr][ 574]: [91189] set ffmpeg.demux.file.loop to 0
+[INFO ][                            main][ 195]: pid 91189: [vdec 00] - [ivps -1] - [venc 00]
+[INFO ][                            main][ 213]: pid 91189: VDEC attr ==> blk cnt: 8, fifo depth: out 4
+[INFO ][                            main][ 214]: pid 91189: IVPS attr ==> blk cnt: 5, fifo depth: in 4, out 0, engine 1
+[INFO ][                            main][ 216]: pid 91189: VENC attr ==> fifo depth: in 4, out 4
+[INFO ][          ffmpeg_dispatch_thread][ 189]: [91189] +++
+[INFO ][             ffmpeg_demux_thread][ 295]: [91189] +++
+[INFO ][             ffmpeg_demux_thread][ 328]: [91189] reach eof
+[INFO ][             ffmpeg_demux_thread][ 435]: [91189] demuxed    total 470 frames ---
+[INFO ][          ffmpeg_dispatch_thread][ 272]: [91189] dispatched total 470 frames ---
+[INFO ][                            main][ 247]: ffmpeg (pid 91189) demux eof
+[2025-05-20 22:49:08.834][91195][W][axclite-venc-dispatch][dispatch_thread][44]: no stream in veChn 0 fifo
+[INFO ][                            main][ 283]: total transcoded frames: 470
+[INFO ][                            main][ 284]: ============== V3.5.0_20250515190238 sample exited May 15 2025 19:29:29 pid 91189 ==============
+```
+
+
+
+**launch_transcode.sh** supports to launch multi.(max. 16) axcl_sample_transcode and configure LD_LIBRARY_PATH automatically.
+
+```bash
+$ ./launch_transcode.sh 16 -i bangkok_30952_1920x1080_30fps_gop60_4Mbps.mp4  -d 3 --dump /tmp/axcl/transcode.265
+```
+
+>The 1st argument must be the number of *axcl_sample_transcode* processes. range: [1, 16]
