@@ -1,4 +1,4 @@
-# AXCL SMI
+# AXCL-SMI
 
 ## 概述
 
@@ -11,6 +11,8 @@ AXCL-SMI (System Management Interface) 工具用于设备信息收集，对设�
 - 内存使用情况
 - 设备芯片结温
 - 其他信息
+
+
 
 ## 使用说明
 
@@ -40,18 +42,20 @@ $ axcl-smi
 
 **字段说明**
 
-| 字段             | 说明                           | 字段         | 说明                 |
-| ---------------- | ------------------------------ | ------------ | -------------------- |
-| Card             | 设备编号，注意不是PCIe的设备号 | Bus-Id       | 设备Bus ID           |
-| Name             | 设备名称                       | CPU          | CPU平均利用率        |
-| Fan              | 风扇转速比（未支持）           | NPU          | NPU平均利用率        |
-| Temp             | 设备芯片结温                   | Memory-Usage | 系统内存： 使用/总量 |
-| Firmware         | 设备固件版本号                 | CMM-Usage    | 媒体内存： 使用/总量 |
-| Pwr: Usage/Cap   | 功耗（未支持）                 |              |                      |
-|                  |                                |              |                      |
-| PID              | 主控进程PID                    |              |                      |
-| Process Name     | 主控进程                       |              |                      |
-| NPU Memory Usage | 设备NPI已使用的CMM内存         |              |                      |
+| 字段             | 说明                               | 字段         | 说明                 |
+| ---------------- | ---------------------------------- | ------------ | -------------------- |
+| Card             | 设备索引编号，注意不是PCIe的设备号 | Bus-Id       | 设备Bus ID           |
+| Name             | 设备名称                           | CPU          | CPU平均利用率        |
+| Fan              | 风扇转速比（未支持）               | NPU          | NPU平均利用率        |
+| Temp             | 设备芯片结温Tj                     | Memory-Usage | 系统内存： 使用/总量 |
+| Firmware         | 设备固件版本号                     | CMM-Usage    | 媒体内存： 使用/总量 |
+| Pwr: Usage/Cap   | 功耗（未支持）                     |              |                      |
+|                  |                                    |              |                      |
+| PID              | 主控进程PID                        |              |                      |
+| Process Name     | 主控进程名称                       |              |                      |
+| NPU Memory Usage | 设备NPU已使用的CMM内存             |              |                      |
+
+
 
 ### 帮助 (-h) 和版本 (-v)
 
@@ -101,6 +105,8 @@ $ axcl-smi -v
 AXCL-SMI V2.26.1 BUILD: Feb 13 2025 11:08:47
 ```
 
+
+
 ### 选项
 
 #### 设备号 (-d, --device)
@@ -117,6 +123,8 @@ AXCL-SMI V2.26.1 BUILD: Feb 13 2025 11:08:47
 - SDK V2.26.0（含）以后的版本设备ID指的是设备索引号。
 
 :::
+
+
 
 ### 信息查询（info）
 
@@ -205,12 +213,12 @@ $ axcl-smi log -d 0
 
 `axcl-smi sh` 支持shell命令查询设备信息，通常用于查询设备侧模块的运行proc信息，**示例**：查询索引号为0号的设备CMM信息
 
-```
+```bash
 $ axcl-smi sh cat /proc/ax_proc/mem_cmm_info -d 0
 --------------------SDK VERSION-------------------
 [Axera version]: ax_cmm V2.26.0_20250211193319 Feb 11 2025 19:52:13 JK
 +---PARTITION: Phys(0x180000000, 0x23FFFFFFF), Size=3145728KB(3072MB),    NAME="anonymous"
- nBlock(Max=0, Cur=23, New=0, Free=0)  nbytes(Max=0B(0KB,0MB), Cur=19329024B(18876KB,18MB), New=0B(0KB,0MB), Free=0B(0KB,0MB))  Block(Max=0B(0KB,0MB), Min=0B(0KB,0MB), Avg=0B(0KB,0MB)) 
+ nBlock(Max=0, Cur=23, New=0, Free=0)  nbytes(Max=0B(0KB,0MB), Cur=19329024B(18876KB,18MB), New=0B(0KB,0MB), Free=0B(0KB,0MB))  Block(Max=0B(0KB,0MB), Min=0B(0KB,0MB), Avg=0B(0KB,0MB))
    |-Block: phys(0x180000000, 0x180013FFF), cache =non-cacheable, length=80KB(0MB),    name="TDP_DEV"
    |-Block: phys(0x180014000, 0x180014FFF), cache =non-cacheable, length=4KB(0MB),    name="TDP_CMODE3"
    |-Block: phys(0x180015000, 0x180015FFF), cache =non-cacheable, length=4KB(0MB),    name="TDP_CMODE3_CPU"
@@ -241,7 +249,7 @@ $ axcl-smi sh cat /proc/ax_proc/mem_cmm_info -d 0
 
 :::{Important}
 
-- shell命令参数如果包含`-`,`--`,`>`等字段，可以用双引号`"-l"`将命令和参数包含在一个字符串中，比如`axcl-smi sh "ls -l" -d 0` 
+- shell命令参数如果包含`-`,`--`,`>`等字段，可以用双引号`"-l"`将命令和参数包含在一个字符串中，比如`axcl-smi sh "ls -l" -d 0`
 - 谨慎使用shell命令对设备进行配置
 
 :::
@@ -253,8 +261,6 @@ $ axcl-smi sh cat /proc/ax_proc/mem_cmm_info -d 0
 `axcl-smi reboot` 命令首先复位指定设备，随后将自动加载固件，示例如下：
 
 ```bash
-# ./axcl-smi reboot -d 0
+$ axcl-smi reboot -d 0
 Do you want to reboot device 0 ? (y/n): y
-[1970-01-01 14:33:06.325][933][W][device manager][reboot_device][314]: reboot device 129 success
 ```
-

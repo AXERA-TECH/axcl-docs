@@ -1,12 +1,12 @@
-# AXCL API
+# SDK API
 
 ## 概览
 `AXCL API` 分为两部分，第一部分是 `Runtime API`，第二部分是 `Native API`。其中 `Runtime API` 是独立的 `API` 组合，目前仅包含用于内存管理的 `Memory` 和用于驱动 `爱芯通元(TM)` `NPU` 工作的 `Engine API`。当 `AXCL API` 被用于计算卡形态，不使用编解码功能时，只使用 `Runtime API` 即可完成全部计算任务。当需要使用编解码功能时，需要了解 `Native API` 及 `FFMPEG` 模块的有关内容。
 
-## Runtime API
+## runtime
 使用 `Runtime API` 可以在宿主系统上调用 `NPU` 完成计算功能，其中 `Memory API` 可以分别在宿主和计算卡上申请释放内存空间，`Engine API` 可以完成模型初始化、`IO` 设置到推理的全部 `NPU` 功能。
 
-### Runtime API
+### runtime
 (axclinit)=
 #### axclInit
 
@@ -310,7 +310,9 @@ axclError axclrtGetCurrentContext(axclrtContext *context);
 - 调用线程需要执行 [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext) 绑定或者 [`axclrtCreateContext`](#axclrtcreatecontext) 创建Context后才能获取。
 - 如果多次调用  [`axclrtSetCurrentContext`](#axclrtsetcurrentcontext) ，那么获取的是最后一次设置的Context。
 
-### Memory API
+
+
+### memory
 
 (axclrtmalloc)=
 #### axclrtMalloc
@@ -543,7 +545,8 @@ axclError axclrtMemcmp(const void *devPtr1, const void *devPtr2, size_t count);
 - 只支持设备侧内存的比较，且仅内存比较相同时返回AXCL_SUCC(0)。
 
 
-### Engine API
+
+### engine
 
 (axclrtengineinit)=
 #### axclrtEngineInit
@@ -1327,7 +1330,7 @@ axclError axclrtEngineExecuteAsync(uint64_t modelId, uint64_t contextId, uint32_
 
 
 
-## Native API
+## native
 
 - AXCL NATIVE模块支持SYS、VDEC、VENC、IVPS、DMADIM、ENGINE、IVE模块。
 
@@ -1392,7 +1395,7 @@ axclError axclrtEngineExecuteAsync(uint64_t modelId, uint64_t contextId, uint32_
 
 ## PPL
 
-### Architecture
+### architecture
 
 **libaxcl_ppl.so** is a highly integrated module that implements typical pipeline (PPL). The architecture diagram is as follows:
 
@@ -1415,9 +1418,8 @@ axclError axclrtEngineExecuteAsync(uint64_t modelId, uint64_t contextId, uint32_
 :::
 
 
-#### Supported PPLs
 
-##### transcode
+#### transcode
 
 ![](../res/transcode_ppl.png)
 
@@ -1574,7 +1576,7 @@ typedef struct {
 - **display_mode**
   - AX_VDEC_DISPLAY_MODE_PREVIEW:  preview mode which frame dropping is allowed typically for RTSP stream... etc.
   - AX_VDEC_DISPLAY_MODE_PLAYBACK: playback mode which frame dropping is not forbidden typically for local stream file.
-:::
+  :::
 
 ```c
 typedef struct {

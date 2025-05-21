@@ -1,4 +1,4 @@
-# AXCL FFMPEG
+# FFmpeg
 
 ## 环境准备
 
@@ -60,4 +60,3 @@ SDK FFmpeg基于7.1版本开发，并提供了编译后的so和ffmpeg bin文件�
      lib: axcl/out/axcl_linux_x86/lib/ffmpeg
      bin: axcl/out/axcl_linux_x86/bin/ffmpeg
      ```
-

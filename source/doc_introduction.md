@@ -1,10 +1,11 @@
-# AXCL 简介
+# 简介
 
 ## 概述
 
-AXCL 是用于在 [Axera](https://www.axera-tech.com/) 芯片平台上开发深度神经网络推理、转码等应用的 C、Python 语言 API 库，提供运行资源管理，内存管理，模型加载和执行，媒体数据处理等 API，其逻辑架构图如下图所示：
+AXCL 是用于在 [AXERA](https://www.axera-tech.com/) 芯片平台上开发深度神经网络推理、转码等应用的 C、Python 语言 API 库，提供运行资源管理，内存管理，模型加载和执行，媒体数据处理等 API，其逻辑架构图如下图所示：
 
 ![](../res/axcl_architecture.svg)
+
 
 
 ## 概念
@@ -21,10 +22,10 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 - Context：执行上下文容器，管理包括 Stream，内存等生命周期，Context 和应用线程绑定。Context 一定隶属于一个唯一的 Device。Context 分为隐式和显示两种：
   - 隐式 Context（即默认 Context）：
     - 调用 `axclrtSetDevice` 接口指定设备时，系统会创建一个隐式 Context，当 `axclrtResetDevice` 接口引用计数为零时隐式 Context 被自动销毁。
-    - 一个 Device 只会有有一个隐式 Context，隐式 Context 不能通过 `axclrtDestroyContext` 接口销毁。
+    - 一个 Device 只会有一个隐式 Context，隐式 Context 不能通过 `axclrtDestroyContext` 接口销毁。
   - 显示Context：
     - 调用 `axclrtCreateContext` 接口显示创建，调用 `axclrtDestroyContext` 接口销毁。
-    - 进程内的 Context 是共享的，可以通过 `axclrtSetCurrentContext` 进行切换。**推荐应用为每个线程中创建和销毁显示 Context **。
+    - 进程内的 Context 是共享的，可以通过 `axclrtSetCurrentContext` 进行切换。**推荐应用为每个线程中创建和销毁显示 Context**。
 - Stream：执行任务流，隶属于 Context，同一个 Stream 的任务执行保序。Stream 分为隐式和显示两种：
   - 隐式 Stream（即默认 Stream）：
     - 每个 Context 都会创建一个隐式 Stream，生命周期归属于 Context。
@@ -34,6 +35,8 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
     - 当显示 Stream 归属的 Context 被销毁或生命周期结束后，即使该 Stream 没有被销毁，亦不可使用。
 - Task：Device 任务执行实体，应用不可见。
 
+
+
 ## 应用线程和Context
 
 - 一个应用线程一定会绑定一个 Context，所有Device的任务都必须基于 Context。
@@ -42,3 +45,38 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 - 进程内支持通过 `axclrtSetCurrentContext` 绑定当前线程的 Context，连续多次调用 `axclrtSetCurrentContext`，最终绑定的是最后一次的 Context。
 - 多线程推荐为每个线程显示创建一个Context。
 - 推荐通过 `axclrtSetCurrentContext` 切换 Device。
+
+:::{tip}
+
+   SDK axcl/sample/runtime 提供了如何在线程中创建和销毁Context的示例代码。
+
+:::
+
+
+
+## 参考硬件
+
+### M.2 算力卡
+
+芯茧® 人工智能算力卡是 **深圳市云集互联生态科技有限公司** 推出的基于 **AXCL** 软件架构的 M.2 2280 计算卡。
+
+**产品图片**
+
+![M2_YUNJI_DSC05130](../res/M2_YUNJI_DSC05130.jpg)
+
+**产品规格**
+
+|              | 描述                                                    |
+| ------------ | ------------------------------------------------------- |
+| 处理器       | Octa-corre Cortex-A55@1.7GHz                            |
+| 内存         | 8GiB，64bit LPDDR4x                                     |
+| 存储         | 16MiB，Nor Flash                                        |
+| NPU          | 18TOPs@Int8，72TOPs@Int4                                |
+|              | 支持 CNN、Transformer 模型部署，支持 LLM、VLM 部署      |
+| 视频编码     | H.264/H.265，16路 1080@30fps 编码                       |
+| 视频解码     | H.264/H.265，32路 1080@30fps 解码                       |
+| Host 适配    | 支持 Intel、AMD、NXP、Xilinx、Raspberry Pi、Rockchip 等 |
+| Host 系统    | Ubuntu、Debian、CentOS、Kylin、UOS                      |
+| 外形尺寸     | M.2 2280，M Key                                         |
+| 工作电压     | 3.3 V                                                   |
+| 整体系统功耗 | ＜8 w                                                   |

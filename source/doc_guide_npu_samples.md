@@ -1,4 +1,4 @@
-# AXCL NPU 示例
+# NPU 示例
 
 ## NPU 工具链
 
@@ -22,7 +22,7 @@ AXCL-Samples 由 爱芯元智 主导开发。该项目实现了常见的深度�
 ### 获取示例
 
 - AXCL-Samples 的预编译 ModelZoo 请参考
-  - [百度网盘](https://pan.baidu.com/s/1MAAKElTI2wgiDehvd2Q1lA?pwd=p1k6)
+  - [百度网盘](https://pan.baidu.com/s/1cnMeqsD-hErlRZlBDDvuoA?pwd=oey4)
 
 ### YOLO11x
 
@@ -169,7 +169,6 @@ Repeat 1 times, avg time 44.02 ms, max_time 44.02 ms, min_time 44.02 ms
 
 - 模型转请参考[大模型编译文档](https://pulsar2-docs.readthedocs.io/zh-cn/latest/appendix/build_llm.html)
 - 预编译 ModelZoo-LLM 请参考[百度网盘](https://pan.baidu.com/s/1grJNjcpUln-fDBisJxuvCA?pwd=mys8)
-- 上板执行程序 main_pcie 请参考[ax-llm pcie 分支](https://github.com/AXERA-TECH/ax-llm/tree/axcl-llm-prefill)
 
 ### Tokenizer 解析器
 
