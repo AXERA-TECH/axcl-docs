@@ -117,7 +117,7 @@ SDK已测试过的支持的主控如下表所示：
 | RK3588                              | ARM64                        | axcl_host_aarch64_Vxxx.deb                                   |
 | [RaspberryPi5](#setup_raspberrypi5) | ARM64                        | axcl_host_aarch64_Vxxx.deb                                   |
 | OpenEuler                           | INTEL、AMD64                 | axcl_host_x86_64_Vxxx.rpm                                    |
-| ubuntu 18.04/22.04                  | INTEL、AMD64                 | axcl_host_aarch64_Vxxx.deb                                   |
+| ubuntu 18.04/22.04                  | INTEL、AMD64                 | axcl_host_x86_64_Vxxx.deb                                   |
 
 
 
