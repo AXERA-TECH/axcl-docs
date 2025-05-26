@@ -56,7 +56,7 @@
     ```bash
     $ sudo vi /etc/default/grub
     GRUB_CMDLINE_LINUX="quiet splash iommu=pt"
-    
+
     $ sudo update-grub
     $ sudo reboot
     ```
@@ -102,6 +102,22 @@
 $ sudo mokutil --sb-state
 SecureBoot disabled
 ```
+
+
+
+## 支持列表
+
+SDK已测试过的支持的主控如下表所示：
+
+| 主控                                | 芯片                         | 安装包                                                       |
+| ----------------------------------- | ---------------------------- | ------------------------------------------------------------ |
+| CentOS 9 stream                     | INTEL、AMD64                 | axcl_host_x86_64_Vxxx.rpm                                    |
+| Kylin V10 SP1                       | INTEL、AMD64、Phytium(ARM64) | **x86_64**: axcl_host_x86_64_Vxxx.deb<br />**arm64**:  axcl_host_aarch64_Vxxx.deb |
+| [UOS](#setup_uos)                   | INTEL、AMD64                 | axcl_host_x86_64_Vxxx.deb                                    |
+| RK3588                              | ARM64                        | axcl_host_aarch64_Vxxx.deb                                   |
+| [RaspberryPi5](#setup_raspberrypi5) | ARM64                        | axcl_host_aarch64_Vxxx.deb                                   |
+| OpenEuler                           | INTEL、AMD64                 | axcl_host_x86_64_Vxxx.rpm                                    |
+| ubuntu 18.04/22.04                  | INTEL、AMD64                 | axcl_host_aarch64_Vxxx.deb                                   |
 
 
 
@@ -286,6 +302,8 @@ $ axcl-smi
 ```
 
 
+
+(setup_raspberrypi5)=
 
 ### Raspberry Pi 5
 
@@ -479,6 +497,8 @@ SDK V3.4.0 以前的版本，请执行`dpkg -r axclhost`卸载
 :::
 
 
+
+(setup_uos)=
 
 ### UOS
 

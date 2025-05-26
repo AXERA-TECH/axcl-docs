@@ -436,6 +436,43 @@ $ echo 1 >/proc/ax_proc/pcie/sysdump/debug
 :::
 
 
+
+### 设备信息
+
+(faq_device_ddr_bw)=
+
+#### DDR带宽
+
+SDK V3.6.1（含）后续版本支持通过axcl-smi抓取设备DDR带宽，操作步骤如下：
+
+```bash
+$ axcl-smi sh "insmod /soc/ko/ax_perf_monitor.ko && sleep 1 && cat /proc/ax_proc/bw/bw && rmmod ax_perf_monitor" -d 0
+```
+
+
+
+(faq_device_npu_tilization)=
+
+#### NPU利用率
+
+- **axcl-smi** 可以查询NPU的平均利用率
+
+- 如需要获取更详细的npu各个核的利用率，操作步骤如下：
+
+  ```bash
+  $ axcl-smi sh "cat /proc/ax_proc/npu/top" -d 0
+  $ axcl-smi sh "cat /proc/ax_proc/npu/top_sum" -d 0
+  ```
+
+:::{note}
+
+  如果NPU空闲状态，设备将返回 `nputop info is empty!` 或者 `nputop info not updated over xxx ms!`
+
+:::
+
+
+
+
 (faq_axcl_json)=
 ### axcl.json
 

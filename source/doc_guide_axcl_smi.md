@@ -55,6 +55,12 @@ $ axcl-smi
 | Process Name     | 主控进程名称                       |              |                      |
 | NPU Memory Usage | 设备NPU已使用的CMM内存             |              |                      |
 
+:::{note}
+
+参阅FAQ [DDR带宽](#faq_device_ddr_bw) 和 [NPU利用率](#faq_device_npu_tilization) 章节了解获取详细的DDR和NPU利用率。
+
+:::
+
 
 
 ### 帮助 (-h) 和版本 (-v)

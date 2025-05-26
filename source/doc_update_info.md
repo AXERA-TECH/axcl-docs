@@ -7,3 +7,4 @@
 | V0.0.1 | 2024-11-06 | Initial |
 | V3.0.2 | 2025-05-08 | Update to SDK_V3.0.2 |
 | V3.6.0 | 2025-05-21 | Update to SDK_V3.6.0 |
+| V3.6.1 | 2025-05-26 | Update to SDK_V3.6.1 |
