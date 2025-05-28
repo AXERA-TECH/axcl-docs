@@ -15,12 +15,17 @@ AX650N 最大支持PCIe 2.0 x2。
 | 5.0  | 128/130b | 32.0 GT/s | 4 GB/s       | 8 GB/s     | 16 GB/s | 32 GB/s | 64 GB/s |
 
 
-
+(faq_lspci_description)=
 ### 查询设备
 
 **lspci**是一个用于Linux系统的命令行工具，它能够显示系统中所有PCI总线以及连接到这些总线的设备信息。通过 lspci ，用户可以获取设备的详细信息，包括设备的厂商ID、设备ID、设备类、设备驱动程序以及设备的配置空间信息等。
 
 > AXERA PCIe Vendor ID： 0x1F4B， AX650默认的Device ID：0x0650
+
+```bash
+$ lspci
+0000:01:00.0 Multimedia video controller: Axera Semiconductor Co., Ltd Device 0650 (rev 01)
+```
 
 
 
