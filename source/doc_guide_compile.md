@@ -10,7 +10,7 @@
 
 - PC： 推荐 ubuntu-22.04.1
 - gcc version 9.2.1 20191025
-- SDK开发包，比如：AX650_SDK_V2.23.1_20250111130155_NO4565.tgz
+- SDK开发包,即：AX650_SDK_Vx.xx.xx.tgz, 比如:AX650_SDK_V3.6.2_20250603154858_NO4873.tgz
 
 :::{tip}
 关于工具链的下载、安装和配置请参考<<AX SDK 使用说明.docx>>
