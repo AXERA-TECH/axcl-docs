@@ -56,7 +56,7 @@
     ```bash
     $ sudo vi /etc/default/grub
     GRUB_CMDLINE_LINUX="quiet splash iommu=pt"
-
+    
     $ sudo update-grub
     $ sudo reboot
     ```
@@ -125,7 +125,7 @@ SDK已测试过的支持的主控如下表所示：
 
 ### PCIe设备
 
-- PCIe设备（比如[芯茧 M.2](#m2_card_xinjian)或者板卡）会内置一个 FLASH（通常是NOR)，FLASH内需要预先烧写SPL镜像，该镜像用于PCIe boot。
+- PCIe设备（比如[芯茧 M.2](#m2_card_xinjian)或者板卡）会内置一个 FLASH（通常是NOR)，FLASH内需要预先[烧写SPL镜像](#spl_download)，该镜像用于PCIe boot。
 - 将PCIe设备接入主控，**lspci**确认是否能识别到设备，参阅[FAQ 如何查询设备章节](#faq_lspci_description)
 
 
