@@ -1,5 +1,33 @@
 # 常见问题
 
+(spl_download)=
+## SPL烧录
+
+::: {note}
+
+本章节适用于PCIe EP设备开发厂商，若购买的是商用产品（比如[芯茧® 人工智能算力卡](#m2_card_xinjian)），因为产品FLASH中已经由厂商预置了SPL，故不需要此步骤。
+
+:::
+
+EP设备的FLASH中需要预置SPL程序。当EP上电后，芯片ROM会首先加载并运行FLASH中的SPL程序。SPL执行以下关键初始化流程：
+
+1. 初始化 DDR
+2. PCIe EP模式配置
+   - 配置EP配置空间（Type 0 Header）
+   - 配置BAR空间和地址映射
+   - 初始化和使能LTSSM（Link Training and Status State Machine）
+3. 和RC端建链和速率协商。
+
+若FLASH没有烧录SPL程序，请参考如下步骤：
+
+1. 按照实际硬件物料配置SPL，特别是DDR参数。
+2. 按照[SDK编译](#sdk_compile)编译出 **AX650_card_Vxxx.axp**，比如*AX650_card_V3.6.2_20250603154858_20250604212603.axp*。
+3. 使用Windows烧录工具**AXDL**烧写这个axp镜像。
+
+
+
+
+
 ## PCIe
 
 ### 理论带宽
@@ -26,6 +54,16 @@ AX650N 最大支持PCIe 2.0 x2。
 $ lspci
 0000:01:00.0 Multimedia video controller: Axera Semiconductor Co., Ltd Device 0650 (rev 01)
 ```
+
+::: {important}
+
+EP设备FLASH内预置了SPL程序，当EP上电后，SPL将初始化DDR，初始化PCIe配置空间，使能LTSSM状态机，因此若主控**lspci**无法找到EP设备，请确认：
+
+1. FLASH中是否有烧录过SPL程序？若没有，按照[SPL烧录](#spl_download)章节描述编译和烧录SPL。
+2. 将EP设备连接到主控后重启主控。
+3. 上述步骤仍然不能识别设备，可尝试更换PCIe插槽重启尝试，仍然无法识别，需要检查金手指以及联系硬件工程师排查（如测量PCIe时钟等）。
+
+:::
 
 
 
@@ -806,11 +844,11 @@ tools/mkaxp/AX650X_card_pac.xml：
       u32 sata2_spdmode = 0x2;
       u32 sata3_spdmode = 0x2;
       int ref_clk_en = 0;
-
+  
   #ifdef PCIE_SATA_CFG_VIA_BOARDID
       u32 adc_data;
       board_type_t board_id = get_board_id();
-
+  
       //for RD dailybuild test
       adc_read_boardid(2,&adc_data);
       switch (board_id) {
@@ -863,12 +901,12 @@ tools/mkaxp/AX650X_card_pac.xml：
           [AX650N_CUSTOM_BOARD5] = "AX650N_CUSTOM_BOARD5",
           [AX650N_PCIE] = "AX650N_PCIE",
       };
-
+  
       if (AX650C_CHIP == ax_get_chip_type()) {
           board_name[AX650N_Demo] = "AX650C_Demo";
           board_name[AX650N_PCIE] = "AX650C_PCIE";
       }
-
+  
       if (id >= 0 && id < AX650_BOARD_MAX) {
           return board_name[id];
       } else {

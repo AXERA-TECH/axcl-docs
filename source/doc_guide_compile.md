@@ -1,3 +1,4 @@
+(sdk_compile)=
 # SDK 编译
 
 ## 概述
