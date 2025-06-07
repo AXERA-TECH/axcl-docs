@@ -237,14 +237,48 @@ f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 ```
 
 
+(faq-comm-fatal)=
+### 通信异常
 
-### 掉卡
+如果主控和PCIe设备通信异常，比如：
 
-常见的设备掉卡有如下几种情况：
+```bash
+[2025-06-06 09:43:55.891][8779][E][channel][send][166]: send 2807 bytes, but 0 bytes sent
+[2025-06-06 09:43:55.891][8804][E][pcie][send_data_by_dma][341]: [1-21] recv dma size 614400 is not equal to 9743
+[2025-06-06 09:43:55.891][8804][E][channel][send][166]: send 9743 bytes, but 0 bytes sent
+```
+
+如果发生通信异常，建议按照如下步骤排查是否PCIe设备异常导致的通信异常：
+
+1. 检查主控的dmesg日志，查看是否有设备`dead`日志，比如：` [heartbeat_recv_thread, 578]: device 4: dead!`。
+
+2. `sudo lspci -s BDF -vvv` 查看PCIe链路是否断开，如下所示Region 0、Region 1和Region 4的状态是**[virtual]**
+
+   ```bash
+   $ sudo lspci -s 03:00.0 -vvv
+   03:00.0 Multimedia video controller: Axera Semiconductor Co., Ltd Device 0650 (rev 01)
+           Subsystem: Axera Semiconductor Co., Ltd Device 0650
+           Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+           Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+           Interrupt: pin A routed to IRQ 87
+           NUMA node: 0
+           Region 0: Memory at e0800000 (32-bit, non-prefetchable) [virtual] [size=8M]
+           Region 1: Memory at e1100000 (32-bit, non-prefetchable) [virtual] [size=64K]
+           Region 4: Memory at e1000000 (64-bit, non-prefetchable) [virtual] [size=1M]
+   ```
+
+| 设备无心跳 dead | PCIe链路断开 | 可能的原因                                                   | 解决方法         |
+| --------------- | ------------ | ------------------------------------------------------------ | ---------------- |
+| ✅               |              | -  设备核心应用(slave_daemon) 崩溃（比如coredump）           | 子卡接入串口分析 |
+| ✅               | ✅            | - 主控系统休眠<br />- PCIe switch或者EP过温<br />- 设备系统崩溃（panic) | 下面章节描述     |
+
+
 
 #### 主控系统休眠
 
 AX650N不支持ASPM，因此**HOST需要关闭休眠**功能，否则会导致设备掉卡。
+
+从主控dmesg的日志中可以看到系统进入了休眠模式。
 
 ```bash
 [ 2065.530453] [heartbeat_recv_thread, 578]: device 4: dead!
@@ -276,7 +310,23 @@ AX650N不支持ASPM，因此**HOST需要关闭休眠**功能，否则会导致�
 
 #### 过温
 
-设备硬件复位温度阈值是Tj **120**度，当工作温度超过设备或switch的Tj复位温度，也会导致复位掉卡。
+AX650 设备硬件复位温度阈值是Tj **120**度，当工作温度超过设备或switch的Tj复位温度，都会导致复位掉卡。
+
+::: {note}
+
+PCIe板卡通常会用switch芯片进行多个EP设备桥接，如果PCIe板卡被动散热硬件设计不良，且超过了switch芯片结温Tj，也会导致板卡整体复位。
+
+请查阅switch芯片文档了解switch芯片的工作结温Tj。
+
+:::
+
+
+
+#### 系统崩溃
+
+参阅[sysdump章节](#faq-sysdump)抓取sysdump提供研发工程师分析。
+
+
 
 
 
@@ -402,7 +452,7 @@ $ gcc -v  # 应显示 "gcc (GCC) 9.4.0"
 
 ### 设备日志
 
-**axcl-smi** 工具支持将设备侧的日志（内核、syslog和runtime log）抓取到HOST本地，使用方法如下：
+[**axcl-smi**](#doc-axcl-smi) 工具支持将设备侧的日志（内核、syslog和runtime log）抓取到HOST本地，使用方法如下：
 
 ```bash
 $ axcl-smi --help
@@ -424,57 +474,57 @@ $ axcl-smi log -d 0
 ```
 
 
-
+(faq-sysdump)=
 ### sysdump
 
-当设备系统panic时候，HOST 驱动支持dump设备侧DDR用于调试分析。在HOST `/proc/ax_proc/pcie/sysdump`提供如下节点控制和配置sysdump，分别是
+当[设备系统崩溃(panic)](#faq-comm-fatal)时，HOST 驱动支持dump设备侧DDR用于调试分析。在HOST `/proc/ax_proc/pcie/sysdump`提供如下节点控制和配置sysdump，分别是
 
 | #    | 节点                             | 默认值     | 说明                                                         |
 | ---- | -------------------------------- | ---------- | ------------------------------------------------------------ |
 | 1    | /proc/ax_proc/pcie/sysdump/debug | 0          | 1：使能sysdump  0: 不使能<br />`echo 1 > /proc/ax_proc/pcie/sysdump/debug` |
 | 2    | /proc/ax_proc/pcie/sysdump/path  | /opt       | 指定存放dump文件路径<br />`echo -n /mnt > /proc/ax_proc/pcie/sysdump/path`<br /> **-n** : 去除echo自动带的 `/n`；<br />保证路径目录有足够大的空间存储 dump 文件，否则部分数据丢失) |
-| 3    | /proc/ax_proc/pcie/sysdump/size  | 1073741824 | 指定dump的DDR大小，默认1MB。size为10进制。                   |
-
-#### 时间戳
-
-在 sysdump 后，sysdump 文件名时间戳可能不对，需要进行以下设置:
-
-- 确认 RTC 是否设置为本地时区：
-
-  使用以下命令检查 RTC 是否设置为本地时区：`timedatectl | grep RTC`
-
-- 将 RTC 设置为本地时区：
-
-  使用以下命令将 RTC 设置为本地时区：`sudo timedatectl set-local-rtc 1`
-
-- 同步系统时间到 RTC：
-
-  如果需要，您可以将系统时间同步到 RTC：`sudo hwclock --systohc`
+| 3    | /proc/ax_proc/pcie/sysdump/size  | 1073741824 | 指定dump的DDR大小，默认1GB。size为10进制，**不推荐修改**。   |
 
 
 
 #### 操作步骤
 
-1. 当设备异常重启时，host 侧手动卸载 axcl_host.ko：
-   - arm64 : `rmmod axcl_host`
-   - ​     x86 : `modprobe -r axcl_host`
-2. 使能sysdump，配置dump路径和大小：
+> [操作视频](https://github.com/AXERA-TECH/axcl-docs/tree/main/res/sysdump.mp4)
+
+1. 保持设备状态不掉电，强杀（如：`killall -9`）主控应用进程。
+2. `sudo su` 切换到root用户。
+3. 手动卸载主控 **axcl_host** 驱动： `modprobe -r axcl_host` 或 `rmmod axcl_host` 
+4. 使能sysdump，配置dump路径：
 
 ```bash
-$ echo 1 >/proc/ax_proc/pcie/sysdump/debug
+$ echo 1 > /proc/ax_proc/pcie/sysdump/debug
+$ echo -n /mnt > /proc/ax_proc/pcie/sysdump/path
 ```
 
-3. 加载 axcl_host.ko，驱动将自动开始dump panic的设备，并重新加载固件。
-
-   - arm64 : `insmod /soc/ko/axcl_host.ko`
-
-   - ​     x86 :  `modprobe axcl_host`
+5. 重新加载主控 **axcl_host** 驱动： `modprobe axcl_host` 或 `insmod axcl_host.ko` 驱动加载过程中，自动开始dump panic的设备，并重新加载设备固件。
+6. 将sysdump文件和**该固件版本对应的vmlinux文件**提供给技术支持工
 
 :::{important}
 
 - 以上操作卸载驱动，会**复位所有设备**，并且驱动会拉启所有设备，并dump 有异常的设备。
+
 - 如果在业务执行过程中，某个设备异常重启了，如只需dump 异常设备数据，需要在应用代码中(`axclrtRebootDevice`) 启动指定异常设备，这个过程只会单独dump这张异常设备数据，不会影响其它正常设备的运行。
+
 - 应用代码调用`axclrtRebootDevice`也需要配置`/proc/ax_proc/pcie/sysdump`。
+
+- 时间戳：在 sysdump 后，sysdump 文件名时间戳可能不对，需要进行以下设置（**此步骤不影响dump的数据内容，非必须**）:
+
+  - 确认 RTC 是否设置为本地时区：
+
+    使用以下命令检查 RTC 是否设置为本地时区：`timedatectl | grep RTC`
+
+  - 将 RTC 设置为本地时区：
+
+    使用以下命令将 RTC 设置为本地时区：`sudo timedatectl set-local-rtc 1`
+
+  - 同步系统时间到 RTC：
+
+    如果需要，您可以将系统时间同步到 RTC：`sudo hwclock --systohc`
 
 :::
 
