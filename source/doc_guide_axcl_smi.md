@@ -1,3 +1,4 @@
+(doc-axcl-smi)=
 # AXCL-SMI
 
 ## 概述

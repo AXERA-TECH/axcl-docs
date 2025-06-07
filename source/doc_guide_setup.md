@@ -56,7 +56,7 @@
     ```bash
     $ sudo vi /etc/default/grub
     GRUB_CMDLINE_LINUX="quiet splash iommu=pt"
-    
+
     $ sudo update-grub
     $ sudo reboot
     ```
