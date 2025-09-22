@@ -85,7 +85,7 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 
 **产品图片**
 
-![](../res/AX-M1.png)
+![](../res/LLM8850.png)
 
 **产品规格**
 
