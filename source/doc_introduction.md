@@ -57,12 +57,12 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 
 ### AX-M1
 
-瑞莎智核 AX-M1 是一款基于爱芯元智公司 AX8850 SoC 推出的高性能 M.2 加速模组，具有高算力、高能效比等特性，专为边缘智能计算与 AI 推理应用打造。
+[瑞莎智核 AX-M1](https://docs.radxa.com/aicore/ax-m1) 是一款基于爱芯元智公司 AX8850 SoC 推出的高性能 M.2 加速模组，具有高算力、高能效比等特性，专为边缘智能计算与 AI 推理应用打造。
 集成多核高性能 CPU 和高算力 NPU，具备卓越的多媒体处理能力，为各类边缘 AI 场景提供高效、灵活的硬件支撑。
 
 **产品图片**
 
-![M2_YUNJI_DSC05130](../res/AX-M1.png)
+![](../res/AX-M1.png)
 
 **产品规格**
 
@@ -76,5 +76,28 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 | 硬件适配	     | 支持 Intel、AMD、Rockchip 等主机平台                    |
 | 系统适配	     | 支持 Ubuntu、Debian、CentOS 等主流 Linux 发行版         |
 | 外形尺寸     | M.2 2280，M Key                                         |
+| 工作电压     | 3.3 V                                                   |
+| 系统功耗	    | ≤ 8W                                                   |
+
+### LLM-8850
+
+[M5Stack LLM‑8850 Card](https://docs.m5stack.com/zh_CN/guide/ai_accelerator/overview) 是 M5Stack 的一款面向边缘设备的 M.2 M‑Key 2242 AI 加速卡。
+
+**产品图片**
+
+![](../res/AX-M1.png)
+
+**产品规格**
+
+|              | 描述                                                    |
+| ------------ | ------------------------------------------------------- |
+| CPU       | 八核 Cortex-A55，主频高达 1.5GHz                            |
+| 内存         | 8GB LPDDR4x                                             |
+| NPU         | 24TOPS@INT8；支持矩阵运算单元和智能视觉引擎                 |
+|              | 支持 CNN、Transformer 模型部署，支持 LLM、VLM 部署      |
+| VPU        | 支持 H.264/H.265 8K@30fps编解码和 16 路 1080p@30fps 解码  |
+| 硬件适配	     | 支持 Intel、AMD、Rockchip 等主机平台                    |
+| 系统适配	     | 支持 Ubuntu、Debian、CentOS 等主流 Linux 发行版         |
+| 外形尺寸     | M.2 2242，M Key                                         |
 | 工作电压     | 3.3 V                                                   |
 | 系统功耗	    | ≤ 8W                                                   |
