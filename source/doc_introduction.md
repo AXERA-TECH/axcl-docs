@@ -62,7 +62,7 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 
 **产品图片**
 
-![M2_YUNJI_DSC05130](../res/M2_YUNJI_DSC05130.jpg)
+![M2_YUNJI_DSC05130](../res/AX-M1.png)
 
 **产品规格**
 
