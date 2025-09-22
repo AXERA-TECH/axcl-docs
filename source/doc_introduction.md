@@ -53,14 +53,12 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 :::
 
 
-
 ## 参考硬件
 
+### AX-M1
 
-(m2_card_xinjian)=
-### M.2 算力卡
-
-芯茧® 人工智能算力卡是 **深圳市云集互联生态科技有限公司** 推出的基于 **AXCL** 软件架构的 M.2 2280 计算卡。
+瑞莎智核 AX-M1 是一款基于爱芯元智公司 AX8850 SoC 推出的高性能 M.2 加速模组，具有高算力、高能效比等特性，专为边缘智能计算与 AI 推理应用打造。
+集成多核高性能 CPU 和高算力 NPU，具备卓越的多媒体处理能力，为各类边缘 AI 场景提供高效、灵活的硬件支撑。
 
 **产品图片**
 
@@ -70,15 +68,14 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 
 |              | 描述                                                    |
 | ------------ | ------------------------------------------------------- |
-| 处理器       | Octa-corre Cortex-A55@1.7GHz                            |
-| 内存         | 8GiB，64bit LPDDR4x                                     |
-| 存储         | 16MiB，Nor Flash                                        |
-| NPU          | 18TOPs@Int8，72TOPs@Int4                                |
+| CPU       | 八核 Cortex-A55，主频高达 1.5GHz                            |
+| 内存         | 8GB LPDDR4x                                             |
+| NPU         | 24TOPS@INT8；支持矩阵运算单元和智能视觉引擎                 |
 |              | 支持 CNN、Transformer 模型部署，支持 LLM、VLM 部署      |
-| 视频编码     | H.264/H.265，16路 1080@30fps 编码                       |
+| VPU        | 支持 H.264/H.265 8K@30fps编解码和 16 路 1080p@30fps 解码  |
 | 视频解码     | H.264/H.265，32路 1080@30fps 解码                       |
-| Host 适配    | 支持 Intel、AMD、NXP、Xilinx、Raspberry Pi、Rockchip 等 |
-| Host 系统    | Ubuntu、Debian、CentOS、Kylin、UOS                      |
+| 硬件适配	     | 支持 Intel、AMD、Rockchip 等主机平台                    |
+| 系统适配	     | 支持 Ubuntu、Debian、CentOS 等主流 Linux 发行版         |
 | 外形尺寸     | M.2 2280，M Key                                         |
 | 工作电压     | 3.3 V                                                   |
-| 整体系统功耗 | ＜8 w                                                   |
+| 系统功耗	    | ≤ 8W                                                   |
