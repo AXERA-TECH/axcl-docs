@@ -73,7 +73,6 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 | NPU         | 24TOPS@INT8；支持矩阵运算单元和智能视觉引擎                 |
 |              | 支持 CNN、Transformer 模型部署，支持 LLM、VLM 部署      |
 | VPU        | 支持 H.264/H.265 8K@30fps编解码和 16 路 1080p@30fps 解码  |
-| 视频解码     | H.264/H.265，32路 1080@30fps 解码                       |
 | 硬件适配	     | 支持 Intel、AMD、Rockchip 等主机平台                    |
 | 系统适配	     | 支持 Ubuntu、Debian、CentOS 等主流 Linux 发行版         |
 | 外形尺寸     | M.2 2280，M Key                                         |
