@@ -12,6 +12,7 @@
 :::{note}
 
 - **Win+R**，输入**winver**，可以查询当前的Windows版本信息。
+- 仅支持Win10 64位和Win11 64位系统。
 - **Win+I** 打开**设置** > **更新和安全** > **Windows更新**，自动更新Windows版本，Window10推荐用 [微软更新助手](https://www.microsoft.com/zh-cn/software-download/windows10) 更新到22H2版本。
 
 :::
@@ -259,6 +260,8 @@ axcl
 
 
 ## 辅助工具
+
+> [Windows工具包](https://hf-mirror.com/AXERA-TECH/testdata-boxdemo/resolve/main/windows%20develop%20kits.zip)
 
 1. Windows **lspci** : [pciutils-3.5.5-win64.zip](https://wiki.aixin-chip.com/download/attachments/220464657/pciutils-3.5.5-win64.zip?version=1&modificationDate=1758526243666&api=v2) (需管理员权限执行)
 
