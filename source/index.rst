@@ -24,3 +24,4 @@ AXCL
   doc_guide_compile.md
   doc_guide_ffmpeg.md
   doc_guide_faq.md
+  doc_guide_win_setup.md
