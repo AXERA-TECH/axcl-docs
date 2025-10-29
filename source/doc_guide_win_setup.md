@@ -28,6 +28,8 @@
 
 ## 安装
 
+> 安装和卸载都需要管理员权限，如果系统已经安装AXCL旧版本，请先卸！
+
 1. Windows发布包 `axcl_win64_setup_Vx.x.x_yyyymmdd_NOxxxx.exe` 会自动安装驱动、动态链接库（含导入库）、可执行程序(比如axcl-smi.exe等)和sample示例源码，**管理员权限**运行发布包，按照提示安装即可。
 2. 安装完之后请**重启系统**。
 3. 重启后**Win+R**，输入**devmgmt.msc** ，打开**设备管理器**，在**系统设备**中应能发现**Axera NPU Accelerator Device**设备，如下图所示。
@@ -37,6 +39,9 @@
 5. 完成。
 
 > [安装视频](../res/ax650_win64_install.mp4)
+
+## 卸载
+  **管理员权限**双击安装目录下的**uninst.exe**，按照提示卸载。
 
 
 
@@ -225,7 +230,7 @@ PS D:\code\axcl\axcl.win64\axcl\scripts>
 
 -  推荐使用**msvc17**(即VS2022)编译工具链，不推荐mingw
 -  C++标准17
--  运行库链接**/MD**或者**/MDd**，不推荐/MT和/MTd
+-  运行库链接/MD或者/MDd，不推荐/MT和/MTd
 
 ### 目录结构
 
