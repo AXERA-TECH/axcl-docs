@@ -14,24 +14,25 @@
 - **Win+R**，输入**winver**，可以查询当前的Windows版本信息。
 - 仅支持Win10 64位和Win11 64位系统。
 - **Win+I** 打开**设置** > **更新和安全** > **Windows更新**，自动更新Windows版本，Window10推荐用 [微软更新助手](https://www.microsoft.com/zh-cn/software-download/windows10) 更新到22H2版本。
+- 关闭系统睡眠功能：**Win+I** 打开**设置** > **系统** > **电源和睡眠** > 将**睡眠**更改为**从不**。
 
 :::
 
 ### 环境准备
 
 1. 建议关闭防护软件，避免被误杀。
-2. **Win+I** 打开**设置** > **系统** > **电源和睡眠** > 将**睡眠**更改为**从不**。
-3. 下载VS2022的运行时库**VC_redist.x64.exe**，[微软下载链接](https://aka.ms/vs/17/release/vc_redist.x64.exe)，管理员权限**安装**VC_redist.x64.exe。
-4. **关机断电**后将设备接入主板，**不能带电操作**。
-5. 开机后在**Win+R**, 输入**devmgmt.msc** ，打开**设备管理器**，在**其他设备**中应能识别未知的**多媒体视频控制器**，通过**属性**可以确认设备VENDOR 是1F4B。
+2. 下载VS2022的运行时库**VC_redist.x64.exe**，[微软下载链接](https://aka.ms/vs/17/release/vc_redist.x64.exe)，管理员权限**安装**VC_redist.x64.exe。
+3. **关机断电**后将设备接入主板，**不能带电操作**。
+4. 开机后在**Win+R**, 输入**devmgmt.msc** ，打开**设备管理器**，在**其他设备**中应能识别未知的**多媒体视频控制器**，通过**属性**可以确认设备VENDOR 是1F4B。
    ![](../res/ax650_win64_drv_uninstall.png)
 
 
 
 ## 安装
 
-> 安装和卸载都需要管理员权限，如果系统已经安装AXCL旧版本，请先卸！
-> **关闭Windows睡眠功能**：**Win+I** 打开**设置** > **系统** > **电源和睡眠** > 将**睡眠**更改为**从不**
+> 安装和卸载都需要管理员权限，需关闭系统睡眠功能。
+>
+> 如果系统已经安装AXCL旧版本，请先卸载！
 
 1. Windows发布包 `axcl_win64_setup_Vx.x.x_yyyymmdd_NOxxxx.exe` 会自动安装驱动、动态链接库（含导入库）、可执行程序(比如axcl-smi.exe等)和sample示例源码，**管理员权限**运行发布包，按照提示安装即可。
 2. 安装完之后请**重启系统**。
@@ -264,7 +265,9 @@ axcl
 
 ## 辅助工具
 
-> [Windows工具包(建议右键复制下载连接，在浏览器新窗口下载)](https://hf-mirror.com/AXERA-TECH/testdata-boxdemo/resolve/main/windows%20develop%20kits.zip)
+> [Windows工具包](https://hf-mirror.com/AXERA-TECH/testdata-boxdemo/resolve/main/windows%20develop%20kits.zip)
+>
+> 建议右键复制链接地址，在浏览器新窗口下载。
 
 1. Windows **lspci** : [pciutils-3.5.5-win64.zip](https://wiki.aixin-chip.com/download/attachments/220464657/pciutils-3.5.5-win64.zip?version=1&modificationDate=1758526243666&api=v2) (需管理员权限执行)
 
