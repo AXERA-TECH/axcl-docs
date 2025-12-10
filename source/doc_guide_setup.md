@@ -109,17 +109,22 @@ SecureBoot disabled
 
 SDK已测试过的支持的主控如下表所示：
 
-| 主控                                | 芯片                         | 安装包                                                       |
-| ----------------------------------- | ---------------------------- | ------------------------------------------------------------ |
-| CentOS 9 stream                     | INTEL、AMD64                 | axcl_host_x86_64_Vxxx.rpm                                    |
-| Kylin V10 SP1                       | INTEL、AMD64、Phytium(ARM64) | **x86_64**: axcl_host_x86_64_Vxxx.deb<br />**arm64**:  axcl_host_aarch64_Vxxx.deb |
-| [UOS](#setup_uos)                   | INTEL、AMD64                 | axcl_host_x86_64_Vxxx.deb                                    |
-| RK3588                              | ARM64                        | axcl_host_aarch64_Vxxx.deb                                   |
-| [RaspberryPi5](#setup_raspberrypi5) | ARM64                        | axcl_host_aarch64_Vxxx.deb                                   |
-| OpenEuler                           | INTEL、AMD64                 | axcl_host_x86_64_Vxxx.rpm                                    |
-| ubuntu 18.04/22.04                  | INTEL、AMD64                 | axcl_host_x86_64_Vxxx.deb                                   |
+| 主控                                | 芯片                             | 安装包                                                       |
+| ----------------------------------- | -------------------------------- | ------------------------------------------------------------ |
+| CentOS 9 stream                     | INTEL、AMD64                     | axcl_host_x86_64_Vxxx.rpm                                    |
+| Kylin V10 SP1                       | INTEL、AMD64、Phytium(ARM64)     | **x86_64**: axcl_host_x86_64_Vxxx.deb<br />**arm64**:  axcl_host_aarch64_Vxxx.deb |
+| [UOS](#setup_uos)                   | INTEL、AMD64                     | axcl_host_x86_64_Vxxx.deb                                    |
+| RK3588                              | ARM64                            | axcl_host_aarch64_Vxxx.deb                                   |
+| [RaspberryPi5](#setup_raspberrypi5) | ARM64                            | axcl_host_aarch64_Vxxx.deb                                   |
+| OpenEuler                           | INTEL、AMD64                     | axcl_host_x86_64_Vxxx.rpm                                    |
+| ubuntu 18.04/22.04                  | INTEL、AMD64                     | axcl_host_x86_64_Vxxx.deb                                    |
+| loongarch64                         | Loongson-3A6000 + debian14 forky | axcl_host_loongarch64_Vxxx.deb                               |
 
+:::{note}
 
+​      loongarch64交叉编译工具链：https://github.com/loongson/build-tools/releases/tag/2024.11.01
+
+:::
 
 ## 安装依赖
 
