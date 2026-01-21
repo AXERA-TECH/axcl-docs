@@ -4,8 +4,8 @@ Benchmark 是了解硬件平台网络模型运行速度的最佳途径。以下�
 
 ## 工况说明
 
-- 更新时间：2024.11.22
-- 工具链版本：Pulsar2 3.2-patch2
+- 更新时间：2026.01.21
+- 工具链版本：Pulsar2 5.1-patch1
 - 测试工具：axcl_run_model
 - Batch Size：1 或 8
 - 单位：IPS（Image/Second）
@@ -35,22 +35,34 @@ Benchmark 是了解硬件平台网络模型运行速度的最佳途径。以下�
 | YOLOv11m     | 640        | 114          |              |
 | YOLOv11l     | 640        | 87           |              |
 | YOLOv11x     | 640        | 41           |              |
+| YOLOv26n     | 640        | 726          |              |
+| YOLOv26s     | 640        | 316          |              |
+| YOLOv26x     | 640        | 41           |              |
 
 ## Audio Model
+
 | Models        | RTF  |
 | ------------- | ---- |
-| Whisper-Tiny  | 0.03 |
-| Whisper-Small | 0.18 |
-| MeloTTS       | 0.04 |
+| Whisper-Tiny  | 0.08 |
+| Whisper-Base  | 0.11 |
+| Whisper-Small | 0.24 |
+| Whisper-Turbo | 0.48 |
+| SenseVoice    | 0.04 |
+| Kokoro        | 0.06 |
+| CosyVoice2    | 1.8  |
 
 ## LLM
 
 | Models       | Prompt length（tokens） | TTFT（ms） | Generate（tokens/s) |
 | ------------ | ----------------------- | ---------- | ------------------- |
-| Qwen2.5-0.5B | 128                     | 188        | 28                  |
+| Qwen2.5-0.5B | 128                     | 80         | 40                  |
+| Qwen2.5-1.5B | 128                     | 150        | 16                  |
+| Qwen2.5-7B   | 128                     | 800        | 4.8                 |
 
 ## VLM
 
 | Models       | Input Image | Image Encoder（ms） | Prompt length（tokens） | TTFT（ms） | Generate（tokens/s) |
 | ------------ | ----------- | ------------------- | ----------------------- | ---------- | ------------------- |
-| InternVL2-1B | 448*448     | 4200                | 320                     | 425        | 29                  |
+| Qwen3-VL-2B  | 384*384     | 135                 | 168                     | 323        | 14.1                |
+| Qwen3-VL-4B  | 384*384     | 143                 | 168                     | 678        | 7.0                 |
+| Qwen3-VL-8B  | 384*384     | 140                 | 168                     | 1066       | 4.5                 |
