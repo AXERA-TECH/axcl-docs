@@ -554,7 +554,7 @@ $ axcl-smi sh "insmod /soc/ko/ax_perf_monitor.ko && sleep 1 && cat /proc/ax_proc
 
 
 
-(faq_device_npu_tilization)=
+(faq_device_npu_utilization)=
 
 #### NPU利用率
 
@@ -813,7 +813,7 @@ tools/mkaxp/AX650X_card_pac.xml：
   | lpddr4x  | 1                             | 1：LPDDR4X  0：LPDDR                     |
   | rank_num | 2                             | DDR rank数量                             |
 
-- **SPL**：在编译SPL时 ***boot/bl1/tools/load_board_config.py***脚本解析***build/projects/AX650_card_board.json*** 生***boot/bl1/driver/ddr/ddr_board_config.h***。SPL运行后将读取board id，根据***ddr_board_config.h***配置DDR。
+- **SPL**：在编译SPL时 ***boot/bl1/tools/load_board_config.py***脚本解析***build/projects/AX650_card_board.json*** 生成***boot/bl1/driver/ddr/ddr_board_config.h***。SPL运行后将读取board id，根据***ddr_board_config.h***配置DDR。
 
 - **rootfs**：在编译rootfs时，***rootfs/card/scripts/load_board_config.py*** 脚本解析***build/projects/AX650_card_board.json*** 生成***rootfs/card/soc/scripts/board_comm.conf。***启动时读取board id，根据***board_comm.conf***配置CMM。
 

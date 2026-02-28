@@ -41,9 +41,9 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 
 - 一个应用线程一定会绑定一个 Context，所有Device的任务都必须基于 Context。
 - 一个线程中当前会有一个唯一的 Context，Context 中绑定了本线程任务执行的 Device。
-- 应用线程中支持通过 `axclrCreateContext` 创建多个 Context，但一个线程同一时刻只能使用一个 Context。连续创建多个 Context，线程绑定的是最后一个创建的 Context。
+- 应用线程中支持通过 `axclrtCreateContext` 创建多个 Context，但一个线程同一时刻只能使用一个 Context。连续创建多个 Context，线程绑定的是最后一个创建的 Context。
 - 进程内支持通过 `axclrtSetCurrentContext` 绑定当前线程的 Context，连续多次调用 `axclrtSetCurrentContext`，最终绑定的是最后一次的 Context。
-- 多线程推荐为每个线程显示创建一个Context。
+- 多线程推荐为每个线程显式创建一个Context。
 - 推荐通过 `axclrtSetCurrentContext` 切换 Device。
 
 :::{tip}

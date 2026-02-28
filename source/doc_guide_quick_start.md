@@ -34,7 +34,7 @@
 
 分类模型的示例代码含完整注释如下：
 ```c++
-#include "common/args.hpp"            // 包含分割令行参数的头文件
+#include "common/args.hpp"            // 包含分割命令行参数的头文件
 #include "common/types.hpp"           // 包含常用类型定义的头文件
 #include "common/sampler.hpp"         // 包含图像预处理的头文件
 #include "common/topk.hpp"            // 包含获取 Top K 类别的函数
@@ -407,7 +407,7 @@ img width  : 224
 --------------------------------------
 ```
 
-可见菊猫 Top1 被分类为老虎猫；Top5 分类基本正确。
+可见橘猫 Top1 被分类为老虎猫；Top5 分类基本正确。
 
 ### 检测模型
 
@@ -850,7 +850,7 @@ Repeat 1 times, avg time 8.02 ms, max_time 8.02 ms, min_time 8.02 ms
  1:  56%, [ 158,  120,  569,  420], bicycle
 ```
 
-可见检测到了 3 个目标，并且给出了类别 `ID`、置信度和坐标。在 `sample` 执行的目录下，会保存一个名为 `yolov5s_out.jpg` 的检测结果，可以图片浏览器打开预览一下输出结果。
+可见检测到了 3 个目标，并且给出了类别 `ID`、置信度和坐标。在 `sample` 执行的目录下，会保存一个名为 `yolov5s_out.jpg` 的检测结果，可以用图片浏览器打开预览一下输出结果。
 
 ![](../res/voc_dog_yolov5s_out.jpg)
 
