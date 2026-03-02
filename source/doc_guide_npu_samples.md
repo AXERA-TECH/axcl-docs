@@ -198,7 +198,7 @@ conda activate axcl
 pip install transformers==4.41.1 -i https://mirrors.aliyun.com/pypi/simple
 ```
 
-### Qwen3
+### Qwen3-0.6B
 
 拷贝相关文件到 Host
 
