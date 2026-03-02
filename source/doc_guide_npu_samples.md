@@ -533,67 +533,38 @@ RTF(0.19 / 5.62) = 0.0329
 (sensevoice) axera@raspberrypi:~/SenseVoice/cpp/axcl_aarch64 $
 ```
 
-### MeloTTS
+### Kokoro
 
-- 本小节只指导如何在 Raspberry Pi 5 上运行预编译好的 MeloTTS 文字转语音示例；
-- 模型转换、示例源码编译请参考 [melotts.axcl](https://github.com/ml-inory/melotts.axcl)。
+- 本小节只指导如何在 Raspberry Pi 5 上运行预编译好的Kokoro 文字转语音示例；
+- 示例源码编译请参考 [ax_tts_api](https://github.com/AXERA-TECH/ax_tts_api/tree/main)。
+- 预编译模型请参考 [Kokoro](https://huggingface.co/AXERA-TECH/kokoro.axera)
 
 **下载**
 
 ```
-git clone https://github.com/ml-inory/melotts.axcl.git
+git clone https://github.com/AXERA-TECH/ax_tts_api.git
 ```
 
-**预编译模型**
+**下载预编译模型**
 
 ```
-cd melotts.axcl
+cd ax_tts_api
+chmod +x download_models.sh
 ./download_models.sh
 ```
 
 **编译**
 
-x86_64 平台
-```
-./build.sh
-```
-
-aarch64 平台
-```
-./build_aarch64.sh
-```
-
-**运行 MeloTTS**
-在 melotts.axcl 项目根目录下运行
-```
-./install/melotts -s 句子
-```
+参考[ax_tts_api](https://github.com/AXERA-TECH/ax_tts_api/tree/main)的README.md进行交叉编译。
 
 **运行结果**
+将预编译模型文件夹和预编译执行文件夹拷贝到板端，当前以axcl_aarch64为例：
 
 ```
-(base) axera@raspberrypi:~/melotts.axcl $ ./install/melotts
-encoder: ./models/encoder.onnx
-decoder: ./models/decoder.axmodel
-lexicon: ./models/lexicon.txt
-token: ./models/tokens.txt
-sentence: 爱芯元智半导体股份有限公司，致力于打造世界领先的人工智能感知与边缘计算芯片。服务智慧城市、智能驾驶、机器人的海量普惠的应用
-wav: output.wav
-speed: 0.800000
-sample_rate: 44100
-Load encoder
-Load decoder model
-Encoder run take 191.25ms
-decoder slice num: 9
-Decode slice(1/9) take 39.90ms
-Decode slice(2/9) take 39.66ms
-Decode slice(3/9) take 39.98ms
-Decode slice(4/9) take 39.57ms
-Decode slice(5/9) take 40.28ms
-Decode slice(6/9) take 39.68ms
-Decode slice(7/9) take 39.59ms
-Decode slice(8/9) take 39.58ms
-Decode slice(9/9) take 41.11ms
-Saved audio to output.wav
-(base) axera@raspberrypi:~/melotts.axcl $
+(base) axera@raspberrypi:~/ax_tts_api $ ./build_ax8850_aarch64/main -l zh -t "一切有为法，如梦幻泡影，如露亦如电，应作如是观" -o zh.wav
+================================
+test_zh:
+input text: 一切有为法，如梦幻泡影，如露亦如电，应作如是观
+output duration: 4.18 seconds
+output file: zh.wav
 ```
