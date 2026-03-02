@@ -10,8 +10,8 @@ Sample to invoke runtime APIs.
 1. Initialize runtime by `axclInit`.
 2. Active device by `axclrtSetDevice`.
 3. Create context by `axclrtCreateDevice` for main thread (optional).
-4. Create and destory thread context (must).
-5. Destory context of main thread.
+4. Create and destroy thread context (must).
+5. Destroy context of main thread.
 6. Deactive device by `axclrtResetDevice`.
 7. Deinitialize runtime by `axclFinalize`.
 ```
@@ -21,7 +21,7 @@ Sample to invoke runtime APIs.
 #### usage
 
 ```bash
-$ axcl_sampe_runtime --help
+$ axcl_sample_runtime --help
 usage: ./axcl_sample_runtime [options] ...
 options:
   -d, --device    device index [-1, connected device num - 1], -1: traverse all devices (int [=-1])

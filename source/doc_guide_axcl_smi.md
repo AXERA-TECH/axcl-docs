@@ -58,7 +58,7 @@ $ axcl-smi
 
 :::{note}
 
-参阅FAQ [DDR带宽](#faq_device_ddr_bw) 和 [NPU利用率](#faq_device_npu_tilization) 章节了解获取详细的DDR和NPU利用率。
+参阅FAQ [DDR带宽](#faq_device_ddr_bw) 和 [NPU利用率](#faq_device_npu_utilization) 章节了解获取详细的DDR和NPU利用率。
 
 :::
 
@@ -183,7 +183,7 @@ $ axcl-smi proc --vdec -d 0
 
 ### 参数设置（set）
 
-`axcl-smi set` 用户配置设备信息，支持的子命令如下：
+`axcl-smi set` 用于配置设备信息，支持的子命令如下：
 
 | 子命令                | 说明                                                         |
 | --------------------- | ------------------------------------------------------------ |

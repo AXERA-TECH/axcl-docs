@@ -167,7 +167,7 @@ Repeat 1 times, avg time 44.02 ms, max_time 44.02 ms, min_time 44.02 ms
 
 ## LLM 示例
 
-- 模型转请参考[大模型编译文档](https://pulsar2-docs.readthedocs.io/zh-cn/latest/appendix/build_llm.html)
+- 模型转换请参考[大模型编译文档](https://pulsar2-docs.readthedocs.io/zh-cn/latest/appendix/build_llm.html)
 - 预编译 ModelZoo-LLM 请参考[百度网盘](https://pan.baidu.com/s/1grJNjcpUln-fDBisJxuvCA?pwd=mys8)
 - 上板执行程序 main_pcie 请参考[ax-llm pcie 分支](https://github.com/AXERA-TECH/ax-llm/tree/axcl-llm-prefill)
 
@@ -198,31 +198,35 @@ conda activate axcl
 pip install transformers==4.41.1 -i https://mirrors.aliyun.com/pypi/simple
 ```
 
-### Qwen2.5
+### Qwen3-0.6B
 
 拷贝相关文件到 Host
 
 **文件说明**
 
 ```
-(base) axera@raspberrypi:~/qwen2.5-0.5b-prefill-ax650 $ tree
+(base) axera@raspberrypi:~/Qwen3-0.6B $ tree -L 1
 .
-├── main_pcie_prefill
-├── qwen2.5-0.5B-prefill-ax650
-│   ├── model.embed_tokens.weight.bfloat16.bin
-│   ├── qwen2_p128_l0_together.axmodel
-│   ├── qwen2_p128_l10_together.axmodel
-......
-│   ├── qwen2_p128_l8_together.axmodel
-│   ├── qwen2_p128_l9_together.axmodel
-│   └── qwen2_post.axmodel
+├── config.json
+├── main_api_ax650
+├── main_api_axcl_aarch64
+├── main_api_axcl_x86
+├── main_ax650
+├── main_axcl_aarch64
+├── main_axcl_x86
+├── post_config.json
 ├── qwen2.5_tokenizer
-│   ├── merges.txt
-│   ├── tokenizer_config.json
-│   ├── tokenizer.json
-│   └── vocab.json
-├── qwen2.5_tokenizer.py
-└── run_qwen2.5_0.5B_prefill_pcie.sh
+├── qwen3-0.6b-ax630c
+├── qwen3-0.6b-ax650
+├── qwen3_tokenizer
+├── qwen3_tokenizer_uid.py
+├── README.md
+├── run_qwen3_0.6b_int8_ctx_ax630c.sh
+├── run_qwen3_0.6b_int8_ctx_ax650.sh
+├── run_qwen3_0.6b_int8_ctx_axcl_aarch64.sh
+└── run_qwen3_0.6b_int8_ctx_axcl_x86.sh
+
+5 directories, 14 files
 ```
 
 **启动 tokenizer 解析器**
@@ -230,96 +234,141 @@ pip install transformers==4.41.1 -i https://mirrors.aliyun.com/pypi/simple
 运行 tokenizer 服务，Host ip 默认为 localhost，端口号设置为 12345，正在运行后信息如下
 
 ```
-(axcl) axera@raspberrypi:~/qwen2.5-0.5b-prefill-ax650 $ python qwen2.5_tokenizer.py --port 12345
-None of PyTorch, TensorFlow >= 2.0, or Flax have been found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
-Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
-None None 151645 <|im_end|>
-<|im_start|>system
-You are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>
-<|im_start|>user
-hello world<|im_end|>
-<|im_start|>assistant
-
-[151644, 8948, 198, 2610, 525, 1207, 16948, 11, 3465, 553, 54364, 14817, 13, 1446, 525, 264, 10950, 17847, 13, 151645, 198, 151644, 872, 198, 14990, 1879, 151645, 198, 151644, 77091, 198]
-http://localhost:12345
+(axcl) axera@raspberrypi:~/qwen2.5-0.5b-prefill-ax650 $ python qwen3_tokenizer_uid.py --port 12345
+Server running at http://0.0.0.0:12345
 ```
 
-**运行 Qwen 2.5**
+**运行 Qwen 3-0.6B**
 
 ```
-(base) axera@raspberrypi:~/qtang/llama_axera_cpp $ ./run_qwen2_0.5B_prefill_pcie.sh
-[I][                            Init][ 129]: LLM init start
-  7% | ███                               |   2 /  27 [1.30s<17.54s, 1.54 count/s] embed_selector init okcat: /proc/ax_proc/mem_cmm_info: No such file or directory
- 11% | ████                              |   3 /  27 [1.75s<15.74s, 1.72 count/s] init 0 axmodel ok,remain_cmm(-1 MB)cat: /proc/ax_proc/mem_cmm_info: No such file or directory
-......
- 96% | ███████████████████████████████   |  26 /  27 [7.34s<7.62s, 3.54 count/s] init 23 axmodel ok,remain_cmm(-1 MB)cat: /proc/ax_proc/mem_cmm_info: No such file or directory
-100% | ████████████████████████████████ |  27 /  27 [12.84s<12.84s, 2.10 count/s] init post axmodel ok,remain_cmm(-1 MB)
-[I][                            Init][ 253]: max_token_len : 1023
-[I][                            Init][ 258]: kv_cache_size : 128, kv_cache_num: 1023
-[I][                            Init][ 266]: prefill_token_num : 128
-[I][                            Init][ 348]: LLM init ok
+(base) axera@raspberrypi:~/qtang/llama_axera_cpp $ ./run_qwen3_0.6b_int8_ctx_axcl_aarch64.sh
+[I][                            Init][ 130]: LLM init start
+[I][                            Init][  34]: connect http://0.0.0.0:12345 ok
+[I][                            Init][  57]: uid: 009101db-7dc2-4097-bdf3-c9124923792f
+bos_id: -1, eos_id: 151645
+  3% | ██                                |   1 /  31 [0.80s<24.89s, 1.25 count/s] tokenizer init ok[I][                            Init][  45]: LLaMaEmbedSelector use mmap
+  6% | ███                               |   2 /  31 [0.80s<12.45s, 2.49 count/s] embed_selector init ok
+[I][                             run][  30]: AXCLWorker start with devid 0
+100% | ████████████████████████████████ |  31 /  31 [28.87s<28.87s, 1.07 count/s] init post axmodel ok,remain_cmm(5789 MB)5951 MB)
+[I][                            Init][ 221]: max_token_len : 2047
+[I][                            Init][ 224]: kv_cache_size : 1024, kv_cache_num: 2047
+[I][                            Init][ 232]: prefill_token_num : 128
+[I][                            Init][ 236]: grp: 1, prefill_max_token_num : 1
+[I][                            Init][ 236]: grp: 2, prefill_max_token_num : 128
+[I][                            Init][ 236]: grp: 3, prefill_max_token_num : 256
+[I][                            Init][ 236]: grp: 4, prefill_max_token_num : 384
+[I][                            Init][ 236]: grp: 5, prefill_max_token_num : 512
+[I][                            Init][ 236]: grp: 6, prefill_max_token_num : 640
+[I][                            Init][ 236]: grp: 7, prefill_max_token_num : 768
+[I][                            Init][ 236]: grp: 8, prefill_max_token_num : 896
+[I][                            Init][ 236]: grp: 9, prefill_max_token_num : 1024
+[I][                            Init][ 240]: prefill_max_token_num : 1024
+________________________
+|    ID| remain cmm(MB)|
+========================
+|     0|           5789|
+¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+[I][                     load_config][ 282]: load config:
+{
+    "enable_repetition_penalty": false,
+    "enable_temperature": false,
+    "enable_top_k_sampling": true,
+    "enable_top_p_sampling": false,
+    "penalty_window": 20,
+    "repetition_penalty": 1.2,
+    "temperature": 0.9,
+    "top_k": 1,
+    "top_p": 0.8
+}
+
+[I][                            Init][ 263]: LLM init ok
 Type "q" to exit, Ctrl+c to stop current running
->> 你是谁？
-[I][                             Run][ 511]: ttft: 128.70 ms
-我是来自阿里云的大规模语言模型，我叫通义千问。
-[N][                             Run][ 636]: hit eos,avg 26.44 token/s
+[I][          GenerateKVCachePrefill][ 324]: input token num : 21, prefill_split_num : 1 prefill_grpid : 2
+[I][          GenerateKVCachePrefill][ 367]: input_num_token:21
+[I][                            main][ 234]: precompute_len: 21
+[I][                            main][ 235]: system_prompt: You are Qwen, created by Alibaba Cloud. You are a helpful assistant.
+prompt >> 你是谁
+[I][                      SetKVCache][ 614]: prefill_grpid:2 kv_cache_num:128 precompute_len:21 input_num_token:13
+[I][                      SetKVCache][ 617]: current prefill_max_token_num:896
+[I][                             Run][ 752]: input token num : 13, prefill_split_num : 1
+[I][                             Run][ 784]: input_num_token:13
+[I][                             Run][ 913]: ttft: 369.81 ms
+<think>
 
->> 深圳在哪里？
-[I][                             Run][ 511]: ttft: 128.96 ms
-深圳位于中国广东省，是中国的经济中心之一。
-[N][                             Run][ 636]: hit eos,avg 25.89 token/s
+</think>
 
->> q
+我是Qwen，由阿里巴巴云创建的AI助手。我致力于提供帮助和支持，帮助用户解决问题和获取信息。如果您有任何问题或需要帮助，请随时告诉我！
 
+[N][                             Run][1065]: hit eos,avg 12.41 token/s
+
+[I][                      GetKVCache][ 583]: precompute_len:73, remaining:951
+prompt >> 深圳在哪里
+[I][                      SetKVCache][ 614]: prefill_grpid:2 kv_cache_num:128 precompute_len:73 input_num_token:13
+[I][                      SetKVCache][ 617]: current prefill_max_token_num:896
+[I][                             Run][ 752]: input token num : 13, prefill_split_num : 1
+[I][                             Run][ 784]: input_num_token:13
+[I][                             Run][ 913]: ttft: 365.79 ms
+<think>
+
+</think>
+
+深圳是中国广东省的一个城市，位于中国东南部沿海地区。如果您有其他问题或需要帮助，请随时告诉我！
+
+[N][                             Run][1065]: hit eos,avg 12.55 token/s
+
+[I][                      GetKVCache][ 583]: precompute_len:114, remaining:910
+prompt >> q
+[I][                             run][  80]: AXCLWorker exit with devid 0
 ```
 
-### InternVL2-1B
+## VLM 示例
+### Qwen3-VL-2B-Instruct-GPTQ-Int4
 
-InternVL2-1B 的详细模型导出、量化、编译的流程请参考[《基于 AX650N/AX630C 部署多模态大模型 InternVL2-1B》](https://zhuanlan.zhihu.com/p/4118849355)
+Qwen3-VL-2B-Instruct-GPTQ-Int4 的详细模型导出、量化、编译的流程请参考[《Model Convert》](https://github.com/AXERA-TECH/Qwen3-VL.AXERA/tree/main/model_convert)
 
 拷贝相关文件到 Host
 
 **文件说明**
 
 ```
-(axcl) axera@raspberrypi:~/internvl2-1b-448-ax650 $ tree
+(axcl) axera@raspberrypi:~/iwen3-VL-2B-Instruct-GPTQ-Int4 $ tree -L 1
 .
-├── internvl2_tokenizer
-│   ├── added_tokens.json
-│   ├── merges.txt
-│   ├── special_tokens_map.json
-│   ├── tokenizer_config.json
-│   └── vocab.json
-├── internvl2_tokenizer_448.py
-├── internvl_448
-│   ├── intervl_vision_part_448.axmodel
-│   ├── model.embed_tokens.weight.bfloat16.bin
-│   ├── qwen2_p320_l0_together.axmodel
-......
-│   ├── qwen2_p320_l9_together.axmodel
-│   └── qwen2_post.axmodel
-├── main_internvl
-├── main_internvl_pcie
-├── run_internvl2_448_ax650.sh
-└── run_internvl2_448_pcie.sh
+├── axera_logo.png
+├── config.json
+├── gradio_demo.py
+├── images
+├── main_ax650
+├── main_ax650_api
+├── main_axcl_aarch64
+├── main_axcl_api_aarch64
+├── main_axcl_api_x86
+├── main_axcl_x86
+├── openai_cli.py
+├── post_config.json
+├── qwen3_tokenizer.txt
+├── Qwen3-VL-2B-Instruct-AX650-c128_p1152-int4
+├── README.md
+├── requirements.txt
+├── run_ax650_api.sh
+├── run_axcl_aarch64_api.sh
+├── run_axcl_x86_api.sh
+├── run_image_ax630c.sh
+├── run_image_ax650_img640.sh
+├── run_image_ax650_img720p.sh
+├── run_image_ax650_imgu8.sh
+├── run_image_ax650.sh
+├── run_image_axcl_aarch64.sh
+├── run_image_axcl_x86.sh
+├── run_video_ax650_imgu8.sh
+├── run_video_ax650.sh
+├── run_video_axcl_aarch64.sh
+├── run_video_axcl_x86.sh
+└── video
+
+4 directories, 28 files
 ```
 
-**启动 tokenizer 解析器**
-
-运行 tokenizer 服务，Host ip 默认为 localhost，端口号设置为 12345，正在运行后信息如下
-
-```
-(axcl_test) axera@raspberrypi:~/internvl2-1b-448-ax650 $ python internvl2_tokenizer_448.py --port 12345
-None of PyTorch, TensorFlow >= 2.0, or Flax have been found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
-Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
-None None 151645 <|im_end|>
-[151644, 8948, 198, 56568, 104625, 100633, 104455, 104800, 101101, 32022, ...... 5501, 7512, 279, 2168, 19620, 13, 151645, 151644, 77091, 198]
-310
-[151644, 8948, 198, 56568, 104625, 100633, 104455, 104800, 101101, 32022, ......151645, 151644, 77091, 198]
-http://localhost:12345
-```
-
-**运行 InternVL2-1B**
+**运行 Qwen3-VL-2B-Instruct-GPTQ-Int4**
 
 测试图片
 
@@ -328,170 +377,194 @@ http://localhost:12345
 输出信息
 
 ```
-(base) axera@raspberrypi:~/internvl2-1b-448-ax650 $ ./run_internvl2_448_pcie.sh
-[I][                            Init][ 135]: LLM init start
-bos_id: -1, eos_id: 151645
-  7% | ███                               |   2 /  27 [0.95s<12.82s, 2.11 count/s] embed_selector init okcat: /proc/ax_proc/mem_cmm_info: No such file or directory
- 11% | ████                              |   3 /  27 [1.40s<12.61s, 2.14 count/s] init 0 axmodel ok,remain_cmm(-1 MB)cat: /proc/ax_proc/mem_cmm_info: No such file or directory
-......
-100% | ████████████████████████████████ |  27 /  27 [8.99s<8.99s, 3.00 count/s] init post axmodel ok,remain_cmm(-1 MB)
-[I][                            Init][ 292]: max_token_len : 1023
-[I][                            Init][ 297]: kv_cache_size : 128, kv_cache_num: 1023
-[I][                            Init][ 305]: prefill_token_num : 320
-[I][                            Init][ 307]: vpm_height : 448,vpm_width : 448
-[I][                            Init][ 389]: LLM init ok
-Type "q" to exit, Ctrl+c to stop current running
-prompt >> who are you?
-image >>
-[I][                             Run][ 626]: ttft: 425.78 ms
-I am an AI assistant whose name is InternVL, developed jointly by Shanghai AI Lab and SenseTime.
-[N][                             Run][ 751]: hit eos,avg 29.24 token/s
+(base) axera@raspberrypi:~/Qwen3-VL-2B-Instruct-GPTQ-Int4 $ chmod +x main* run*
+(base) axera@raspberrypi:~/Qwen3-VL-2B-Instruct-GPTQ-Int4 $ ./run_image_axcl_aarch64.sh
+[I][                            Init][ 162]: LLM init start
+tokenizer_type = 1
+  3% | ██                                |   1 /  31 [0.03s<0.87s, 35.71 count/s] tokenizer init ok[I][                            Init][  45]: LLaMaEmbedSelector use mmap
+  6% | ███                               |   2 /  31 [0.03s<0.43s, 71.43 count/s] embed_selector init ok
+[I][                             run][  30]: AXCLWorker start with devid 0
+100% | ████████████████████████████████ |  31 /  31 [30.98s<30.98s, 1.00 count/s] init post axmodel ok,remain_cmm(4220 MB)544 MB))
+input size: 1
+    name: hidden_states [unknown] [unknown]
+        1 x 576 x 512 x 3 size:884736
 
-prompt >> 图片中有什么?
-image >> ./ssd_car.jpg
-[I][                          Encode][ 468]: image encode time : 4202.367188 ms, size : 229376
-[I][                             Run][ 626]: ttft: 425.97 ms
-这张图片展示了一辆红色的双层巴士，巴士上有一个广告，广告上写着“THINGS GET MORE EXCITING WHEN YOU SAY YES”（当你说“是”时，事情会变得更加有趣）。巴士停在城市街道的一侧，街道两旁有建筑物和行人。图片中还有一位穿着黑色外套的女士站在巴士前微笑。
-[N][                             Run][ 751]: hit eos,avg 29.26 token/s
+
+output size: 4
+    name: hidden_states_out
+        144 x 2048 size:1179648
+
+    name: deepstack_feature_0
+        144 x 2048 size:1179648
+
+    name: deepstack_feature_1
+        144 x 2048 size:1179648
+
+    name: deepstack_feature_2
+        144 x 2048 size:1179648
+
+[I][                            Init][ 329]: image encoder output float32
+
+[I][                            Init][ 341]: max_token_len : 2047
+[I][                            Init][ 344]: kv_cache_size : 1024, kv_cache_num: 2047
+[I][                            Init][ 352]: prefill_token_num : 128
+[I][                            Init][ 356]: grp: 1, prefill_max_token_num : 1
+[I][                            Init][ 356]: grp: 2, prefill_max_token_num : 128
+[I][                            Init][ 356]: grp: 3, prefill_max_token_num : 256
+[I][                            Init][ 356]: grp: 4, prefill_max_token_num : 384
+[I][                            Init][ 356]: grp: 5, prefill_max_token_num : 512
+[I][                            Init][ 356]: grp: 6, prefill_max_token_num : 640
+[I][                            Init][ 356]: grp: 7, prefill_max_token_num : 768
+[I][                            Init][ 356]: grp: 8, prefill_max_token_num : 896
+[I][                            Init][ 356]: grp: 9, prefill_max_token_num : 1024
+[I][                            Init][ 356]: grp: 10, prefill_max_token_num : 1152
+[I][                            Init][ 360]: prefill_max_token_num : 1152
+________________________
+|    ID| remain cmm(MB)|
+========================
+|     0|           3778|
+¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+[I][                     load_config][ 282]: load config:
+{
+    "enable_repetition_penalty": false,
+    "enable_temperature": true,
+    "enable_top_k_sampling": true,
+    "enable_top_p_sampling": false,
+    "penalty_window": 30,
+    "repetition_penalty": 1,
+    "temperature": 0.7,
+    "top_k": 20,
+    "top_p": 0.8
+}
+
+[I][                            Init][ 457]: LLM init ok
+Type "q" to exit, Ctrl+c to stop current running
+prompt >> 你是谁
+image >>
+[I][                             Run][ 709]: input token num : 21, prefill_split_num : 1
+[I][                             Run][ 743]: input_num_token:21
+[I][                             Run][ 922]: ttft: 279.87 ms
+您好！我是Qwen，是阿里巴巴集团研发的超大规模语言模型。我能够像人类一样进行对话和回答问题，擅长理解语言并进行创造性表达。无论是回答问题、写故事，还是进行逻辑推理、编程、写作、翻译，我都能提供帮助。有什么我可以帮您的吗？
+
+[N][                             Run][1075]: hit eos,avg 9.65 token/s
+
+prompt >> 图片里有什么
+image >> ./images/ssd_car.jpg
+[I][                     EncodeImage][ 531]: pixel_values size 1
+[I][                     EncodeImage][ 532]: grid_h 24 grid_w 24
+[I][                     EncodeImage][ 580]: image encode time : 182.535995 ms, size : 1
+[I][                          Encode][ 633]: input_ids size:168
+[I][                          Encode][ 641]: offset 15
+[I][                          Encode][ 670]: img_embed.size:1, 294912
+[I][                          Encode][ 684]: out_embed size:344064
+[I][                          Encode][ 685]: input_ids size 168
+[I][                          Encode][ 687]: position_ids size:168
+[I][                             Run][ 709]: input token num : 168, prefill_split_num : 2
+[I][                             Run][ 743]: input_num_token:128
+[I][                             Run][ 743]: input_num_token:40
+[I][                             Run][ 922]: ttft: 561.53 ms
+好的，这张图片展示了一个城市街景。以下是图片中的具体内容：
+
+- **红色的双层巴士**：图片中心偏左位置是一辆红色的双层巴士，这是伦敦著名的“红色双层巴士”（Red Bus），它在城市中非常常见。这辆巴士是典型的伦敦巴士样式，车头有大灯，车身有条纹装饰，车身上有文字“CITY BUS”。
+- **人物**：在巴士前方的街道上，站着一位女性。她穿着深色的外套，可能是一位女士，她正看着前方。
+- **建筑物**：在巴士的后方和两侧，是几栋多层的建筑，这可能是伦敦的市中心，这些建筑具有典型的英国建筑风格，例如有阳台和装饰性的窗户。
+
+此外，还可以看到一些细节：
+- 一些建筑物上可以看到“LONDON”字样，这可能是在表明这是在伦敦的某个地方。
+- 街道上有路灯，街道两旁有树木。
+
+---
+
+### 分析总结
+
+这张图片展示的是一个典型的伦敦城市街景。红色的双层巴士是该地区非常具有代表性的标志，而周围是典型的城市建筑，这可能是在伦敦市中心的某个地方，比如伦敦市中心的市中心地区，例如威斯敏斯特区或伦敦市中心的某个地方。
+
+因此，这张图片描绘的是一个典型的伦敦城市街景，其中红色的双层巴士和周围的建筑是主要的视觉元素。
+
+---
+
+### 简要回答
+
+这张图片展示的是一个位于英国伦敦市中心的街景，主要元素包括一辆红色的双层巴士和周围的建筑。
+
+[N][                             Run][1075]: hit eos,avg 9.69 token/s
 
 prompt >> q
-(base) axera@raspberrypi:~/internvl2-1b-448-ax650 $
+[I][                             run][  80]: AXCLWorker exit with devid 0
 ```
 
 ## 音频大模型
 
 本章节展示常用的 ASR（自动语音识别）、TTS（文本转语音）模型示例。
 
-### Whisper
+### SenseVoice
 
-- 本小节只指导如何在 Raspberry Pi 5 上运行预编译好的基于 Whipser Small 的语音转文字示例；
-- 模型转换、示例源码编译请参考 [whisper.axcl](https://github.com/ml-inory/whisper.axcl)。
+- 本小节只指导如何在 Raspberry Pi 5 上运行预编译好的基于 SenseVoice 的语音转文字示例；
+- 示例源码编译请参考 [ax_asr_api](https://github.com/AXERA-TECH/ax_asr_api/tree/main)。
+- 预编译文件和模型请参考[AXERA-TECH/SenseVoice](https://huggingface.co/AXERA-TECH/SenseVoice/tree/main)。
 
 **下载**
-
 ```
-git clone https://github.com/ml-inory/whisper.axcl.git
+git clone https://github.com/AXERA-TECH/ax_asr_api.git
 ```
-
-**预编译模型**
-
-预编译模型下载([百度网盘](https://pan.baidu.com/s/1tOHVMZCin0A68T5HmKRJyg?pwd=axyz))
-
-下载后放到 models 下
-
 **编译**
+参考[ax_asr_api](https://github.com/AXERA-TECH/ax_asr_api/tree/main)的README.md进行交叉编译。
+
+**模型仓库下载**
+```
+hf download AXERA-TECH/SenseVoice --local-dir SenseVoice
+```
+
+**运行 SenseVoice**
 
 ```
-cd whisper.axcl
-mkdir -p build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release ..
-make install -j4
-```
-
-**运行 Whisper**
-
-```
-cd install
-./whisper -w ../demo.wav
+cd SenseVoice/cpp/axcl_aarch64/
+export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
+./main -a ../../example/zh.mp3 -t sensevoice -p ../../sensevoice_ax650 -l zh
 ```
 
 **运行结果**
 
 ```
-(base) axera@raspberrypi:~/qtang/whisper.axcl/install $ ./whisper -w ../demo.wav
-encoder: ../models/small-encoder.axmodel
-decoder_main: ../models/small-decoder-main.axmodel
-decoder_loop: ../models/small-decoder-loop.axmodel
-wav_file: ../demo.wav
-language: zh
-Load encoder take 3336.25 ms
-Load decoder_main take 6091.89 ms
-Load decoder_loop take 5690.05 ms
-Read positional_embedding
-Encoder run take 190.26 ms
-First token: 17556       take 51.49ms
-Next Token: 20844        take 30.15 ms
-Next Token: 7781         take 30.21 ms
-Next Token: 20204        take 30.20 ms
-Next Token: 28455        take 30.17 ms
-Next Token: 31962        take 30.02 ms
-Next Token: 6336         take 30.09 ms
-Next Token: 254          take 30.22 ms
-Next Token: 2930         take 30.14 ms
-Next Token: 236          take 30.14 ms
-Next Token: 36135        take 30.12 ms
-Next Token: 15868        take 30.18 ms
-Next Token: 252          take 30.01 ms
-Next Token: 1546         take 30.17 ms
-Next Token: 46514        take 30.17 ms
-Next Token: 50257        take 30.15 ms
-All Token: take 503.68ms, 31.77 token/s
-All take 735.09ms
-Result: 甚至出现交易几乎停滞的情况
-(base) axera@raspberrypi:~/qtang/whisper.axcl/install $
+(sensevoice) axera@raspberrypi:~/SenseVoice/cpp/axcl_aarch64 $ ./main -a ../../example/zh.mp3 -t sensevoice -p ../../sensevoice_ax650 -l zh
+Init asr: sensevoice success, take 4.0690seconds
+Result: 开放时间早上9点至下午5点。
+RTF(0.19 / 5.62) = 0.0329
+(sensevoice) axera@raspberrypi:~/SenseVoice/cpp/axcl_aarch64 $
 ```
 
-### MeloTTS
+### Kokoro
 
-- 本小节只指导如何在 Raspberry Pi 5 上运行预编译好的 MeloTTS 文字转语音示例；
-- 模型转换、示例源码编译请参考 [melotts.axcl](https://github.com/ml-inory/melotts.axcl)。
+- 本小节只指导如何在 Raspberry Pi 5 上运行预编译好的Kokoro 文字转语音示例；
+- 示例源码编译请参考 [ax_tts_api](https://github.com/AXERA-TECH/ax_tts_api/tree/main)。
+- 预编译模型请参考 [Kokoro](https://huggingface.co/AXERA-TECH/kokoro.axera)
 
 **下载**
 
 ```
-git clone https://github.com/ml-inory/melotts.axcl.git
+git clone https://github.com/AXERA-TECH/ax_tts_api.git
 ```
 
-**预编译模型**
+**下载预编译模型**
 
 ```
-cd melotts.axcl
+cd ax_tts_api
+chmod +x download_models.sh
 ./download_models.sh
 ```
 
 **编译**
 
-x86_64 平台
-```
-./build.sh
-```
-
-aarch64 平台
-```
-./build_aarch64.sh
-```
-
-**运行 MeloTTS**
-在 melotts.axcl 项目根目录下运行
-```
-./install/melotts -s 句子
-```
+参考[ax_tts_api](https://github.com/AXERA-TECH/ax_tts_api/tree/main)的README.md进行交叉编译。
 
 **运行结果**
+将预编译模型文件夹和预编译执行文件夹拷贝到板端，当前以axcl_aarch64为例：
 
 ```
-(base) axera@raspberrypi:~/melotts.axcl $ ./install/melotts
-encoder: ./models/encoder.onnx
-decoder: ./models/decoder.axmodel
-lexicon: ./models/lexicon.txt
-token: ./models/tokens.txt
-sentence: 爱芯元智半导体股份有限公司，致力于打造世界领先的人工智能感知与边缘计算芯片。服务智慧城市、智能驾驶、机器人的海量普惠的应用
-wav: output.wav
-speed: 0.800000
-sample_rate: 44100
-Load encoder
-Load decoder model
-Encoder run take 191.25ms
-decoder slice num: 9
-Decode slice(1/9) take 39.90ms
-Decode slice(2/9) take 39.66ms
-Decode slice(3/9) take 39.98ms
-Decode slice(4/9) take 39.57ms
-Decode slice(5/9) take 40.28ms
-Decode slice(6/9) take 39.68ms
-Decode slice(7/9) take 39.59ms
-Decode slice(8/9) take 39.58ms
-Decode slice(9/9) take 41.11ms
-Saved audio to output.wav
-(base) axera@raspberrypi:~/melotts.axcl $
+(base) axera@raspberrypi:~/ax_tts_api $ ./build_ax8850_aarch64/main -l zh -t "一切有为法，如梦幻泡影，如露亦如电，应作如是观" -o zh.wav
+================================
+test_zh:
+input text: 一切有为法，如梦幻泡影，如露亦如电，应作如是观
+output duration: 4.18 seconds
+output file: zh.wav
 ```

@@ -33,7 +33,7 @@ axclError axclInit(const char *config);
 
 ---
 (axclfinalize)=
-#### axclFinailze
+#### axclFinalize
 
 ```c
 axclError axclFinalize();
@@ -46,7 +46,7 @@ axclError axclFinalize();
 **限制**：
 
 - 和 [`axclInit`](#axclinit) 成对调用。
-- 应用进程退出前，应显示调用本接口去初始化。
+- 应用进程退出前，应显式调用本接口去初始化。
 - 对于C++应用，不建议在析构函数中调用，否则在进程退出时可能因为单例析构顺序不确定导致进程异常退出。
 
 ---
