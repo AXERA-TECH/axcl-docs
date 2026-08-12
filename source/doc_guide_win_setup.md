@@ -147,20 +147,20 @@ CMAKE command: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFI
 -- Looking for pthread_create in pthread
 -- Looking for pthread_create in pthread - not found
 -- Found Threads: TRUE
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/logger/generated/axcl_logger_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_memory_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_runtime_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_sys_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_run_usrworker_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_dmadim_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_run_model_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_lite_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_ppl_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_transcode_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_hvcp_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_vdec_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_ffmpeg_venc_version.rc (version: 3.9.0)
--- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_ffmpeg_vdec_version.rc (version: 3.9.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/logger/generated/axcl_logger_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_memory_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_runtime_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_sys_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_run_usrworker_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_dmadim_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_run_model_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_lite_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_ppl_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_transcode_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_hvcp_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_sample_vdec_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_ffmpeg_venc_version.rc (version: 3.16.0)
+-- Configured Windows version file: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64/sample/generated/axcl_ffmpeg_vdec_version.rc (version: 3.16.0)
 -- Configuring done (4.6s)
 -- Generating done (0.2s)
 -- Build files have been written to: D:/code/axcl/axcl.win64/axcl/build/out/axcl_win_x64
@@ -231,6 +231,40 @@ PS D:\code\axcl\axcl.win64\axcl\scripts>
 
 
 
+## 发布包制作
+
+Windows 发布包通过以下脚本制作：
+
+| 脚本 | 说明 |
+| --- | --- |
+| `scripts/build_installer.py` | 生成 Windows installer |
+| `scripts/pack_win64.py` | 打包 Windows 发布目录 |
+| `scripts/install_axcl.nsi` | NSIS 安装脚本 |
+
+示例：
+
+```powershell
+PS D:\code\axcl\axcl.win64\axcl\scripts> python .\pack_win64.py
+PS D:\code\axcl\axcl.win64\axcl\scripts> python .\build_installer.py axcl.win64.zip AX650_card_V3.9.0.pac V3.9.0
+```
+
+## 自动测试
+
+Windows 自动测试使用以下脚本和配置：
+
+| 文件 | 说明 |
+| --- | --- |
+| `scripts/test_win64.py` | Windows 自动测试入口 |
+| `scripts/test_win64.json` | Windows 自动测试配置 |
+
+示例：
+
+```powershell
+PS D:\code\axcl\axcl.win64\axcl\scripts> python .\test_win64.py --config .\test_win64.json
+```
+
+测试脚本输出通过文件保存，便于保留完整日志。
+
 ## 应用开发
 
 -  推荐使用**msvc17**(即VS2022)编译工具链，不推荐mingw
@@ -263,6 +297,43 @@ axcl
 
 
 
+## Crash dump
+
+Windows 平台支持 crash dump。应用异常退出时可生成 `.dmp` 文件用于定位问题。
+
+### 接口
+
+```c
+#include "axcl_crashdump.h"
+
+axclInitializeCrashDump(nullptr);
+
+// 应用退出前可调用
+axclUninitializeCrashDump();
+```
+
+### 配置
+
+| 配置项 | 说明 |
+| --- | --- |
+| `AXCL_DUMP_DIR` | `.dmp` 文件输出目录 |
+| `AXCL_DUMP_TYPE` | dump 类型 |
+
+`AXCL_DUMP_TYPE` 支持：
+
+- `Normal`
+- `FullMemory`
+- `WithDataSegs`
+- `WithHandleData`
+- `WithIndirectMemory`
+
+多个类型可用逗号组合，例如：
+
+```powershell
+$env:AXCL_DUMP_DIR="D:\dump"
+$env:AXCL_DUMP_TYPE="Normal,WithDataSegs"
+```
+
 ## 辅助工具
 
 > [Windows工具包](https://hf-mirror.com/AXERA-TECH/testdata-boxdemo/resolve/main/windows%20develop%20kits.zip)
@@ -290,4 +361,10 @@ axcl
 
 ## FAQ
 
-待补充
+### 找不到 vnet driver
+
+Windows 发布包已移除 vnet driver，不需要再安装或查找 vnet driver。
+
+### Crash 后没有生成 `.dmp`
+
+确认应用已调用 `axclInitializeCrashDump(nullptr)`，并检查 `AXCL_DUMP_DIR` 指定目录是否存在且当前用户有写权限。

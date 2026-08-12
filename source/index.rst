@@ -16,6 +16,7 @@ AXCL
   doc_introduction.md
   doc_guide_setup.md
   doc_guide_axcl_smi.md
+  doc_guide_vtty.md
   doc_guide_quick_start.md
   doc_guide_npu_samples.md
   doc_guide_npu_benchmark.md
@@ -23,5 +24,6 @@ AXCL
   doc_guide_axcl_api.md
   doc_guide_compile.md
   doc_guide_ffmpeg.md
+  doc_guide_pyaxcl.md
   doc_guide_faq.md
   doc_guide_win_setup.md

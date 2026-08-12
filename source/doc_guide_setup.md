@@ -109,16 +109,18 @@ SecureBoot disabled
 
 SDK已测试过的支持的主控如下表所示：
 
-| 主控                                | 芯片                             | 安装包                                                       |
-| ----------------------------------- | -------------------------------- | ------------------------------------------------------------ |
-| CentOS 9 stream                     | INTEL、AMD64                     | axcl_host_x86_64_Vxxx.rpm                                    |
-| Kylin V10 SP1                       | INTEL、AMD64、Phytium(ARM64)     | **x86_64**: axcl_host_x86_64_Vxxx.deb<br />**arm64**:  axcl_host_aarch64_Vxxx.deb |
-| [UOS](#setup_uos)                   | INTEL、AMD64                     | axcl_host_x86_64_Vxxx.deb                                    |
-| RK3588                              | ARM64                            | axcl_host_aarch64_Vxxx.deb                                   |
-| [RaspberryPi5](#setup_raspberrypi5) | ARM64                            | axcl_host_aarch64_Vxxx.deb                                   |
-| OpenEuler                           | INTEL、AMD64                     | axcl_host_x86_64_Vxxx.rpm                                    |
-| ubuntu 18.04/22.04                  | INTEL、AMD64                     | axcl_host_x86_64_Vxxx.deb                                    |
-| loongarch64                         | Loongson-3A6000 + debian14 forky | axcl_host_loongarch64_Vxxx.deb                               |
+| 主控/芯片 | 操作系统 | 架构  | deb安装包 |
+| --- | --- | --- | --- |
+| x86 处理器 (Intel / AMD) | CentOS 9 Stream | x86_64 | axcl_host_x86_64_Vxxx.rpm |
+| x86 处理器 (Intel / AMD) | OpenEuler | x86_64 | axcl_host_x86_64_Vxxx.rpm |
+| x86 处理器 (Intel / AMD) | Ubuntu (18.04 / 22.04) | x86_64 | axcl_host_x86_64_Vxxx.deb |
+| x86 处理器 (Intel / AMD) | [UOS / 统信软件](#setup_uos) | x86_64 | axcl_host_x86_64_Vxxx.deb |
+| x86 处理器 (Intel / AMD) | Kylin V10 SP1 (银河麒麟) | x86_64 | axcl_host_x86_64_Vxxx.deb |
+| 飞腾 (Phytium) | Kylin V10 SP1 (银河麒麟) | ARM64 (aarch64) | axcl_host_aarch64_Vxxx.deb |
+| 瑞芯微 (Rockchip) | Linux 衍生发行版 | ARM64 (aarch64) | axcl_host_aarch64_Vxxx.deb |
+| 树莓派 5 (Raspberry Pi 5) | Raspberry Pi OS / Linux | ARM64 (aarch64) | axcl_host_aarch64_Vxxx.deb |
+| 龙芯 (Loongson) 3A6000 | Debian 14 (Forky) | LoongArch64 | axcl_host_loongarch64_Vxxx.deb |
+| AX650N (本机/内置) | Embedded Linux | AX650 (ARM) | axcl_host_ax650_Vxxx.deb |
 
 :::{note}
 

@@ -14,12 +14,16 @@ EP设备的FLASH中需要预置SPL程序。当EP上电后，芯片ROM会首先�
    - 初始化和使能LTSSM（Link Training and Status State Machine）
 3. 和RC端建链和速率协商。
 
+::: {note}
+3.6.5以前的版本中spl的初始化流程是上边的1、2、3，但3.6.5以后的版本spl的初始化流程是2、1、3；
+:::
+
 若FLASH没有烧录SPL程序，请参考如下步骤：
 
 - FLASH烧录器（推荐）
 - AXDL
   - 按照硬件物料配置SPL，主要是DDR和FLASH。
-  - 按照[SDK编译](#sdk_compile)编译出 **AX650_card_Vxxx.axp**，比如*AX650_card_V3.6.2_20250603154858_20250604212603.axp*。
+  - 按照[SDK编译](#sdk_compile)编译出 **AX650_card_Vxxx.axp**，比如*AX650_card_V3.16.0_yyyymmddhhmmss.axp*。
   - 使用Windows烧录工具**AXDL**烧写这个axp镜像。
 
 
@@ -32,6 +36,98 @@ EP设备上电  ➡  AXDL下载开始  ➡ SYS_RSTN_IN 复位
 ![m.2_rstn](../res/m.2_rstn.png)
 
 :::
+
+
+
+### 替换子卡 pac
+
+以下场景需要替换子卡 pac：
+
+- 设备侧固件有更新 --- 如kernel、slave_daemon、slave_worker 等。
+- 需要验证新的子卡固件版本或临时问题修复包。
+
+ `ax650_card.pac` 的编译可参考 [SDK 编译](#sdk_compile) 章节生成。
+
+Host 安装后的 pac 路径为：
+
+```bash
+/lib/firmware/axcl/ax650_card.pac
+```
+
+替换方法：
+
+```bash
+$ sudo cp ax650_card.pac /lib/firmware/axcl/ax650_card.pac
+$ sync
+```
+
+替换后重新加载驱动或重启主机，使 Host 重新加载子卡固件。
+
+```bash
+$ sudo modprobe -r axcl_host
+$ sudo modprobe axcl_host
+```
+
+检验方法：
+
+```bash
+$ ls -l /lib/firmware/axcl/ax650_card.pac
+$ md5sum /lib/firmware/axcl/ax650_card.pac ax650_card.pac
+$ axcl-smi
+```
+
+若两个 `md5sum` 一致，且 `axcl-smi` 能正常识别设备，说明 pac 已替换并加载正常。
+
+
+
+### 替换 slave_daemon / slave_worker 并重新编译 pac
+
+`slave_daemon` 和 `slave_worker` 是子卡 rootfs 中的设备侧核心程序。修改或替换这两个程序后，需要重新打包 rootfs 并生成新的 pac。
+
+相关源码路径：
+
+```bash
+axcl/device/daemon/
+axcl/device/worker/
+```
+
+修改源码后，重新编译并安装 AXCL device 侧程序：
+
+```bash
+$ cd axcl/device
+$ make clean all install
+```
+
+编译安装后会更新到：
+
+```bash
+msp/out/bin/axclSlave/slave_daemon
+msp/out/bin/axclSlave/slave_worker
+```
+
+如果是直接替换已经编好的二进制，也替换到上述目录：
+
+```bash
+$ cp slave_daemon msp/out/bin/axclSlave/slave_daemon
+$ cp slave_worker msp/out/bin/axclSlave/slave_worker
+$ chmod +x msp/out/bin/axclSlave/slave_daemon
+$ chmod +x msp/out/bin/axclSlave/slave_worker
+```
+
+然后重新编译 pac：
+
+```bash
+$ cd build
+$ make p=AX650_card clean all install axp -j128
+```
+
+生成文件：
+
+```bash
+build/out/AX650_card/ax650_card.pac
+```
+
+编译完成后，可按“替换子卡 pac”小节将新的 `ax650_card.pac` 替换到 Host 的 `/lib/firmware/axcl/` 目录并重新加载驱动。
 
 
 
@@ -68,7 +164,7 @@ EP设备FLASH内预置了SPL程序，当EP上电后，SPL将初始化DDR，初�
 
 1. FLASH中是否有烧录过SPL程序？若没有，按照[SPL烧录](#spl_download)章节描述编译和烧录SPL。确认SPL执行正常的方法步骤如下：
    1. EP设备飞线UART TX/RX/GND，连接到PC
-   2. 给EP设备上电，串口是否有"**DPEI**"字符串(**D**: DDR初始化   **P**: PCIE驱动 **EI**:  Endpoint初始化)？比如: VNONORS**DPEI**。如果有DPEI，SPL工作正常。
+   2. 给EP设备上电，串口是否有"**DPEI**"字符串(**D**: DDR初始化   **P**: PCIE驱动 **EI**:  Endpoint初始化)？比如: VNONORS**DPEI**。如果有DPEI，SPL工作正常。(**注**：3.6.5以后spl里边ddr初始化在pcie初始化后边，所以正常上电后是"**PEI**"，而不是"**DPEI**")
 
 2. 将EP设备连接到主控后重启主控。
 3. 上述步骤仍然不能识别设备，可尝试更换PCIe插槽重启尝试，仍然无法识别，需要检查金手指以及联系硬件工程师排查（如测量PCIe时钟等）。
@@ -388,6 +484,75 @@ Linux version 6.8.0-57-generic (buildd@lcy02-amd64-104) (x86_64-linux-gnu-gcc-12
 $ apt install gcc-12
 $ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12
 ```
+
+
+
+(linux-header-not-match)=
+### 未安装对应版本 linux headers
+
+**问题现象**：
+
+![](../res/linux_headers_not_match.png)
+
+**原因说明**：
+
+AXCL 安装包会编译并安装 PCIe 驱动内核模块，编译内核模块时需要使用当前正在运行内核对应版本的 `linux headers`。如果未安装，或安装的 headers 版本和 `uname -r` 显示的内核版本不一致，驱动编译会失败。
+
+**处理方法**：
+
+ubuntu等debian系统：
+
+```bash
+$ uname -r
+$ sudo apt update
+$ sudo apt install -y linux-headers-$(uname -r)
+```
+
+centos等redhat系统：
+
+```bash
+$ uname -r
+$ sudo yum install -y kernel-headers-$(uname -r) kernel-devel-$(uname -r)
+```
+
+:::{note}
+如果软件源中没有当前 `uname -r` 对应的 headers/devel 包，先更新系统并重启到新内核，然后再安装对应版本 headers/devel。
+:::
+
+
+
+(upgrade-without-uninstall)=
+### 版本升级前未卸载旧版本
+
+**问题现象**：
+
+![](../res/upgrade_without_uninstall.png)
+
+**原因说明**：
+
+AXCL 版本升级时，如果旧版本未卸载，系统中可能残留旧版本驱动模块，导致新版本安装失败，比如：Module axcl host not found等。
+
+**处理方法**：
+
+安装新版本前先卸载旧版本，再安装新版本 AXCL 安装包。
+
+ubuntu等debian系统：
+
+```bash
+$ sudo apt remove axclhost
+$ sudo apt install -y ./xxx.deb
+```
+
+centos等redhat系统：
+
+```bash
+$ sudo yum remove axcl_host
+$ sudo yum install -y ./xxx.rpm
+```
+
+:::{important}
+SDK V3.4.0 以前的版本，ubuntu等debian系统请使用 `sudo dpkg -r axclhost` 卸载；centos等redhat系统请使用 `sudo rpm -e axcl_host` 卸载（**注**：如果卸载时出现某个驱动在使用，需要把使用该驱动的进程杀掉再卸载，最终确保`lsmod | grep ax` 没有axcl相关的驱动）。
+:::
 
 
 

@@ -60,3 +60,49 @@ SDK FFmpeg基于7.1版本开发，并提供了编译后的so和ffmpeg bin文件�
      lib: axcl/out/axcl_linux_x86/lib/ffmpeg
      bin: axcl/out/axcl_linux_x86/bin/ffmpeg
      ```
+
+   - loongarch64
+
+     ```bash
+     cd axcl/3rdparty/ffmpeg
+     make host=loongarch64 clean all install
+     ```
+
+     目标文件路径：
+
+     ```
+     lib: axcl/out/axcl_linux_loongarch64/lib/ffmpeg
+     bin: axcl/out/axcl_linux_loongarch64/bin/ffmpeg
+     ```
+
+## Sample
+
+### VDEC
+
+源码路径：`sample/ffmpeg/vdec/`，源码文件：`sample_ffmpeg_vdec.cpp`。
+
+### VENC
+
+源码路径：`sample/ffmpeg/venc/`，源码文件：`sample_ffmpeg_venc.cpp`。
+
+### VDEC + IVPS
+
+源码路径：`sample/ffmpeg/vdec_ivps/`，编译后可执行程序为 `axcl_sample_ffmpeg_vdec_ivps`。
+
+查看帮助：
+
+```bash
+/opt/bin/axcl/axcl_sample_ffmpeg_vdec_ivps -h
+```
+
+H.264 解码并通过 `ax_scale` 缩放：
+
+```bash
+/opt/bin/axcl/axcl_sample_ffmpeg_vdec_ivps -c h264_axdec -i 1080p.h264 -f "ax_scale=1280:720,hwdownload,format=nv12" -y 1
+```
+
+H.265 解码并通过 `ax_scale` 缩放：
+
+```bash
+/opt/bin/axcl/axcl_sample_ffmpeg_vdec_ivps -c hevc_axdec -i 1080p.hevc -f "ax_scale=1280:720,hwdownload,format=nv12" -y 1
+```

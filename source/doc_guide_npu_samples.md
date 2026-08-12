@@ -1,5 +1,7 @@
 # NPU 示例
 
+本章涉及的预编译模型、ModelZoo 等模型资料统一参考：[Hugging Face](https://huggingface.co/AXERA-TECH)。
+
 ## NPU 工具链
 
 经常在 AI 芯片上部署算法模型的同学都知道，想要把模型部署到芯片上的 NPU 中运行，都需要使用芯片原厂提供的 NPU 工具链，这里我们使用的是 Pulsar2。
@@ -21,8 +23,7 @@ AXCL-Samples 由 爱芯元智 主导开发。该项目实现了常见的深度�
 
 ### 获取示例
 
-- AXCL-Samples 的预编译 ModelZoo 请参考
-  - [百度网盘](https://pan.baidu.com/s/1MAAKElTI2wgiDehvd2Q1lA?pwd=p1k6)
+- AXCL-Samples 源码请参考 [axcl-samples](https://github.com/AXERA-TECH/axcl-samples)。
 
 ### YOLO11x
 
@@ -168,7 +169,6 @@ Repeat 1 times, avg time 44.02 ms, max_time 44.02 ms, min_time 44.02 ms
 ## LLM 示例
 
 - 模型转请参考[大模型编译文档](https://pulsar2-docs.readthedocs.io/zh-cn/latest/appendix/build_llm.html)
-- 预编译 ModelZoo-LLM 请参考[百度网盘](https://pan.baidu.com/s/1grJNjcpUln-fDBisJxuvCA?pwd=mys8)
 - 上板执行程序 main_pcie 请参考[ax-llm pcie 分支](https://github.com/AXERA-TECH/ax-llm/tree/axcl-llm-prefill)
 
 ### Tokenizer 解析器
@@ -375,9 +375,7 @@ git clone https://github.com/ml-inory/whisper.axcl.git
 
 **预编译模型**
 
-预编译模型下载([百度网盘](https://pan.baidu.com/s/1tOHVMZCin0A68T5HmKRJyg?pwd=axyz))
-
-下载后放到 models 下
+模型资料参考本章开头统一入口，下载后放到 models 下。
 
 **编译**
 

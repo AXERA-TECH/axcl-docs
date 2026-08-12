@@ -11,7 +11,7 @@
 
 - PC： 推荐 ubuntu-22.04.1
 - gcc version 9.2.1 20191025
-- SDK开发包,即：AX650_SDK_Vx.xx.xx.tgz, 比如:AX650_SDK_V3.6.2_20250603154858_NO4873.tgz
+- SDK开发包,即：AX650_SDK_Vx.xx.xx.tgz, 比如:AX650_SDK_V3.16.0_yyyymmddhhmmss_NOxxxx.tgz
 
 :::{tip}
 关于工具链的下载、安装和配置请参考<<AX SDK 使用说明.docx>>
@@ -65,13 +65,14 @@
 
    ```bash
    # 一次全编译
-   make clean && make host=x86 clean && make host=arm64 clean
-   make all install -j128 && make host=x86 all install -j128 && make host=arm64 all install -j128
+   make clean && make host=x86 clean && make host=arm64 clean && make host=loongarch64 clean
+   make all install -j128 && make host=x86 all install -j128 && make host=arm64 all install -j128 && make host=loongarch64 all install -j128
 
    # 或者依次编译各个主控
    make clean && make all install -j128
    make host=x86 clean && make host=x86 all install -j128
    make host=arm64 clean && make host=arm64 all install -j128
+   make host=loongarch64 clean && make host=loongarch64 all install -j128
    ```
 
 | 编译选项                    | 说明                                           | 编译输出路径                  |
@@ -79,6 +80,32 @@
 | `host=ax650`或者省略`host=` | 适用于主控芯片是AX650N                         | axcl/out/**axcl_linux_ax650** |
 | `host=x86`                  | 适用于主控芯片是X86架构，比如INTEL、AMD64      | axcl/out/**axcl_linux_x86**   |
 | `host=arm64`                | 适用于其他ARM64主控芯片，比如RK3588、树莓派5等 | axcl/out/**axcl_linux_arm64** |
+| `host=loongarch64`          | 适用于LoongArch64主控                         | axcl/out/**axcl_linux_loongarch64** |
+
+### Python wheel 编译
+
+pyAXCL wheel 输出路径为 `axcl/out/python/`。
+
+#### Linux
+
+```bash
+cd axcl/python
+./build.sh
+```
+
+#### Windows CMD
+
+```bat
+cd axcl\python
+build.bat
+```
+
+#### Windows PowerShell
+
+```powershell
+cd axcl\python
+.\build.ps1
+```
 
 ### 设备(DEVICE)编译
 

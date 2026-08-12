@@ -59,13 +59,33 @@ axclError axclrtGetVersion(int32_t *major, int32_t *minor, int32_t *patch);
 
 **使用说明**：
 
-查询系统版本号，同步接口。
+查询系统版本号，同步接口，如 `3.16.0`。
 
 **参数**：
 
 - `major [OUT]`：主版本号。
 - `minor[OUT]`：子版本号。
 - `patch [OUT]`：patch版本号。
+
+**限制**：
+
+无特别限制。
+
+---
+(axclrtgetfullversion)=
+#### axclrtGetFullVersion
+
+```c
+const char *axclrtGetFullVersion();
+```
+
+**使用说明**：
+
+查询系统完整版本号，同步接口，如 `V3.16.0_yyyymmddhhmmss`。
+
+**版本说明**：
+
+该接口从 `V3.10.1` 开始提供；`V3.6.5` 中没有该接口。
 
 **限制**：
 
@@ -1774,6 +1794,100 @@ axclError axcl_ppl_set_attr(axcl_ppl ppl, const char* name, const void* attr);
 0 (AXCL_SUCC)  if success, otherwise failure.
 
 
+
+## Windows crashdump
+
+Windows 平台可以使用 crashdump 接口在应用异常退出时生成 `.dmp` 文件。
+
+**版本说明**：
+
+该功能从 `V3.11.0` 开始提供；`V3.6.5` 中没有该功能。
+
+### 头文件
+
+```c
+#include "axcl_crashdump.h"
+```
+
+### 配置结构体
+
+```c
+typedef struct {
+    const char* dump_dir;
+    const char* dump_type;
+} axclCrashDumpConfig;
+```
+
+| 字段 | 说明 |
+| --- | --- |
+| `dump_dir` | `.dmp` 文件输出目录，可传入 `nullptr` |
+| `dump_type` | dump 类型，可传入 `nullptr`，也可以使用逗号组合多个类型 |
+
+配置优先级：环境变量 > 接口配置 > 默认值。
+
+| 环境变量 | 说明 |
+| --- | --- |
+| `AXCL_DUMP_DIR` | `.dmp` 文件输出目录 |
+| `AXCL_DUMP_TYPE` | dump 类型 |
+
+| dump 类型 | 说明 |
+| --- | --- |
+| `Normal` | 基础 dump，推荐默认使用 |
+| `FullMemory` | 完整内存 dump，文件较大 |
+| `WithDataSegs` | 包含数据段 |
+| `WithHandleData` | 包含句柄数据 |
+| `WithIndirectMemory` | 包含间接引用内存 |
+
+(axclinitializecrashdump)=
+### axclInitializeCrashDump
+
+```c
+bool axclInitializeCrashDump(const axclCrashDumpConfig* config);
+```
+
+**使用说明**：
+
+初始化 crashdump 功能，注册全局异常处理。应用异常退出时自动生成 `.dmp` 文件。该接口线程安全，可以重复调用，只有第一次调用生效。
+
+**参数**：
+
+- `config [IN]`：crashdump 配置，传入 `nullptr` 时使用环境变量或默认配置。
+
+**返回值**：
+
+- `true`：初始化成功。
+- `false`：初始化失败。
+
+**限制**：
+
+仅 Windows 平台支持。
+
+---
+
+(axcluninitializecrashdump)=
+### axclUninitializeCrashDump
+
+```c
+void axclUninitializeCrashDump(void);
+```
+
+**使用说明**：
+
+去初始化 crashdump 功能。该接口通常用于测试或应用主动清理；不调用时，进程退出也会自动清理。
+
+**参数**：
+
+无。
+
+**返回值**：
+
+无。
+
+**限制**：
+
+仅 Windows 平台支持。
+
+---
 
 ## 错误代码
 

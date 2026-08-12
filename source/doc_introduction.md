@@ -53,6 +53,7 @@ AXCL 运行时库有 Device、Context、Stream、Task 等基本概念，其关�
 :::
 
 
+(m2_card_xinjian)=
 ## 参考硬件
 
 ### AX-M1
